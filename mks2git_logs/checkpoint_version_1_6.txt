@@ -1,0 +1,328 @@
+FILE: pyedm/edmAbstractShape.py
+	VERSION: 1.3
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Sep 25, 2017 5:26:13 PM
+		DESC: as change package, , 
+		LABELS: 
+
+FILE: pyedm/edmApp.py
+	VERSION: 1.4
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Sep 25, 2017 5:26:35 PM
+		DESC: as change package, , 
+		LABELS: 
+
+FILE: pyedm/edmColors.py
+	VERSION: 1.2
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Sep 25, 2017 5:26:36 PM
+		DESC: as change package, , 
+		LABELS: 
+
+FILE: pyedm/edmFont.py
+	VERSION: 1.2
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Sep 25, 2017 5:26:36 PM
+		DESC: as change package, , 
+		LABELS: 
+
+FILE: pyedm/edmMacro.py
+	VERSION: 1.2
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Sep 25, 2017 5:26:36 PM
+		DESC: as change package, , 
+		LABELS: 
+
+FILE: pyedm/edmObject.py
+	VERSION: 1.2
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Sep 25, 2017 5:26:36 PM
+		DESC: as change package, , 
+		LABELS: 
+
+FILE: pyedm/edmPVcalc.py
+	VERSION: 1.6
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Sep 25, 2017 5:26:36 PM
+		DESC: as change package, , 
+		LABELS: 
+
+FILE: pyedm/edmPVepics.py
+	VERSION: 1.4
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Sep 25, 2017 5:26:36 PM
+		DESC: as change package, , 
+		LABELS: 
+
+FILE: pyedm/edmPVfactory.py
+	VERSION: 1.4
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Sep 25, 2017 5:26:37 PM
+		DESC: as change package, , 
+		LABELS: 
+
+FILE: pyedm/edmPVlocal.py
+	VERSION: 1.6
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Sep 25, 2017 5:26:37 PM
+		DESC: as change package, , 
+		LABELS: 
+
+FILE: pyedm/edmScreen.py
+	VERSION: 1.2
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Sep 25, 2017 5:26:37 PM
+		DESC: as change package, , 
+		LABELS: 
+
+FILE: pyedm/edmWidget.py
+	VERSION: 1.5
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Sep 25, 2017 5:26:37 PM
+		DESC: as change package, , 
+		LABELS: 
+
+FILE: pyedm/edmWindowWidget.py
+	VERSION: 1.3
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Sep 25, 2017 5:26:37 PM
+		DESC: as change package, , 
+		LABELS: 
+
+FILE: pyedm/edmparsecalc.py
+	VERSION: 1.3
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Sep 25, 2017 5:26:36 PM
+		DESC: as change package, , 
+		LABELS: 
+
+FILE: pyedm/modules/controlbar.py
+	VERSION: 1.4
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Sep 25, 2017 5:26:37 PM
+		DESC: as change package, , 
+		LABELS: 
+
+FILE: pyedm/modules/controlbutton.py
+	VERSION: 1.5
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Sep 25, 2017 5:26:37 PM
+		DESC: as change package, , 
+		LABELS: 
+
+FILE: pyedm/modules/controlchoicebutton.py
+	VERSION: 1.2
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Sep 25, 2017 5:26:38 PM
+		DESC: as change package, , 
+		LABELS: 
+
+FILE: pyedm/modules/controlmenubutton.py
+	VERSION: 1.2
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Sep 25, 2017 5:26:38 PM
+		DESC: as change package, , 
+		LABELS: 
+
+FILE: pyedm/modules/controlmenumux.py
+	VERSION: 1.2
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Sep 25, 2017 5:26:38 PM
+		DESC: as change package, , 
+		LABELS: 
+
+FILE: pyedm/modules/controlmessagebutton.py
+	VERSION: 1.2
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Sep 25, 2017 5:26:38 PM
+		DESC: as change package, , 
+		LABELS: 
+
+FILE: pyedm/modules/controlradiobutton.py
+	VERSION: 1.2
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Sep 25, 2017 5:26:38 PM
+		DESC: as change package, , 
+		LABELS: 
+
+FILE: pyedm/modules/controlshell.py
+	VERSION: 1.3
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Sep 25, 2017 5:26:38 PM
+		DESC: as change package, , 
+		LABELS: 
+
+FILE: pyedm/modules/controltext.py
+	VERSION: 1.3
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Sep 25, 2017 5:26:38 PM
+		DESC: as change package, , 
+		LABELS: 
+
+FILE: pyedm/modules/controltextentry.py
+	VERSION: 1.2
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Sep 25, 2017 5:26:38 PM
+		DESC: as change package, , 
+		LABELS: 
+
+FILE: pyedm/modules/controlupdownbutton.py
+	VERSION: 1.4
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Sep 25, 2017 5:26:39 PM
+		DESC: as change package, , 
+		LABELS: 
+
+FILE: pyedm/modules/displayarc.py
+	VERSION: 1.2
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Sep 25, 2017 5:26:39 PM
+		DESC: as change package, , 
+		LABELS: 
+
+FILE: pyedm/modules/displaycircle.py
+	VERSION: 1.3
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Sep 25, 2017 5:26:39 PM
+		DESC: as change package, , 
+		LABELS: 
+
+FILE: pyedm/modules/displaydynamicsymbol.py
+	VERSION: 1.3
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Sep 25, 2017 5:26:39 PM
+		DESC: as change package, , 
+		LABELS: 
+
+FILE: pyedm/modules/displaygroup.py
+	VERSION: 1.2
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Sep 25, 2017 5:26:39 PM
+		DESC: as change package, , 
+		LABELS: 
+
+FILE: pyedm/modules/displayimage.py
+	VERSION: 1.3
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Sep 25, 2017 5:26:39 PM
+		DESC: as change package, , 
+		LABELS: 
+
+FILE: pyedm/modules/displayline.py
+	VERSION: 1.3
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Sep 25, 2017 5:26:39 PM
+		DESC: as change package, , 
+		LABELS: 
+
+FILE: pyedm/modules/displaypip.py
+	VERSION: 1.4
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Sep 25, 2017 5:26:40 PM
+		DESC: as change package, , 
+		LABELS: 
+
+FILE: pyedm/modules/displayrect.py
+	VERSION: 1.3
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Sep 25, 2017 5:26:40 PM
+		DESC: as change package, , 
+		LABELS: 
+
+FILE: pyedm/modules/displayrelateddisplay.py
+	VERSION: 1.3
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Sep 25, 2017 5:26:40 PM
+		DESC: as change package, , 
+		LABELS: 
+
+FILE: pyedm/modules/displaysymbol.py
+	VERSION: 1.3
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Sep 25, 2017 5:26:40 PM
+		DESC: as change package, , 
+		LABELS: 
+
+FILE: pyedm/modules/displaytext-regtext.py
+	VERSION: 1.2
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Sep 25, 2017 5:26:40 PM
+		DESC: as change package, , 
+		LABELS: 
+
+FILE: pyedm/modules/displaytext.py
+	VERSION: 1.3
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Sep 25, 2017 5:26:40 PM
+		DESC: as change package, , 
+		LABELS: 
+
+FILE: pyedm/modules/monitorXYgraph.py
+	VERSION: 1.9
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Sep 25, 2017 5:26:41 PM
+		DESC: as change package
+		LABELS: 
+
+	VERSION: 1.8
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Jun 5, 2015 3:08:17 PM
+		DESC: check for None pointer; conditional debugging, , 
+		LABELS: 
+
+FILE: pyedm/modules/monitoractiveMessageBoxClass.py
+	VERSION: 1.2
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Sep 25, 2017 5:26:40 PM
+		DESC: as change package, , 
+		LABELS: 
+
+FILE: pyedm/modules/monitoractiveXtext.py
+	VERSION: 1.2
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Sep 25, 2017 5:26:41 PM
+		DESC: as change package, , 
+		LABELS: 
+
+FILE: pyedm/modules/monitorbar.py
+	VERSION: 1.2
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Sep 25, 2017 5:26:41 PM
+		DESC: as change package, , 
+		LABELS: 
+
+FILE: pyedm/modules/monitorbyte.py
+	VERSION: 1.2
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Sep 25, 2017 5:26:41 PM
+		DESC: as change package, , 
+		LABELS: 
+
+FILE: pyedm/modules/monitordial.py
+	VERSION: 1.2
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Sep 25, 2017 5:26:41 PM
+		DESC: as change package, , 
+		LABELS: 
+
+FILE: pyedm/modules/monitortext-regtext.py
+	VERSION: 1.2
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Sep 25, 2017 5:26:41 PM
+		DESC: as change package, , 
+		LABELS: 
+
+FILE: pyedm/modules/monitortext.py
+	VERSION: 1.5
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Sep 25, 2017 5:26:41 PM
+		DESC: as change package, , 
+		LABELS: 
+
+FILE: setup.py
+	VERSION: 1.4
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Sep 25, 2017 5:26:12 PM
+		DESC: as change package, , 
+		LABELS: 
+

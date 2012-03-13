@@ -1,0 +1,8 @@
+Test directory for edm screens.
+
+The file 'test.db' can be run from softIoc to provide PV's for the test files. This should be changed
+to have a prefix on all the PV's to avoid conflicts.
+
+The files testDisplay.edl, testMonitor.edl, and testControl.edl cover the different widgets available
+with edm 1-10-f. They use the PV's from test.db. Most of the other files are included either directly
+or indirectly by the test edl files.

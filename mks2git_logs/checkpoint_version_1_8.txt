@@ -1,0 +1,119 @@
+FILE: pyedm/edmColors.py
+	VERSION: 1.4
+		AUTHOR: Glen Wright (wrightg)
+		DATE: May 7, 2018 12:00:25 PM
+		DESC: start python 2 and python 3 compatibility changes, , 
+		LABELS: 
+
+FILE: pyedm/edmDisplay.py
+	VERSION: 1.3
+		AUTHOR: Glen Wright (wrightg)
+		DATE: May 7, 2018 12:00:25 PM
+		DESC: start python 2 and python 3 compatibility changes, , 
+		LABELS: 
+
+FILE: pyedm/edmEditWidget.py
+	VERSION: 1.2
+		AUTHOR: Glen Wright (wrightg)
+		DATE: May 7, 2018 12:00:26 PM
+		DESC: start python 2 and python 3 compatibility changes, , 
+		LABELS: 
+
+FILE: pyedm/edmMacro.py
+	VERSION: 1.4
+		AUTHOR: Glen Wright (wrightg)
+		DATE: May 7, 2018 12:00:26 PM
+		DESC: start python 2 and python 3 compatibility changes, , 
+		LABELS: 
+
+FILE: pyedm/edmObject.py
+	VERSION: 1.4
+		AUTHOR: Glen Wright (wrightg)
+		DATE: May 7, 2018 12:00:26 PM
+		DESC: start python 2 and python 3 compatibility changes, , 
+		LABELS: 
+
+FILE: pyedm/edmPVcalc.py
+	VERSION: 1.8
+		AUTHOR: Glen Wright (wrightg)
+		DATE: May 7, 2018 12:00:26 PM
+		DESC: start python 2 and python 3 compatibility changes, , 
+		LABELS: 
+
+FILE: pyedm/edmPVepics.py
+	VERSION: 1.6
+		AUTHOR: Glen Wright (wrightg)
+		DATE: May 7, 2018 12:00:26 PM
+		DESC: start python 2 and python 3 compatibility changes, , 
+		LABELS: 
+
+FILE: pyedm/edmPVfactory.py
+	VERSION: 1.6
+		AUTHOR: Glen Wright (wrightg)
+		DATE: May 7, 2018 12:00:26 PM
+		DESC: start python 2 and python 3 compatibility changes, , 
+		LABELS: 
+
+FILE: pyedm/edmPVlocal.py
+	VERSION: 1.8
+		AUTHOR: Glen Wright (wrightg)
+		DATE: May 7, 2018 12:00:27 PM
+		DESC: start python 2 and python 3 compatibility changes, , 
+		LABELS: 
+
+FILE: pyedm/edmPopupEntry.py
+	VERSION: 1.4
+		AUTHOR: Glen Wright (wrightg)
+		DATE: May 7, 2018 12:00:26 PM
+		DESC: start python 2 and python 3 compatibility changes, , 
+		LABELS: 
+
+FILE: pyedm/edmScreen.py
+	VERSION: 1.4
+		AUTHOR: Glen Wright (wrightg)
+		DATE: May 7, 2018 12:00:27 PM
+		DESC: start python 2 and python 3 compatibility changes, , 
+		LABELS: 
+
+FILE: pyedm/edmWidget.py
+	VERSION: 1.7
+		AUTHOR: Glen Wright (wrightg)
+		DATE: May 7, 2018 12:00:27 PM
+		DESC: start python 2 and python 3 compatibility changes, , 
+		LABELS: 
+
+FILE: pyedm/edmWidgetSupport.py
+	VERSION: 1.3
+		AUTHOR: Glen Wright (wrightg)
+		DATE: May 7, 2018 12:00:27 PM
+		DESC: start python 2 and python 3 compatibility changes, , 
+		LABELS: 
+
+FILE: pyedm/edmWindowWidget.py
+	VERSION: 1.5
+		AUTHOR: Glen Wright (wrightg)
+		DATE: May 7, 2018 12:00:27 PM
+		DESC: start python 2 and python 3 compatibility changes, , 
+		LABELS: 
+
+FILE: pyedm/edmparsecalc.py
+	VERSION: 1.5
+		AUTHOR: Glen Wright (wrightg)
+		DATE: May 7, 2018 12:00:26 PM
+		DESC: start python 2 and python 3 compatibility changes, , 
+		LABELS: 
+
+FILE: testDir/testControl.edl
+	VERSION: 1.3
+		AUTHOR: Glen Wright (wrightg)
+		DATE: May 7, 2018 12:00:27 PM
+		DESC: start python 2 and python 3 compatibility changes, , 
+		LABELS: 
+
+FILE: testDir/testMonitor.edl
+	VERSION: 1.4
+		AUTHOR: Glen Wright (wrightg)
+		DATE: May 7, 2018 12:00:28 PM
+		DESC: start python 2 and python 3 compatibility changes, , 
+		LABELS: 
+

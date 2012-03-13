@@ -1,0 +1,116 @@
+
+record(ai, "textPV")
+{
+	field(PINI, "1")
+	field(VAL, "5.1")
+	field(PREC, "2")
+	field(LOPR, "0")
+	field(HOPR, "100")
+}
+
+record(ai, "testPV")
+{
+	field(PINI, "1")
+	field(VAL, "11.33")
+	field(PREC, "2")
+	field(LOPR, "0")
+	field(HOPR, "100")
+}
+record(ao, "controlPV")
+{
+	field(PREC, "2")
+	field(OUT, "ControlPV PP")
+	field(LOPR, "0")
+	field(HOPR, "100")
+	field(LOW, "10")
+	field(LSV, "MINOR")
+}
+
+record(bo, "destinationPV")
+{
+	field(ONAM, "One")
+	field(ZNAM, "Zero")
+}
+
+record(ao, "ControlPV")
+{
+	field(PREC, "2")
+	field(LOPR, "0")
+	field(HOPR, "100")
+}
+record(ai, "readbackPV")
+{
+	field(INP, "ControlPV CP")
+	field(PREC, "2")
+	field(LOPR, "0")
+	field(HOPR, "100")
+}
+record(ai, "ReadbackPV")
+{
+	field(INP, "ControlPV CP")
+	field(PREC, "2")
+	field(LOPR, "0")
+	field(HOPR, "100")
+}
+record(ao, "colorPV")
+{
+	field(PREC, "2")
+	field(LOPR, "0")
+	field(HOPR, "100")
+}
+record(ao, "visibilityPV")
+{
+	field(PREC, "2")
+	field(LOPR, "0")
+	field(HOPR, "100")
+}
+record(ao, "NullPV")
+{
+	field(PREC, "2")
+	field(LOPR, "0")
+	field(HOPR, "100")
+}
+record(mbbo, "menuPV")
+{
+	field(ZRST, "Zero")
+	field(ONST, "One")
+	field(TWST, "Two")
+	field(THST, "Three")
+	field(FRST, "Four")
+	field(OUT, "readmenuPV PP")
+}
+record(mbbi, "readmenuPV")
+{
+	field(ZRST, "Zero")
+	field(ONST, "One")
+	field(TWST, "Two")
+	field(THST, "Three")
+	field(FRST, "Four")
+}
+record(bo, "boPV")
+{
+	field(ZNAM, "Zero")
+	field(ONAM, "One")
+}
+record(bi, "biPV")
+{
+	field(INP, "boPV CP")
+	field(ZNAM, "Zero")
+	field(ONAM, "One")
+}
+record(mbbiDirect, "mbbiPV")
+{
+}
+record(mbboDirect, "mbboPV")
+{
+}
+record(stringout, "StringPV")
+{
+}
+record(mbbo, "PVselectEmbeddedWindow")
+{
+	field(ZRST, "Zero")
+	field(ONST, "One")
+	field(TWST, "Two")
+	field(THST, "THREE!")
+}

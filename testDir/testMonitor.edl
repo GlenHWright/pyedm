@@ -1,0 +1,375 @@
+4 0 0
+beginScreenProperties
+major 4
+minor 0
+release 0
+x 810
+y 255
+w 707
+h 686
+font "helvetica-medium-r-18.0"
+ctlFont "helvetica-medium-r-18.0"
+btnFont "helvetica-medium-r-18.0"
+fgColor index 14
+bgColor index 3
+textColor index 14
+ctlFgColor1 index 14
+ctlFgColor2 index 0
+ctlBgColor1 index 0
+ctlBgColor2 index 14
+topShadowColor index 0
+botShadowColor index 14
+endScreenProperties
+
+# (Meter)
+object activeMeterClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 45
+y 10
+w 255
+h 167
+caseColor index 6
+scaleColor index 14
+labelColor index 14
+fgColor index 14
+bgColor index 3
+topShadowColor index 2
+botShadowColor index 7
+readPv "$(P)readbackPV"
+label "hello, tokyo"
+labelType "pvName"
+showScale
+scaleFormat "FFloat"
+scaleLimitsFromDb
+useDisplayBg
+labelIntervals 5
+majorIntervals 2
+minorIntervals 2
+complexNeedle
+3d
+scaleMax 10
+labelFontTag "helvetica-medium-r-18.0"
+scaleFontTag "helvetica-medium-r-18.0"
+meterAngle 270
+endObjectProperties
+
+# (Bar)
+object activeBarClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 418
+y 17
+w 135
+h 87
+indicatorColor index 14
+fgColor index 14
+bgColor index 3
+indicatorPv "$(P)readbackPV"
+label "label"
+showScale
+origin 50
+font "helvetica-medium-r-18.0"
+labelTicks 4
+majorTicks 2
+minorTicks 2
+border
+precision 0
+min 0
+max 100
+scaleFormat "FFloat"
+endObjectProperties
+
+# (Message Box)
+object activeMessageBoxClass
+beginObjectProperties
+major 4
+minor 0
+release 1
+x 61
+y 185
+w 200
+h 141
+fgColor index 14
+bgColor index 6
+2ndBgColor index 0
+topShadowColor index 0
+botShadowColor index 14
+indicatorPv "$(P)readbackPV"
+font "helvetica-medium-r-18.0"
+bufferSize 1000
+fileSize 100000
+flushTimerValue 600
+logFileName "/tmp/log.file.name"
+readOnly
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 64
+y 339
+w 196
+h 21
+controlPv "$(P)testPV"
+font "helvetica-medium-r-18.0"
+fgColor index 30
+bgColor index 15
+useDisplayBg
+autoHeight
+limitsFromDb
+nullPv "$(P)NullPV"
+nullColor index 0
+colorPv "$(P)colorPV"
+useHexPrefix
+objType "monitors"
+endObjectProperties
+
+# (X-Y Graph)
+object xyGraphClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+# Geometry
+x 62
+y 368
+w 273
+h 196
+# Appearance
+border
+graphTitle "xy Title"
+xLabel "x label"
+yLabel "y label"
+y2Label "y2 label"
+fgColor index 14
+bgColor index 0
+gridColor index 14
+font "helvetica-medium-r-18.0"
+# Operating Modes
+plotMode "plotLastNPts"
+nPts 20
+triggerPv "LOC\\triggerPV=i:0"
+resetPv "LOC\\resetPV=i:0"
+# X axis properties
+showXAxis
+xAxisSrc "AutoScale"
+xMax 1
+# Y axis properties
+showYAxis
+yMax 1
+yLabelIntervals 2
+yMajorsPerLabel 2
+yMinorsPerMajor 2
+# Y2 axis properties
+showY2Axis
+y2AxisSrc "AutoScale"
+y2Max 1
+# Trace Properties
+numTraces 1
+yPv {
+  0 "$(P)readbackPV"
+}
+plotColor {
+  0 index 21
+}
+endObjectProperties
+
+# (Table)
+object activeTableClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 246
+y 574
+w 224
+h 93
+fgColor index 14
+bgColor index 0
+oddColBgColor index 0
+evenColBgColor index 14
+topShadowColor index 0
+botShadowColor index 14
+pv "testPV"
+font "helvetica-medium-r-18.0"
+endObjectProperties
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 401
+y 132
+w 191
+h 80
+controlPv "$(P)textPV"
+fgColor index 14
+bgColor index 0
+colorPv "$(P)colorPV"
+fill
+font "helvetica-medium-r-18.0"
+endObjectProperties
+
+# (RegTextupdate)
+object RegTextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 405
+y 222
+w 187
+h 51
+controlPv "$(P)textPV"
+fgColor index 14
+fgAlarm
+bgColor index 0
+colorPv "$(P)colorPV"
+font "helvetica-medium-r-18.0"
+endObjectProperties
+
+# Additional properties
+beginObjectProperties
+endObjectProperties
+
+# (Stripchart)
+object StripClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+# Geometry
+x 419
+y 289
+w 161
+h 165
+# Trace Properties
+numPvs 6
+yPv {
+  0 "$(P)firstPV"
+  1 "$(P)secondPV"
+  2 "$(P)thirdPV"
+}
+plotColor {
+  0 index 76
+  1 index 9
+  2 index 9
+  3 index 53
+  4 index 40
+  5 index 19
+}
+# Operating Modes
+updateTime 60
+# Appearance
+fgColor index 14
+bgColor index 0
+textColor index 14
+font "helvetica-medium-r-18.0"
+endObjectProperties
+
+# (Byte)
+object ByteClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 418
+y 471
+w 159
+h 68
+controlPv "$(P)mbbiPV"
+lineColor index 14
+onColor index 15
+offColor index 20
+numBits 8
+endObjectProperties
+
+# (Symbol)
+object activeSymbolClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 538
+y 602
+w 43
+h 43
+file "symbolFile.edl"
+numStates 3
+minValues {
+  1 1
+  2 2
+}
+maxValues {
+  0 1
+  1 2
+  2 3
+}
+controlPvs {
+  0 "$(P)mbbiPV"
+}
+numPvs 1
+colorPv "$(P)colorPV"
+useOriginalColors
+fgColor index 14
+bgColor index 0
+endObjectProperties
+
+# (Message Button)
+object activeMessageButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 61
+y 574
+w 74
+h 41
+fgColor index 14
+onColor index 5
+offColor index 5
+topShadowColor index 2
+botShadowColor index 7
+controlPv "LOC\\triggerPV=i:0"
+pressValue "1"
+releaseValue "0"
+onLabel "Redraw"
+offLabel "Redraw"
+3d
+font "helvetica-bold-r-14.0"
+endObjectProperties
+
+# (Message Button)
+object activeMessageButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 149
+y 574
+w 74
+h 41
+fgColor index 14
+onColor index 5
+offColor index 5
+topShadowColor index 2
+botShadowColor index 7
+controlPv "LOC\\resetPV=i:0"
+pressValue "1"
+releaseValue "0"
+onLabel "RESET"
+offLabel "Reset"
+3d
+font "helvetica-bold-r-14.0"
+endObjectProperties
+

@@ -1,0 +1,74 @@
+See the COPYRIGHT file in this directory for copyright information.
+
+see the INSTALL file for terse (but hopefully sufficient) installation instructions.
+
+To use pyEdm as a stand-alone display:
+
+setenv EDMCOLORFILE /where/my/edm/color/file/is/located/colors.list
+# e.g.  setenv EDMCOLORFILE /home/epics/edmBase1-10f/colors.list
+
+python -m edm test.edl
+
+macros can be set on the command line:
+
+python -m edm -m PREFIX=BOC0000:101 userScreen.edl
+
+displays the first CLS bakeout controller.
+
+If an edm class has not been implemented, pyedm will still run, but will
+leave a blank area for that class.
+
+It is possible to use the module to embed an EDM window within a QT application.
+I don't have a generic example, but I include a specific piece of working code:
+
+ - - - - - - - - - -
+import pyedm
+from PyQt4.QtCore import QTimer, SIGNAL
+from pyedm.edmWindowWidget import edmWindowWidget
+from epicsConnect import epicsConnectLib
+
+ecl = epicsConnectLib()
+
+# Macros, macros, everywhere!
+# There are two macro packages in play:
+# the first is the "EpicsConnect" macro package, used mostly
+# for setting PV name components but also used generally through IDA
+# for configuration options. This is what gets used with the "--macro"
+# command line arguments.
+# The second macro package is embedded in the edm support layer. The macros
+# at this layer support individual screen groups, but are not affected by
+# other screens or by the epicsConnect package, except here, where the edm
+# macro settings get a first scan through the epicsConnect macros.
+#
+class simpleParent(edmWindowWidget):
+    def __init__(self, parent=None):
+       edmWindowWidget.__init__(self,parent)
+       self.parentx = 0
+       self.parenty = 0
+
+def loadEdmScreen(file, macros=None, paths=None):
+    p = simpleParent()
+    if macros != None: macros = ecl.macro_expand(macros)
+    if file != None: file = ecl.macro_expand(file)
+    if paths != None: paths = ecl.macro_expand(paths)
+    pyedm.loadScreen(file, macros, parentWidget=p, dataPaths=paths)
+    #showdim(p,0)
+    return p
+
+# debugging: print a tree of QT children widgets and their geometry
+def showdim(p, depth):
+    try:
+        print " "*depth, p, p.x(), p.y(), p.width(), p.height()
+    except: pass
+    for ch in p.children():
+        showdim(ch,depth+1)
+
+pyedm.edmApp.startTimer()
+# pyedm.edmApp.DebugFlag = 1
+
+ - - - - - - - - - -
+
+The epicsConnectLib is not necessary to load a screen - it provided macro expansion
+for the specific app. The app was also using 'setCurrentWidget()' to embed the returned
+widget before displaying it. Hopefully, a general embedded test app will be available
+in the near future.

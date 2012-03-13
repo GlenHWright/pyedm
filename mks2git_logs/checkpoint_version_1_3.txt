@@ -1,0 +1,195 @@
+FILE: makeTar
+	VERSION: 1.2
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Aug 8, 2012 9:26:42 AM
+		DESC: Various small fixes, , 
+		LABELS: 
+
+FILE: pyedm/edmPVcalc.py
+	VERSION: 1.2
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Aug 8, 2012 9:26:41 AM
+		DESC: Various small fixes, , 
+		LABELS: 
+
+FILE: pyedm/edmPVfactory.py
+	VERSION: 1.3
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Aug 8, 2012 9:26:42 AM
+		DESC: Various small fixes, , 
+		LABELS: 
+
+FILE: pyedm/edmPVlocal.py
+	VERSION: 1.3
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Apr 10, 2012 10:35:31 AM
+		DESC: fix string->float->int for local variables. Use explicit "False" and "True" rather than 1 and 0., allow mouse move commands to control bars., , 
+		LABELS: 
+
+FILE: pyedm/edmWidget.py
+	VERSION: 1.2
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Aug 8, 2012 9:26:41 AM
+		DESC: Various small fixes, , 
+		LABELS: 
+
+FILE: pyedm/modules/controlbar.py
+	VERSION: 1.2
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Apr 10, 2012 10:35:36 AM
+		DESC: fix string->float->int for local variables. Use explicit "False" and "True" rather than 1 and 0., allow mouse move commands to control bars., , 
+		LABELS: 
+
+FILE: pyedm/modules/controlbutton.py
+	VERSION: 1.2
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Aug 8, 2012 9:26:42 AM
+		DESC: Various small fixes, , 
+		LABELS: 
+
+FILE: pyedm/modules/displaydynamicsymbol.py
+	VERSION: 1.2
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Apr 10, 2012 10:35:37 AM
+		DESC: fix string->float->int for local variables. Use explicit "False" and "True" rather than 1 and 0., allow mouse move commands to control bars., , 
+		LABELS: 
+
+FILE: pyedm/modules/displaypip.py
+	VERSION: 1.2
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Apr 10, 2012 10:35:38 AM
+		DESC: fix string->float->int for local variables. Use explicit "False" and "True" rather than 1 and 0., allow mouse move commands to control bars., , 
+		LABELS: 
+
+FILE: pyedm/modules/displaysymbol.py
+	VERSION: 1.2
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Aug 8, 2012 9:26:42 AM
+		DESC: Various small fixes, , 
+		LABELS: 
+
+FILE: pyedm/modules/displaytext.py
+	VERSION: 1.2
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Aug 8, 2012 9:26:41 AM
+		DESC: Various small fixes, , 
+		LABELS: 
+
+FILE: pyedm/modules/monitorXYgraph.py
+	VERSION: 1.2
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Apr 10, 2012 10:35:38 AM
+		DESC: fix string->float->int for local variables. Use explicit "False" and "True" rather than 1 and 0., allow mouse move commands to control bars., , 
+		LABELS: 
+
+FILE: testDir/README
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Apr 10, 2012 10:13:03 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: testDir/test.db
+	VERSION: 1.2
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Apr 10, 2012 10:17:57 AM
+		DESC: Member moved from test.db in project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj to testDir/test.db in project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj.
+		LABELS: 
+
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 27, 2012 1:31:37 PM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: testDir/test1.edl
+	VERSION: 1.2
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Apr 10, 2012 10:17:57 AM
+		DESC: Member moved from test1.edl in project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj to testDir/test1.edl in project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj.
+		LABELS: 
+
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 27, 2012 1:31:37 PM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: testDir/test1.edm.edl
+	VERSION: 1.2
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Apr 10, 2012 10:17:57 AM
+		DESC: Member moved from test1.edm.edl in project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj to testDir/test1.edm.edl in project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj.
+		LABELS: 
+
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 27, 2012 1:31:37 PM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: testDir/testControl.edl
+	VERSION: 1.2
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Apr 10, 2012 10:17:57 AM
+		DESC: Member moved from testControl.edl in project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj to testDir/testControl.edl in project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj.
+		LABELS: 
+
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 27, 2012 1:31:37 PM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: testDir/testDisplay.edl
+	VERSION: 1.2
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Apr 10, 2012 10:17:57 AM
+		DESC: Member moved from testDisplay.edl in project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj to testDir/testDisplay.edl in project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj.
+		LABELS: 
+
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 27, 2012 1:31:38 PM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: testDir/testEmbedded.edl
+	VERSION: 1.2
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Apr 10, 2012 10:17:57 AM
+		DESC: Member moved from testEmbedded.edl in project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj to testDir/testEmbedded.edl in project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj.
+		LABELS: 
+
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 27, 2012 1:31:38 PM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: testDir/testMonitor.edl
+	VERSION: 1.2
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Apr 10, 2012 10:17:57 AM
+		DESC: Member moved from testMonitor.edl in project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj to testDir/testMonitor.edl in project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj.
+		LABELS: 
+
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 27, 2012 1:31:38 PM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: testDir/testPlot.edl
+	VERSION: 1.2
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Apr 10, 2012 10:17:57 AM
+		DESC: Member moved from testPlot.edl in project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj to testDir/testPlot.edl in project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj.
+		LABELS: 
+
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 27, 2012 1:31:38 PM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+

@@ -1,0 +1,466 @@
+4 0 0
+beginScreenProperties
+major 4
+minor 0
+release 0
+x 938
+y 247
+w 721
+h 771
+font "helvetica-medium-r-18.0"
+ctlFont "helvetica-medium-r-18.0"
+btnFont "helvetica-medium-r-18.0"
+fgColor index 14
+bgColor index 3
+textColor index 14
+ctlFgColor1 index 14
+ctlFgColor2 index 0
+ctlBgColor1 index 0
+ctlBgColor2 index 14
+topShadowColor index 0
+botShadowColor index 14
+endScreenProperties
+
+# (Text Control)
+object activeXTextDspClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 31
+y 26
+w 167
+h 21
+controlPv "$(P)controlPV"
+font "helvetica-medium-r-18.0"
+fgColor index 14
+fgAlarm
+bgColor index 0
+useDisplayBg
+autoHeight
+limitsFromDb
+nullPv "$(P)NullPV"
+nullColor index 0
+colorPv "$(P)colorPV"
+useHexPrefix
+objType "controls"
+endObjectProperties
+
+# (Slider)
+object activeSliderClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 40
+y 91
+w 230
+h 108
+fgColor index 14
+bgColor index 0
+2ndBgColor index 14
+controlColor index 14
+indicatorColor index 0
+font "helvetica-medium-r-18.0"
+controlPv "$(P)controlPV"
+indicatorPv "$(P)ReadbackPV"
+savedValuePv "$(P)SavedPV"
+controlLabel "Control Label"
+controlLabelType "pvName"
+readLabel "Readback Label"
+readLabelType "pvName"
+increment 25
+incMultiplier 1
+limitsFromDb
+displayFormat "FFloat"
+endObjectProperties
+
+# (Motif Slider)
+object activeMotifSliderClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 41
+y 206
+w 225
+h 96
+fgColor index 14
+bgColor index 0
+2ndBgColor index 14
+topShadowColor index 0
+botShadowColor index 14
+controlPv "$(P)controlPV"
+controlLabel "Control Label"
+controlLabelType "pvName"
+font "helvetica-medium-r-18.0"
+limitsFromDb
+endObjectProperties
+
+# (Button)
+object activeButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 44
+y 315
+w 221
+h 73
+fgColor index 14
+onColor index 0
+offColor index 0
+inconsistentColor index 14
+topShadowColor index 0
+botShadowColor index 14
+controlPv "$(P)boPV"
+indicatorPv "$(P)biPV"
+onLabel "on label"
+offLabel "off label"
+labelType "pvState"
+3d
+font "helvetica-medium-r-18.0"
+objType "controls"
+visPv "$(P)visibilityPV"
+visMin "1"
+visMax "2"
+colorPv "$(P)colorPV"
+endObjectProperties
+
+# (Menu Button)
+object activeMenuButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 52
+y 574
+w 219
+h 69
+fgColor index 14
+bgColor index 0
+inconsistentColor index 14
+topShadowColor index 0
+botShadowColor index 14
+controlPv "$(P)menuPV"
+indicatorPv "$(P)readmenuPV"
+font "helvetica-medium-r-18.0"
+visPv "$(P)visibilityPV"
+visMin "0"
+visMax "1"
+colorPv "$(P)colorPV"
+endObjectProperties
+
+# (Radio Box)
+object activeRadioButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 57
+y 675
+w 216
+h 75
+fgColor index 14
+bgColor index 0
+buttonColor index 14
+selectColor index 14
+topShadowColor index 0
+botShadowColor index 14
+controlPv "$(P)menuPV"
+font "helvetica-medium-r-12.0"
+endObjectProperties
+
+# (Message Button)
+object activeMessageButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 287
+y 14
+w 156
+h 55
+fgColor index 14
+onColor index 0
+offColor index 0
+topShadowColor index 0
+botShadowColor index 14
+controlPv "$(P)destinationPV"
+pressValue "1"
+releaseValue "0"
+onLabel "Press label"
+offLabel "Release Label"
+3d
+font "helvetica-medium-r-18.0"
+visPv "$(P)visibilityPV"
+visMin "0"
+visMax "1"
+colorPv "$(P)colorPV"
+endObjectProperties
+
+# (Up/Down Button)
+object activeUpdownButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 391
+y 99
+w 184
+h 50
+fgColor index 25
+bgColor index 40
+topShadowColor index 0
+botShadowColor index 14
+controlPv "$(P)controlPV"
+savedValuePv "$(P)saveRestorePV"
+coarseValue "5"
+fineValue ".5"
+label "label"
+3d
+rate 0.1
+font "helvetica-medium-r-18.0"
+limitsFromDb
+endObjectProperties
+
+# (Exit Button)
+object activeExitButtonClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 397
+y 184
+w 175
+h 54
+fgColor index 14
+bgColor index 0
+topShadowColor index 0
+botShadowColor index 14
+label "EXIT"
+font "helvetica-medium-r-18.0"
+3d
+endObjectProperties
+
+# (Menu Mux)
+object menuMuxClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 404
+y 272
+w 165
+h 56
+fgColor index 14
+bgColor index 0
+topShadowColor index 0
+botShadowColor index 14
+controlPv "$(P)menuPV"
+font "helvetica-medium-r-18.0"
+numItems 2
+symbolTag {
+  0 "?"
+  1 "second"
+}
+symbol0 {
+  0 "symbol1_1"
+  1 "symbol2-1"
+}
+value0 {
+  0 "xx1-1"
+  1 "yy2-1"
+}
+symbol1 {
+  0 "symbol1_2"
+  1 "symbol2-2"
+}
+value1 {
+  0 "xx1-2"
+  1 "yy2-2"
+}
+endObjectProperties
+
+# (Related Display)
+object relatedDisplayClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 405
+y 345
+w 164
+h 49
+fgColor index 14
+bgColor index 44
+topShadowColor index 0
+botShadowColor index 14
+font "helvetica-medium-r-18.0"
+buttonLabel "Related Display"
+numPvs 4
+numDsps 4
+displayFileName {
+  0 "file.edl"
+  1 "related.edl"
+  2 "related.edl"
+  3 "related.edl"
+}
+menuLabel {
+  0 "label"
+  1 "display1"
+  2 "display2"
+  3 "display3"
+}
+symbols {
+  0 "macros=xxx"
+  1 "macros=1"
+  2 "macros=2"
+  3 "macros=3"
+}
+endObjectProperties
+
+# (Shell Command)
+object shellCmdClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 408
+y 408
+w 147
+h 58
+fgColor index 14
+bgColor index 40
+topShadowColor index 0
+botShadowColor index 14
+font "helvetica-medium-r-18.0"
+buttonLabel "Shell Command"
+numCmds 1
+commandLabel {
+  0 "mylabel"
+}
+command {
+  0 "CommandToRun"
+}
+endObjectProperties
+
+# (Choice Button)
+object activeChoiceButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 296
+y 575
+w 169
+h 123
+fgColor index 14
+bgColor index 2
+selectColor index 15
+inconsistentColor index 14
+topShadowColor index 0
+botShadowColor index 14
+controlPv "$(P)menuPV"
+font "helvetica-medium-r-18.0"
+endObjectProperties
+
+# (Textentry)
+object TextentryClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 477
+y 622
+w 172
+h 49
+controlPv "$(P)controlPV"
+fgColor index 14
+fgAlarm
+bgColor index 0
+fill
+font "helvetica-medium-r-18.0"
+endObjectProperties
+
+# (Button)
+object activeButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 43
+y 406
+w 221
+h 73
+fgColor index 14
+onColor index 0
+offColor index 0
+inconsistentColor index 14
+topShadowColor index 0
+botShadowColor index 14
+controlPv "$(P)boPV"
+indicatorPv "$(P)biPV"
+onLabel "on label"
+offLabel "off label"
+labelType "pvState"
+buttonType "push"
+3d
+font "helvetica-medium-r-18.0"
+objType "controls"
+visPv "$(P)visibilityPV"
+visMin "0"
+visMax "10"
+colorPv "$(P)colorPV"
+endObjectProperties
+
+# (Message Button)
+object activeMessageButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 487
+y 12
+w 156
+h 55
+fgColor index 14
+onColor index 0
+offColor index 0
+topShadowColor index 0
+botShadowColor index 14
+controlPv "$(P)destinationPV"
+pressValue "1"
+releaseValue "0"
+onLabel "Press label"
+offLabel "Release Label"
+toggle
+3d
+font "helvetica-medium-r-18.0"
+visPv "$(P)visibilityPV"
+visMin "0"
+visMax "1"
+colorPv "$(P)colorPV"
+endObjectProperties
+
+# (Choice Button)
+object activeChoiceButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 45
+y 496
+w 607
+h 35
+fgColor index 14
+bgColor index 2
+selectColor index 15
+inconsistentColor index 14
+topShadowColor index 0
+botShadowColor index 14
+controlPv "$(P)menuPV"
+font "helvetica-medium-r-18.0"
+orientation "horizontal"
+endObjectProperties
+

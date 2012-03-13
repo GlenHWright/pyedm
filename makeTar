@@ -1,0 +1,3 @@
+find pyedm -name '*.pyc' -delete
+find pyedm -name '*~' -delete
+tar cf pyedm.tar COPYRIGHT README INSTALL pyedm setup.py  edm.py testDir

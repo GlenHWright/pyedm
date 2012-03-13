@@ -1,0 +1,62 @@
+4 0 0
+beginScreenProperties
+major 4
+minor 0
+release 0
+x 1710
+y 202
+w 500
+h 600
+font "helvetica-bold-r-12.0"
+ctlFont "courier-bold-r-10.0"
+btnFont "helvetica-bold-r-12.0"
+fgColor index 6
+bgColor index 3
+textColor index 48
+ctlFgColor1 index 14
+ctlFgColor2 index 0
+ctlBgColor1 index 10
+ctlBgColor2 index 5
+topShadowColor index 1
+botShadowColor index 11
+endScreenProperties
+
+# (Text Control)
+object activeXTextDspClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 86
+y 70
+w 83
+h 13
+controlPv "TRG2400:cycles"
+font "courier-bold-r-12.0"
+fgColor index 14
+bgColor index 10
+useDisplayBg
+autoHeight
+limitsFromDb
+nullColor index 0
+useHexPrefix
+objType "controls"
+endObjectProperties
+
+# (Textentry)
+object TextentryClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 106
+y 137
+w 137
+h 36
+controlPv "TRG2400:cycles"
+fgColor index 48
+fgAlarm
+bgColor index 5
+font "courier-bold-r-14.0"
+endObjectProperties
+

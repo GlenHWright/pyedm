@@ -1,0 +1,147 @@
+FILE: pyedm/__init__.py
+	VERSION: 1.3
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Apr 23, 2018 9:57:31 AM
+		DESC: Check-in to allow deployment, , 
+		LABELS: 
+
+FILE: pyedm/edmApp.py
+	VERSION: 1.5
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Apr 23, 2018 9:57:31 AM
+		DESC: Check-in to allow deployment, , 
+		LABELS: 
+
+FILE: pyedm/edmColors.py
+	VERSION: 1.3
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Apr 23, 2018 9:57:31 AM
+		DESC: Check-in to allow deployment, , 
+		LABELS: 
+
+FILE: pyedm/edmDisplay.py
+	VERSION: 1.2
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Apr 23, 2018 9:57:31 AM
+		DESC: Check-in to allow deployment, , 
+		LABELS: 
+
+FILE: pyedm/edmEditWidget.py
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Apr 23, 2018 9:55:24 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/edmMacro.py
+	VERSION: 1.3
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Apr 23, 2018 9:57:31 AM
+		DESC: Check-in to allow deployment, , 
+		LABELS: 
+
+FILE: pyedm/edmObject.py
+	VERSION: 1.3
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Apr 23, 2018 9:57:31 AM
+		DESC: Check-in to allow deployment, , 
+		LABELS: 
+
+FILE: pyedm/edmPVcalc.py
+	VERSION: 1.7
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Apr 23, 2018 9:57:32 AM
+		DESC: Check-in to allow deployment, , 
+		LABELS: 
+
+FILE: pyedm/edmPVepics.py
+	VERSION: 1.5
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Apr 23, 2018 9:57:32 AM
+		DESC: Check-in to allow deployment, , 
+		LABELS: 
+
+FILE: pyedm/edmPVfactory.py
+	VERSION: 1.5
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Apr 23, 2018 9:57:32 AM
+		DESC: Check-in to allow deployment, , 
+		LABELS: 
+
+FILE: pyedm/edmPVlocal.py
+	VERSION: 1.7
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Apr 23, 2018 9:57:32 AM
+		DESC: Check-in to allow deployment, , 
+		LABELS: 
+
+FILE: pyedm/edmPopupEntry.py
+	VERSION: 1.3
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Apr 23, 2018 9:57:32 AM
+		DESC: Check-in to allow deployment, , 
+		LABELS: 
+
+FILE: pyedm/edmProperty.py
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Apr 23, 2018 9:55:26 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/edmScreen.py
+	VERSION: 1.3
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Apr 23, 2018 9:57:32 AM
+		DESC: Check-in to allow deployment, , 
+		LABELS: 
+
+FILE: pyedm/edmWidget.py
+	VERSION: 1.6
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Apr 23, 2018 9:57:33 AM
+		DESC: Check-in to allow deployment, , 
+		LABELS: 
+
+FILE: pyedm/edmWidgetSupport.py
+	VERSION: 1.2
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Apr 23, 2018 9:57:33 AM
+		DESC: Check-in to allow deployment, , 
+		LABELS: 
+
+FILE: pyedm/edmWindowWidget.py
+	VERSION: 1.4
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Apr 23, 2018 9:57:33 AM
+		DESC: Check-in to allow deployment, , 
+		LABELS: 
+
+FILE: pyedm/edmparsecalc.py
+	VERSION: 1.4
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Apr 23, 2018 9:57:31 AM
+		DESC: Check-in to allow deployment, , 
+		LABELS: 
+
+FILE: pyedm/modules/controlbar.py
+	VERSION: 1.5
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Apr 23, 2018 9:57:33 AM
+		DESC: Check-in to allow deployment, , 
+		LABELS: 
+
+FILE: testDir/testDisplay.edl
+	VERSION: 1.3
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Apr 23, 2018 9:57:33 AM
+		DESC: Check-in to allow deployment, , 
+		LABELS: 
+
+FILE: testDir/testMonitor.edl
+	VERSION: 1.3
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Apr 23, 2018 9:57:33 AM
+		DESC: Check-in to allow deployment, , 
+		LABELS: 
+

@@ -1,0 +1,494 @@
+FILE: COPYRIGHT
+	VERSION: 1.2
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 27, 2012 1:31:45 PM
+		DESC: 
+		LABELS: 
+
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:49 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: CommandToRun
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 27, 2012 1:31:36 PM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: INSTALL
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:50 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: README
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:50 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: edm.py
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 27, 2012 1:31:36 PM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: makeTar
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 27, 2012 1:31:37 PM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/__init__.py
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:37 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/edmAbstractShape.py
+	VERSION: 1.2
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 22, 2012 2:00:31 PM
+		DESC: 
+		LABELS: 
+
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:38 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/edmAbstractSymbol.py
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:38 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/edmApp.py
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:38 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/edmColors.py
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:38 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/edmDisplay.py
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:38 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/edmFont.py
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:39 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/edmMacro.py
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:39 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/edmObject.py
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:39 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/edmPVcalc.py
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:39 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/edmPVepics.py
+	VERSION: 1.2
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 22, 2012 2:00:38 PM
+		DESC: 
+		LABELS: 
+
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:39 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/edmPVfactory.py
+	VERSION: 1.2
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 22, 2012 2:00:39 PM
+		DESC: 
+		LABELS: 
+
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:39 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/edmPVindirect.py
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:40 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/edmPVlocal.py
+	VERSION: 1.2
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 22, 2012 2:00:40 PM
+		DESC: 
+		LABELS: 
+
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:40 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/edmPopupEntry.py
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:40 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/edmScreen.py
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:40 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/edmTextFormat.py
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:41 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/edmWidget.py
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:41 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/edmWidgetSupport.py
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:41 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/edmWindowWidget.py
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:41 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/edmparsecalc.py
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:41 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/edmparsetable.py
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:41 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/modules/controlbar.py
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:44 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/modules/controlbutton.py
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:44 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/modules/controlchoicebutton.py
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:45 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/modules/controlexitbutton.py
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:45 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/modules/controlmenubutton.py
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:45 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/modules/controlmenumux.py
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 22, 2012 1:56:12 PM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/modules/controlmessagebutton.py
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:45 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/modules/controlmotifbar.py
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:45 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/modules/controlradiobutton.py
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:46 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/modules/controlshell.py
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:46 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/modules/controltext.py
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:46 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/modules/controltextentry.py
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:46 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/modules/controlupdownbutton.py
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:46 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/modules/displayarc.py
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:46 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/modules/displaycircle.py
+	VERSION: 1.2
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 22, 2012 2:00:41 PM
+		DESC: 
+		LABELS: 
+
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:46 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/modules/displaydynamicsymbol.py
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:47 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/modules/displaygroup.py
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:47 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/modules/displayimage.py
+	VERSION: 1.2
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 22, 2012 2:00:42 PM
+		DESC: 
+		LABELS: 
+
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:47 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/modules/displayline.py
+	VERSION: 1.2
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 22, 2012 2:00:43 PM
+		DESC: 
+		LABELS: 
+
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:47 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/modules/displaypip.py
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:47 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/modules/displayrect.py
+	VERSION: 1.2
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 22, 2012 2:00:53 PM
+		DESC: 
+		LABELS: 
+
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:47 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/modules/displayrelateddisplay.py
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:48 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/modules/displaysymbol.py
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:48 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/modules/displaytext-regtext.py
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:48 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/modules/displaytext.py
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:48 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/modules/monitorXYgraph.py
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:48 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/modules/monitoractiveMessageBoxClass.py
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:48 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/modules/monitoractiveXtext.py
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:49 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/modules/monitorbar.py
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:49 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/modules/monitorbyte.py
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:49 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/modules/monitordial.py
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:49 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/modules/monitortext-regtext.py
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:49 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: pyedm/modules/monitortext.py
+	VERSION: 1.2
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 22, 2012 2:00:54 PM
+		DESC: 
+		LABELS: 
+
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:49 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+
+FILE: setup.py
+	VERSION: 1.1
+		AUTHOR: Glen Wright (wrightg)
+		DATE: Mar 13, 2012 10:17:50 AM
+		DESC: Initial revision, Member added to project e:/MKS_Home/archive/cs/epics_local/epics_tools/edmPython/project.pj, , 
+		LABELS: 
+

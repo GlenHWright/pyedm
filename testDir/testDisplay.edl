@@ -1,0 +1,442 @@
+4 0 1
+beginScreenProperties
+major 4
+minor 0
+release 1
+x 259
+y 207
+w 780
+h 714
+font "helvetica-medium-r-18.0"
+ctlFont "helvetica-medium-r-18.0"
+btnFont "helvetica-medium-r-18.0"
+fgColor index 14
+bgColor index 3
+textColor index 14
+ctlFgColor1 index 14
+ctlFgColor2 index 0
+ctlBgColor1 index 0
+ctlBgColor2 index 14
+topShadowColor index 0
+botShadowColor index 14
+endScreenProperties
+
+# (PNG Image)
+object activePngClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 300
+y 83
+w 433
+h 429
+file "./userXAFS1.png"
+uniformSize
+endObjectProperties
+
+# (Lines)
+object activeLineClass
+beginObjectProperties
+major 4
+minor 0
+release 1
+x 23
+y 38
+w 100
+h 26
+lineColor index 14
+fillColor index 0
+numPoints 7
+xPoints {
+  0 23
+  1 107
+  2 101
+  3 123
+  4 83
+  5 83
+  6 83
+}
+yPoints {
+  0 55
+  1 38
+  2 64
+  3 52
+  4 62
+  5 62
+  6 62
+}
+endObjectProperties
+
+# (Rectangle)
+object activeRectangleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 32
+y 89
+w 121
+h 48
+lineColor index 14
+fillColor index 0
+endObjectProperties
+
+# (Arc)
+object activeArcClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 39
+y 241
+w 107
+h 60
+lineColor index 14
+fillColor index 0
+startAngle 45
+totalAngle 180
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 142
+y 39
+w 158
+h 42
+font "helvetica-bold-r-18.0"
+fgColor index 14
+bgColor index 0
+useDisplayBg
+value {
+  "Test of Static Text"
+  "Widget"
+}
+autoSize
+endObjectProperties
+
+# (Embedded Window)
+object activePipClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 29
+y 408
+w 122
+h 66
+fgColor index 6
+bgColor index 36
+topShadowColor index 0
+botShadowColor index 14
+displaySource "menu"
+filePv "$(P)PVselectEmbeddedWindow"
+labelPv "$(P)labelPV"
+file "embeddedWindow1.edl"
+sizeOfs 5
+numDsps 3
+displayFileName {
+  0 "embeddedWindow2.edl"
+  1 "embeddedWindow2.edl"
+  2 "embeddedWindow2.edl"
+}
+menuLabel {
+  0 "window one?"
+  1 "window two?"
+  2 "window three?"
+}
+symbols {
+  0 "MYMACRO=1"
+  1 "MYMACRO=2"
+  2 "MYMACRO=3"
+}
+endObjectProperties
+
+# (Dynamic Symbol)
+object activeDynSymbolClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 365
+y 595
+w 245
+h 102
+file "DynamicSymbol.edl"
+gateUpPv "LOC\\gateUpPV=i:0"
+gateDownPv "LOC\\gateDownPV=i:0"
+useGate
+gateUpValue 1
+continuous
+rate 1
+numStates 10
+initialIndex 1
+useOriginalColors
+fgColor index 14
+bgColor index 0
+endObjectProperties
+
+# (Embedded Window)
+object activePipClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 41
+y 503
+w 176
+h 68
+fgColor index 14
+bgColor index 0
+topShadowColor index 0
+botShadowColor index 14
+displaySource "file"
+file "embeddedWindow.edl"
+sizeOfs 5
+numDsps 0
+endObjectProperties
+
+# (Embedded Window)
+object activePipClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 41
+y 584
+w 224
+h 118
+fgColor index 14
+bgColor index 0
+topShadowColor index 0
+botShadowColor index 14
+filePv "$(P)StringPV"
+sizeOfs 5
+numDsps 0
+endObjectProperties
+
+# (Rectangle)
+object activeRectangleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 61
+y 26
+w 24
+h 281
+lineColor index 30
+fillColor index 0
+lineWidth 3
+endObjectProperties
+
+# (Circle)
+object activeCircleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 43
+y 167
+w 104
+h 50
+lineColor index 14
+fill
+fillColor index 95
+fillAlarm
+alarmPv "$(P)colorPV"
+endObjectProperties
+
+# (GIF Image)
+object cfcf6c8a_dbeb_11d2_8a97_00104b8742df
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 388
+y 31
+w 101
+h 101
+file "./epicsLogo.gif"
+endObjectProperties
+
+# (Text Entry)
+object TextentryClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 334
+y 535
+w 107
+h 45
+controlPv "LOC\\gateUpPV=i:0"
+fgColor index 14
+fgAlarm
+bgColor index 0
+fill
+font "helvetica-medium-r-14.0"
+endObjectProperties
+
+# (Text Entry)
+object TextentryClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 505
+y 532
+w 107
+h 45
+controlPv "LOC\\gateDownPV=i:0"
+fgColor index 14
+fgAlarm
+bgColor index 0
+fill
+font "helvetica-medium-r-14.0"
+endObjectProperties
+
+# (Text w. Reg. Exp.)
+object activeXRegTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 38
+y 371
+w 265
+h 21
+font "helvetica-medium-r-18.0"
+fgColor index 14
+bgColor index 0
+useDisplayBg
+value {
+  "Test of Regular Expression Text"
+}
+autoSize
+endObjectProperties
+
+# (Embedded Window)
+object activePipClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 164
+y 409
+w 122
+h 66
+fgColor index 6
+bgColor index 32
+topShadowColor index 0
+botShadowColor index 14
+displaySource "menu"
+filePv "$(P)PVselectEmbeddedWindow"
+sizeOfs 5
+numDsps 3
+displayFileName {
+  0 "embeddedWindow2.edl"
+  1 "embeddedWindow2.edl"
+  2 "embeddedWindow2.edl"
+}
+menuLabel {
+  0 "window one?"
+  1 "window two?"
+  2 "window three?"
+}
+symbols {
+  0 "MYMACRO=1"
+  1 "MYMACRO=2"
+  2 "MYMACRO=3"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 30
+y 297
+w 155
+h 42
+font "helvetica-medium-r-18.0"
+fgColor index 14
+bgColor index 0
+useDisplayBg
+value {
+  "Test of Static Text"
+  "Widget"
+}
+autoSize
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 144
+y 140
+w 144
+h 42
+font "helvetica-medium-i-18.0"
+fgColor index 14
+bgColor index 0
+useDisplayBg
+value {
+  "Test of Static Text"
+  "Widget"
+}
+autoSize
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 143
+y 216
+w 159
+h 42
+font "helvetica-bold-i-18.0"
+fgColor index 14
+bgColor index 0
+useDisplayBg
+value {
+  "Test of Static Text"
+  "Widget"
+}
+autoSize
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 142
+y 324
+w 155
+h 42
+font "helvetica-medium-r-18.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 0
+useDisplayBg
+value {
+  "Test of Static Text"
+  "Widget"
+}
+autoSize
+endObjectProperties
+
