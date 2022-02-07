@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # This module manages simple text updates
 
@@ -80,7 +81,7 @@ class TextupdateClass(QLineEdit,edmWidget):
             self.setText(txt)
             return
         except:
-            print "Textupdate: conversion failure"
+            print("Textupdate: conversion failure")
         self.setText(self.controlPV.char_value)
 
 edmDisplay.edmClasses["TextupdateClass"] = TextupdateClass

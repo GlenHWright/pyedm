@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # This module runs a shell command.
 
@@ -6,6 +7,7 @@
 # is the management of the macros, so that macro expansion occurs using
 # the correct macro set.
 #
+from builtins import range
 import os
 from threading import Thread
 import pyedm.edmDisplay as edmDisplay
@@ -84,7 +86,7 @@ class shellCmdClass(QPushButton,edmWidget):
         self.onMenu(0)
 
     def onMenu(self, idx):
-        print "onMenu(", idx , ")"
+        print("onMenu(", idx , ")")
         if self.threads[idx] and self.threads[idx].isAlive():
             # To Do. Support for multiple "exec's" of a command.
             return
@@ -95,7 +97,7 @@ class shellCmdClass(QPushButton,edmWidget):
         self.threads[idx].start()
 
     def lostChild(self, childIdx):
-        print "lost child", childIdx
+        print("lost child", childIdx)
         self.widgets[childIdx] = None
         
 edmDisplay.edmClasses["shellCmdClass"] = shellCmdClass

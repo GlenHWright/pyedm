@@ -1,8 +1,11 @@
+from __future__ import division
+from __future__ import print_function
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # This module generates a widget for an up/down button. Left button presses cause the value
 # to decrement, Right button presses cause the value to increment. This isn't a Qt Button,
 # it just has a passing display relationship to one.
 
+from past.utils import old_div
 import pyedm.edmDisplay as edmDisplay
 import edmPopupEntry
 from pyedm.edmWidget import edmWidget
@@ -50,7 +53,7 @@ class updownButtonClass(QWidget, edmWidget):
         fm = painter.fontMetrics()
         w = fm.width(self.label)
         painter.fillRect(0, 0, self.width(), self.height(), self.palette().brush(QPalette.Window) )
-        painter.drawText( (self.width()-w)/2, (self.height()+fm.height())/2,self.label)
+        painter.drawText( old_div((self.width()-w),2), old_div((self.height()+fm.height()),2),self.label)
         if self.width() > 20 and self.height() > fm.height() + 10:
             painter.drawLine( 10, 15, self.width()-20, 15)
 
@@ -69,7 +72,7 @@ class updownButtonClass(QWidget, edmWidget):
             self.menu.exec_(self.mapToGlobal(pos) )
             return
         if hasattr(self,"controlPV") == 0 or self.controlPV.isValid == 0:
-            if self.DebugFlag > 0 : print "Ignoring - no", hasattr(self, "controlPV")
+            if self.DebugFlag > 0 : print("Ignoring - no", hasattr(self, "controlPV"))
             return
         if event.button() == QtCore.Qt.RightButton:
             # increase the value
@@ -96,7 +99,7 @@ class updownButtonClass(QWidget, edmWidget):
         self.timerActive = False
 
     def onMenu(self, arg):
-        if self.DebugFlag > 0 : print "onMenu", arg
+        if self.DebugFlag > 0 : print("onMenu", arg)
         activity = self.menuLabels.index(arg)
         if activity < 0:
             return

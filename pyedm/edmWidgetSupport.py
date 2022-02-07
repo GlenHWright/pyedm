@@ -1,8 +1,11 @@
+from __future__ import print_function
+from __future__ import absolute_import
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
-from edmApp import edmApp
+from builtins import object
+from .edmApp import edmApp
 # from __future__ import print_function
 
-class edmWidgetSupport:
+class edmWidgetSupport(object):
     def __init__(self):
         pass
     '''methods shared by edmWidget and edmWindowWidget'''
@@ -10,7 +13,7 @@ class edmWidgetSupport:
         '''find the appropriate macro table, and return the expanded string'''
         try: return self.findMacroTable().expand(str)
         except:
-            print "macro expansion failed for", self
+            print("macro expansion failed for", self)
         return str
 
     def findMacroTable(self):
@@ -22,7 +25,7 @@ class edmWidgetSupport:
         try: return self.edmParent.findMacroTable()
         except:
             pass
-        print "No valid table from", self
+        print("No valid table from", self)
         return None
 
     def findDataPaths(self):

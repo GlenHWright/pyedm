@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # Module for generating a widget for a related display
 
@@ -6,6 +7,8 @@
 # is the management of the macros, so that macro expansion occurs using
 # the correct macro set.
 #
+from builtins import zip
+from builtins import range
 import os
 import pyedm.edmDisplay as edmDisplay
 from pyedm.edmScreen import edmScreen
@@ -41,7 +44,7 @@ class relatedDisplayClass(QPushButton,edmWidget):
         numDsps = self.object.getIntProperty("numDsps", "0")
         
         if numDsps == 0:
-            print "relatedDisplayClass: no files to display"
+            print("relatedDisplayClass: no files to display")
             return
 
         self.filename = [ self.macroExpand(filename) for filename in self.filelist]
@@ -52,7 +55,7 @@ class relatedDisplayClass(QPushButton,edmWidget):
         else:
             self.newmenu = popUpMenu(self)
             self.setMenu(self.newmenu)
-            self.actions = [ self.newmenu.addAction(menu, lambda idx=idx:self.onMenu(idx)) for (menu,idx) in zip(self.menulist,range(0,len(self.filename))) ]
+            self.actions = [ self.newmenu.addAction(menu, lambda idx=idx:self.onMenu(idx)) for (menu,idx) in zip(self.menulist,list(range(0,len(self.filename)))) ]
         self.edmParent.buttonInterest.append(self)
 
     @classmethod
@@ -142,7 +145,7 @@ class relatedDisplayClass(QPushButton,edmWidget):
             pass
 
     def lostChild(self, childIdx):
-        print "lost child", childIdx
+        print("lost child", childIdx)
         self.widgets[childIdx] = None
         
 edmDisplay.edmClasses["relatedDisplayClass"] = relatedDisplayClass

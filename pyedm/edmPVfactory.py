@@ -1,12 +1,16 @@
+from __future__ import print_function
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 #
 # PV factory support
 #
 # from __future__ import print_function
 
-class edmPVbase:
+from builtins import str
+from builtins import range
+from builtins import object
+class edmPVbase(object):
     typeNames = [ "unknown", "int", "float", "string", "enum" ]
-    typeUnknown, typeInt, typeFloat, typeString, typeEnum = range(0,5)
+    typeUnknown, typeInt, typeFloat, typeString, typeEnum = list(range(0,5))
     def __init__(self, truename=None, name=None, connectCallback=None, connectCallbackArg=None, **kwargs):
         ''' name is the name used for connecting. "truename" is the name before macro expansion.
         '''
@@ -31,7 +35,7 @@ class edmPVbase:
             self.name = None
 
     def __del__(self):
-        if self.DebugFlag > 0 : print "edmPVbase: deleting", self.name
+        if self.DebugFlag > 0 : print("edmPVbase: deleting", self.name)
 
     def setPVname(self, name):
         self.name = name
@@ -87,15 +91,15 @@ class edmPVbase:
         return convText( self.value, self.pvType, Fmt=fmt, Precision=precision, Enums=enums)
 
     def add_callback(self, fn_name, widget=None, userArgs=None):
-        if self.DebugFlag > 0 : print "Add callback", self.name, widget
+        if self.DebugFlag > 0 : print("Add callback", self.name, widget)
         self.callbackList.append((fn_name,widget,userArgs))
         if self.isValid:
             fn_name(widget, pvname=self.name, chid=self.chid, pv=self, value=self.value, severity=self.severity, userArgs=userArgs)
 
     def del_callback(self, widget):
-        if self.DebugFlag > 0 : print "del_callback: before:", self.callbackList, widget
+        if self.DebugFlag > 0 : print("del_callback: before:", self.callbackList, widget)
         self.callbackList = [ idx for idx in self.callbackList if idx[1] != widget ]
-        if self.DebugFlag > 0 : print "del_callback: after:", self.callbackList
+        if self.DebugFlag > 0 : print("del_callback: after:", self.callbackList)
 
     def add_redisplay(self, widget, userArgs=None):
         self.callbackList.append((edmApp.redisplay, widget, userArgs))
@@ -129,7 +133,7 @@ def buildPV(name,**kw):
     builds and returns a class instance which should inherit from edmPVbase.
     macroTable is used to expand the name, all arguments are passed to the factory method with
     identical parameter names'''
-    if edmApp.DebugFlag > 0: print "buildPV(", name, kw, ")"
+    if edmApp.DebugFlag > 0: print("buildPV(", name, kw, ")")
     prefix, expandedname = expandPVname(name, kw.get("macroTable"))
     return pvClassDict[prefix.upper()](name=expandedname, truename=name, **kw)
 

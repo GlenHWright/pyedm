@@ -1,4 +1,7 @@
+from __future__ import print_function
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
+from builtins import str
+from builtins import object
 from pyedm.edmPVfactory import pvClassDict, edmPVbase, convText
 
 from epics import ca, __version__ as epicsVersion
@@ -68,7 +71,7 @@ class watchPV(QTimer):
     def lock(self):
         '''mutex access - only needed if multi-threaded channel access occurs'''
         if self.lockCount > 0:
-            print "LOCK: possible confict!"
+            print("LOCK: possible confict!")
         self.lockCount = self.lockCount+1
         pass
 
@@ -77,7 +80,7 @@ class watchPV(QTimer):
         pass
 
 # one element per PV name. an epicsPV connects a widget to a channel
-class channel:
+class channel(object):
     def __init__(self, pvName=None):
         self.connectorList = []
         self.isValid = False
@@ -88,7 +91,7 @@ class channel:
 
     def setPVname(self, name):
         self.name = name
-        if edmApp.DebugFlag > 0 : print "call create_channel", name
+        if edmApp.DebugFlag > 0 : print("call create_channel", name)
         # Ugly race condition: ca.create_channel(), in pyepics, may call "poll()"
         # which can cause "createCallback to be called early and unexpectedly.
         # To make the unexpected expected, a dictionary based on pv names that
@@ -97,15 +100,15 @@ class channel:
         else:
             self.chid = ca.create_channel(name, False, createCallback)
         chidStr = self.chidStr()
-        if edmApp.DebugFlag > 0 : print "setPVname CHID=", chidStr
+        if edmApp.DebugFlag > 0 : print("setPVname CHID=", chidStr)
         if chidStr in pvDictionary:
-            print "Duplicate CHID!", chidStr
+            print("Duplicate CHID!", chidStr)
         else:
-            if edmApp.DebugFlag > 0 :print "Adding CHID", chidStr, "for", self
+            if edmApp.DebugFlag > 0 :print("Adding CHID", chidStr, "for", self)
         pvDictionary[chidStr] = self
         if chidStr in unknownCHID:
             handleConnectionState(self.chid, chidStr, unknownCHID[chidStr][2])
-        if edmApp.DebugFlag > 0 :print "done setPVname"
+        if edmApp.DebugFlag > 0 :print("done setPVname")
 
     def chidStr(self, chid=None):
         if chid == None:
@@ -145,7 +148,7 @@ def delChannel(ch, connector):
 
 # Called when the channel connection status changes.
 def createCallback(pvname=None,chid=None,conn=None):
-    if edmApp.DebugFlag > 0 : print 'createCallback', pvname, chid
+    if edmApp.DebugFlag > 0 : print('createCallback', pvname, chid)
     chidStr = makeChidStr(chid)
 
     if chidStr not in pvDictionary:
@@ -166,13 +169,13 @@ def handleConnectionState(chid, chidStr, conn):
         watcher.pvGone.append(me)
         watcher.unlock(1)
     else:
-        print "Unknown connection state:", conn, chidStr
-    if edmApp.DebugFlag > 0 : print 'Done createCallback', chidStr
+        print("Unknown connection state:", conn, chidStr)
+    if edmApp.DebugFlag > 0 : print('Done createCallback', chidStr)
 
 # Called when a value changes for a PV
 def subscriptionCallback(value, **kw):
     chid = str(kw['chid'])
-    if edmApp.DebugFlag > 0 : print "subscription CHID", chid, kw
+    if edmApp.DebugFlag > 0 : print("subscription CHID", chid, kw)
     if chid not in pvDictionary: return
 
     epicsChan = pvDictionary[chid]
@@ -191,7 +194,7 @@ def subscriptionCallback(value, **kw):
             # do a conversion of float or double
             epicsChan.char_value = convText(epicsChan.value, epicsChan.pvType, Precision=precision)
 
-    if edmApp.DebugFlag > 0 : print  "Value callback", epicsChan.name, "Value", epicsChan.value, epicsChan.char_value, "for CHID", chid, kw
+    if edmApp.DebugFlag > 0 : print("Value callback", epicsChan.name, "Value", epicsChan.value, epicsChan.char_value, "for CHID", chid, kw)
 
     units = epicsChan.setField(kw, 'units', "")
     for ePV in epicsChan.connectorList:
@@ -215,7 +218,7 @@ class epicsPV(edmPVbase):
         self.prefix = "EPICS\\"
 
     def __del__(self):
-        print "epicsPV deleting", self.name
+        print("epicsPV deleting", self.name)
         edmPVbase.__del__(self)
         if hasattr("chan", self):
             delChannel(self.chan, self)
@@ -238,7 +241,7 @@ class epicsPV(edmPVbase):
                 self.units = getattr(self.chan, "units", "")
                 self.isValid = self.chan.isValid
             except:
-                print "Failed on setup with 'valid' channel", pvName
+                print("Failed on setup with 'valid' channel", pvName)
                 traceback.print_exc()
                 return
             self.connect()

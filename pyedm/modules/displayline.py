@@ -1,6 +1,10 @@
+from __future__ import division
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # Module for generating a widget for a line display class
 
+from builtins import zip
+from builtins import range
+from past.utils import old_div
 import pyedm.edmDisplay as edmDisplay
 from pyedm.edmWidget import edmWidget
 from pyedm.edmAbstractShape import abstractShape
@@ -61,7 +65,7 @@ class activeLineClass(abstractShape):
         destp = line.p2()
         if line.length() <= 1:
             return
-        angle = acos(line.dx() / line.length() )
+        angle = acos(old_div(line.dx(), line.length()) )
         if line.dy() >= 0:
             angle = Pi*2 - angle
 
@@ -85,9 +89,9 @@ class activeLineClass(abstractShape):
         self.ypoints = self.object.decode("yPoints", self.npoints,0)
         self.arrows = self.object.getStringProperty("arrows", "none")
         self.arrowSize = 15
-        self.arrowAngle = Pi/2.5
+        self.arrowAngle = old_div(Pi,2.5)
         # translate points to 'QT' space
-        adj = self.arrowSize/2
+        adj = old_div(self.arrowSize,2)
         self.points = [QPoint(x-self.myx+adj,y-self.myy+adj) for x,y in zip(self.xpoints,self.ypoints)]
         geom = self.geometry()
         geom.translate(-adj, -adj)

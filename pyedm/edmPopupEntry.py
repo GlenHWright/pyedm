@@ -1,9 +1,13 @@
+from __future__ import division
+from __future__ import print_function
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # create a popup window which allows data entry as either text entry (keyboard) or
 # calculator entry (keyboard or mouse)
 # Note that Popup fails if called directly: makeKeypad and makeButtons are methods
 # defined by inheriting classes
 
+from builtins import str
+from past.utils import old_div
 from PyQt4 import QtGui, Qt, QtCore
 from PyQt4.QtGui import QWidget, QGridLayout, QVBoxLayout, QHBoxLayout, QButtonGroup, QPushButton, QLineEdit
 from PyQt4.QtCore import SIGNAL, QSize
@@ -72,7 +76,7 @@ class PopupNumeric(Popup):
 
     def onKeypad(self, idx):
         if idx <= 11:
-            ri = idx/3
+            ri = old_div(idx,3)
             ci = idx%3
             self.textWidget.setText( self.textWidget.text() + self.keys[ri][ci])
 
@@ -145,20 +149,20 @@ if __name__ == "__main__":
     import sys
 
     def callback(arg):
-        print "Accept:", arg
+        print("Accept:", arg)
         sys.exit(0)
 
     def cancel():
-        print "Cancel"
+        print("Cancel")
         sys.exit(0)
 
     app = QtGui.QApplication(sys.argv)
     n = PopupNumeric(callback, cancelCallback=cancel)
     n.show()
     n.resize(n.minimumSize())
-    print "Final size n:", n.geometry(), n.minimumSize()
+    print("Final size n:", n.geometry(), n.minimumSize())
     t = PopupText(callback, cancel)
     t.show()
     t.resize(t.minimumSize())
-    print "Final size t:", t.geometry(), t.minimumSize()
+    print("Final size t:", t.geometry(), t.minimumSize())
     app.exec_()

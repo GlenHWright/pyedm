@@ -3,6 +3,7 @@
 # "global" variables.
 #
 from __future__ import print_function
+from builtins import object
 import sip
 import os
 import traceback
@@ -12,7 +13,7 @@ class edmCommonStyle(QStyle) :
     def __init__(self):
         QStyle.__init__(self)
 
-class edmAppClass:
+class edmAppClass(object):
     def __init__(self):
         self.timer = None
         self.DebugFlag = 0

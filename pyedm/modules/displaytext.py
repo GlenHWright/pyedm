@@ -1,3 +1,4 @@
+from __future__ import division
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # Module for generating a widget for a static text display class
 
@@ -5,6 +6,7 @@
 # the 'leading' value for the font metrics, and this displays differently
 # in X11 and Windows! So, because this works on fixed-format displays
 # rather than auto-adjustable displays, the work needs to be done here.
+from past.utils import old_div
 import os
 import pyedm.edmDisplay as edmDisplay
 from pyedm.edmWidget import edmWidget
@@ -89,9 +91,9 @@ class activeXTextClass(QWidget,edmWidget):
         height = 0
         if os.name == "posix" and self.autoSize:
             self.offset = -5 # essentially an adjustment to "leading"
-            height = self.height()/len(self.value) - self.fm.height()
+            height = old_div(self.height(),len(self.value)) - self.fm.height()
         if self.fm.height() > self.height():
-            height = (self.height() - self.fm.height())/2
+            height = old_div((self.height() - self.fm.height()),2)
         if self.border:
             height = height+self.lineWidth+1
         # starting height sets the baseline to the midpoint of the allocated space.

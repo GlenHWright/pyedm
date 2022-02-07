@@ -1,6 +1,9 @@
+from __future__ import division
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # This module displays a set of boxes for the bit values of a PV
 
+from builtins import range
+from past.utils import old_div
 import pyedm.edmDisplay as edmDisplay
 from pyedm.edmWidget import edmWidget
 
@@ -50,7 +53,7 @@ class byteClass(QWidget,edmWidget):
         if self.noBits <= 0:
             return
         xoffset = 0
-        width = self.width() / self.noBits
+        width = old_div(self.width(), self.noBits)
         height = self.height()
         painter = QPainter(self)
         if event == None:

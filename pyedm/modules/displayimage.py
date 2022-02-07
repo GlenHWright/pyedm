@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # This module loads and displays images. Note that it handles
 # both 'gif' and 'png', and is capable of being extended based on
@@ -41,7 +42,7 @@ class activeImageClass(abstractShape):
             except OSError:
                 pass
         if self.image == None:
-            print "Invalid filename:", self.filename
+            print("Invalid filename:", self.filename)
 
     def paintEvent(self, event=None):
         painter = QPainter(self)

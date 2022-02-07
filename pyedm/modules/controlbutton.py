@@ -1,6 +1,7 @@
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # Module for generating a widget for a static text display class
 
+from builtins import str
 import pyedm.edmDisplay as edmDisplay
 from pyedm.edmWidget import edmWidget
 from pyedm.edmApp import redisplay

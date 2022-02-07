@@ -1,3 +1,4 @@
+from __future__ import division
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # This module manages the displaying of a rectangle.
 # Where This Differs From EDM:
@@ -7,6 +8,7 @@
 # width and height as the center of the box, and the line goes on the outside
 # of this - mostly.
 
+from past.utils import old_div
 import pyedm.edmDisplay as edmDisplay
 from pyedm.edmAbstractShape import abstractShape
 from pyedm.edmEditWidget import edmEdit
@@ -49,7 +51,7 @@ class activeRectangleClass(abstractShape):
         if self.fillColorInfo != None:
             painter.setBrush( self.fillColorInfo.setColor() )
         else:
-            x,y = x+int(self.linewidth/2), y+int(self.linewidth/2)
+            x,y = x+int(old_div(self.linewidth,2)), y+int(old_div(self.linewidth,2))
             w,h = w-self.linewidth, h-self.linewidth
             
         painter.drawRect( x, y, w, h)

@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 #
 
@@ -51,7 +52,7 @@ class calcPV(edmPVbase):
         return self.calcValue()
 
     def onChange(self, item, **kw):
-        if self.DebugFlag > 0: print "callback CALC onChange", item
+        if self.DebugFlag > 0: print("callback CALC onChange", item)
         if 'userArgs' in kw:
             userArgs = kw['userArgs']
         else: return
@@ -70,10 +71,10 @@ class calcPV(edmPVbase):
 
         self.isValid = True
         self.severity = 0
-        if self.DebugFlag > 0: print "callback CALC", self.name, "value=", self.value, self.callbackList
+        if self.DebugFlag > 0: print("callback CALC", self.name, "value=", self.value, self.callbackList)
         for fn in self.callbackList:
             fn[0](fn[1], pvname=self.name, chid=0,pv=self,value=self.value,count=1,units=self.units,severity=0,userArgs=fn[2])
-        if self.DebugFlag > 0: print "END callback CALC", self.name
+        if self.DebugFlag > 0: print("END callback CALC", self.name)
 
     # recalculate the value for the equation
     def calcValue(self):
@@ -82,7 +83,7 @@ class calcPV(edmPVbase):
             if val != None:
                 return val
         except:
-            print "Calculation failed:", self.name, self.pvValues
+            print("Calculation failed:", self.name, self.pvValues)
         return 0.0
 
 def buildCalcPV(**kw):

@@ -3,6 +3,7 @@
 # Allow a PV to be an indirect name: a text string that
 # is the name of the real connection.
 
+from builtins import object
 import pyedm.edmPVfactory as edmPVfactory
 
 # Track the changing PV names
@@ -19,7 +20,7 @@ def redirectCallback(starpv, **kw):
         return 0
 
 
-class indirectPV:
+class indirectPV(object):
     def __init__(self, name=None):
         self.callbackList = []
         self.value = None

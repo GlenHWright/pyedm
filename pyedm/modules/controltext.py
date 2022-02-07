@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # this widget gives a text display of a PV with over-ride of the display format.
 # It may, at some point, have a pop-up window for calculator-style entry!
@@ -36,7 +37,7 @@ class activeXTextDspClass(activeXTextDspClass_noedit):
 
 
     def keyPressEvent(self, event):
-        if self.DebugFlag > 0 : print "keypress event"
+        if self.DebugFlag > 0 : print("keypress event")
         if event.text() == "\n" or event.text() == "\r":
             value = self.text()
             self.controlPV.put(value)

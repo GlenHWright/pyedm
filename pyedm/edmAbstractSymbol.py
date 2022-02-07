@@ -5,6 +5,8 @@
 # Any class inheriting 'AbstractSymbolClass' must have a field of 'statelist'
 # of the length of the number of supported states.
 #
+from builtins import zip
+from builtins import str
 import pyedm.edmDisplay as edmDisplay
 from pyedm.edmApp import redisplay
 from pyedm.edmScreen import edmScreen

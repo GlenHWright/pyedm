@@ -1,5 +1,8 @@
+from __future__ import division
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # This module generates a widget containing one button per state for a PV
+from builtins import range
+from past.utils import old_div
 import pyedm.edmDisplay as edmDisplay
 from pyedm.edmWidget import edmWidget
 from pyedm.edmApp import redisplay
@@ -96,11 +99,11 @@ class activeChoiceButtonClass(QWidget,edmWidget):
         height = self.height()
         num = len(self.menu)
         if self.orientation == "horizontal":
-            width = width / num
+            width = old_div(width, num)
             xIncr = width
             yIncr = 0
         else:
-            height = height / num
+            height = old_div(height, num)
             xIncr = 0
             yIncr = height
 

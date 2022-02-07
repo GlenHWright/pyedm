@@ -1,6 +1,9 @@
+from __future__ import division
+from __future__ import print_function
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # This module displays a bar indicating a PV value
 
+from past.utils import old_div
 import pyedm.edmDisplay as edmDisplay
 from pyedm.edmWidget import edmWidget
 
@@ -57,12 +60,12 @@ class activeBarClass(QProgressBar,edmWidget):
     def fixRange(self, min, max):
         self.rmin = min
         self.rmax = max
-        self.rscale = 100.0/(max-min)
+        self.rscale = old_div(100.0,(max-min))
 
     def redisplay(self, *kw):
         self.checkVisible()
         newval = int( (self.indicatorPV.value-self.rmin) * self.rscale)
-        if self.DebugFlag > 0:  print "activeBarClass  newval:", newval, "min:", self.rmin, "max:", self.rmax, "scale:", self.rscale
+        if self.DebugFlag > 0:  print("activeBarClass  newval:", newval, "min:", self.rmin, "max:", self.rmax, "scale:", self.rscale)
         if self.value() != newval:
             self.setValue( newval)
 

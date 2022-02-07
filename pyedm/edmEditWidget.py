@@ -1,13 +1,20 @@
+from __future__ import division
+from __future__ import print_function
+from __future__ import absolute_import
 #
 # Classes to manage EDM-style edit field for widgets
 #
 
+from builtins import str
+from builtins import range
+from past.utils import old_div
+from builtins import object
 from PyQt4.QtGui import QWidget, QBoxLayout, QAbstractButton, QPushButton, QGridLayout, QLineEdit, QLabel, QCheckBox, QMenu, QFrame, QPainter, QTextEdit, QScrollArea, QFont, QListWidget
 from PyQt4.QtCore import Qt, SIGNAL
-from edmColors import colorTable, findColorRule
+from .edmColors import colorTable, findColorRule
 # from __future__ import print_function
 
-class edmEditField:
+class edmEditField(object):
     ''' base class for the edit fields. Derived classes
         handle generating a specific widget set to display,
     '''
@@ -40,12 +47,12 @@ class edmEditField:
                 return prop
 
             except:
-                print "getval property fail", getter, index, defValue
+                print("getval property fail", getter, index, defValue)
                 return defValue
 
         # parse a widget property: "a[.b[.c]]"
         try:
-            if widget.DebugFlag > 0 : print "getval look for", property, index
+            if widget.DebugFlag > 0 : print("getval look for", property, index)
             prop = widget
             items = property.split(".")
             for ps in items[:-1] :
@@ -55,10 +62,10 @@ class edmEditField:
                 prop = prop()
             if index != None:
                 prop = prop[index]
-            if widget.DebugFlag > 0 : print "getval return", prop
+            if widget.DebugFlag > 0 : print("getval return", prop)
         except:
             #
-            if widget.DebugFlag > 0: print "getval fail: prop, return", property, defValue
+            if widget.DebugFlag > 0: print("getval fail: prop, return", property, defValue)
             return defValue
         return prop
 
@@ -87,7 +94,7 @@ def __makeMenuButton__(name, items):
     for label in items: menu.addAction(label)
     return button, menu
 
-class edmEdit:
+class edmEdit(object):
     '''container for related class instances
     '''
     class String(edmEditField):
@@ -334,7 +341,7 @@ class colorRectangle(QAbstractButton):
     def onClicked(self):
         self.callback(self.color.getName() )
 
-class ColorList:
+class ColorList(object):
     myColorList = None
     myCallback = None
     def __init__(self):
@@ -358,7 +365,7 @@ class ColorList:
         except: pass
         cls.myColorList.hide()
         
-class ColorGrid:
+class ColorGrid(object):
     myColorTable = None
     myCallback = None
     def __init__(self):
@@ -374,7 +381,7 @@ class ColorGrid:
             grid.setSpacing(0)
             for num, color in enumerate(colorTable.colorIndex):
                 if color != None:
-                    grid.addWidget( colorRectangle(color, cls.onNewColor), int(num/5), int(num%5) )
+                    grid.addWidget( colorRectangle(color, cls.onNewColor), int(old_div(num,5)), int(num%5) )
             cg.setLayout(grid)
 
         cls.myColorTable.show()

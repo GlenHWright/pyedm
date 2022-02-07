@@ -7,6 +7,8 @@
 #     Use PV Up/PV Down and value comparisons for the gate
 #     Use up/down or just up (selected by continuous)
 
+from builtins import range
+from builtins import object
 import pyedm.edmDisplay as edmDisplay
 from pyedm.edmApp import redisplay
 from pyedm.edmWidget import edmWidget
@@ -18,7 +20,7 @@ from PyQt4 import QtCore, QtGui
 from PyQt4.QtGui import QWidget, QFrame, QScrollArea, QPalette, QPainter
 
 # Placeholder for widget list.
-class symbolState:
+class symbolState(object):
     def __init__(self, stateno):
         self.stateNo = stateno
 

@@ -1,7 +1,12 @@
+from __future__ import print_function
+from __future__ import absolute_import
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 #
 # Generic widget support
 #
+from builtins import zip
+from builtins import str
+from builtins import object
 from PyQt4.QtCore import Qt, SIGNAL
 from PyQt4.QtGui import QPalette, QFontDatabase
 from pyedm.edmPVfactory import buildPV, expandPVname
@@ -10,16 +15,16 @@ import pyedm.edmFont as edmFont
 import pyedm.edmColors as edmColors
 # from __future__ import print_function
 
-from edmWidgetSupport import edmWidgetSupport
+from .edmWidgetSupport import edmWidgetSupport
 
-from edmEditWidget import edmEdit, edmEditWidget
+from .edmEditWidget import edmEdit, edmEditWidget
 
 # Configuration and status information for a color for a widget.
 # relates the Color Rule, the Color Value, the Alarm Status, and the
 # Palette Set. When a change occurs to color value or alarm status,
 # the widget "redisplay()" must be able to redraw
 #
-class reColorInfo:
+class reColorInfo(object):
     def __init__(self, widget, cr=None):
         self.widget = widget
         self.alarmSensitive = 0
@@ -42,26 +47,26 @@ class reColorInfo:
 
     # called for an alarm sensitive color
     def addAlarmStatus(self, alarmPV, widget):
-        if self.widget.DebugFlag > 0 : print "addAlarmStatus", alarmPV
+        if self.widget.DebugFlag > 0 : print("addAlarmStatus", alarmPV)
         self.alarmSensitive = 1
         self.alarmpv = alarmPV
         alarmPV.add_callback( self.onAlarmUpdate, self)
 
     def addColorPV(self, colorPV):
-        if self.widget.DebugFlag > 0 :print "addColorPV", self, colorPV
+        if self.widget.DebugFlag > 0 :print("addColorPV", self, colorPV)
         self.colorpv = colorPV
         colorPV.add_callback( self.onColorUpdate, self)
 
     def onAlarmUpdate(self, widget, **kw):
-        if self.widget.DebugFlag > 0 :print 'onAlarmUpdate', self, kw
+        if self.widget.DebugFlag > 0 :print('onAlarmUpdate', self, kw)
         if self.alarmSensitive == 0 or "severity" not in kw:
-            print "Useless onAlarmUpdate call!", self.alarmSensitive
+            print("Useless onAlarmUpdate call!", self.alarmSensitive)
             return
         self.alarmStatus = kw["severity"]
         redisplay(self.widget)
     
     def onColorUpdate(self, widget, **kw):
-        if self.widget.DebugFlag > 0 :print "onColorUpdate", self, kw
+        if self.widget.DebugFlag > 0 :print("onColorUpdate", self, kw)
         if "value" in kw:
             self.colorValue = kw["value"]
             redisplay(self.widget)
@@ -71,18 +76,18 @@ class reColorInfo:
     # colorinfo variables.
     def setColor(self, force=False):
         if self.widget == None: return  # true if cleanup in progress
-        if self.widget.DebugFlag > 0 :print 'setColor', self, self.alarmSensitive, self.alarmStatus
+        if self.widget.DebugFlag > 0 :print('setColor', self, self.alarmSensitive, self.alarmStatus)
         if self.widget.transparent == 1:
             col = edmColors.colorRule.invisible
         elif self.alarmSensitive and self.alarmStatus > 0:
             col = edmColors.getAlarmColor(self.alarmStatus, self.alarmpv.isValid )
         else:
             if self.colorRule == None:
-                if self.widget.DebugFlag > 0 :print "colorInfo: no color rule!"
+                if self.widget.DebugFlag > 0 :print("colorInfo: no color rule!")
                 return
             col = self.colorRule.getColor( self.colorValue)
         if col != self.lastColor or force:
-            if self.widget.DebugFlag > 0 :print "Changing", self.widget, "palette", col, self.colorPalette, self.colorValue, self.alarmStatus, self.alarmSensitive
+            if self.widget.DebugFlag > 0 :print("Changing", self.widget, "palette", col, self.colorPalette, self.colorValue, self.alarmStatus, self.alarmSensitive)
             self.lastColor = col
             self.widget.setupPalette( col, self.colorPalette)
         return col
@@ -134,18 +139,18 @@ class edmWidget(edmWidgetSupport):
         self.setStyle (edmApp.commonstyle)
 
     def destructNotification(self, me):
-        if self.DebugFlag > 0 : print "destroying", me, "self:", self
+        if self.DebugFlag > 0 : print("destroying", me, "self:", self)
         self.cleanup()
         # del self
 
     def __del__(self):
-        if self.DebugFlag > 0 : print "Deleting", self
+        if self.DebugFlag > 0 : print("Deleting", self)
         self.cleanup()
 
     def cleanup(self):
         '''remove callbacks and references to other objects'''
         import sip
-        if self.DebugFlag > 0 :print "cleanup", self, sip.dump(self)
+        if self.DebugFlag > 0 :print("cleanup", self, sip.dump(self))
         # Not true errors - fgColorInfo, bgColorInfo might not exist with custom coloring information
         try: self.fgColorInfo.cleanup()
         except: pass
@@ -176,7 +181,7 @@ class edmWidget(edmWidgetSupport):
 
     # Generic object creation
     def buildFromObject(self, object, attr=Qt.WA_TransparentForMouseEvents):
-        if self.DebugFlag > 0: print "buildFromObject", object
+        if self.DebugFlag > 0: print("buildFromObject", object)
         self.setGeometry(object.getIntProperty("x")-1-self.edmParent.parentx,
         object.getIntProperty("y")-1-self.edmParent.parenty,
         object.getIntProperty("w")+2, object.getIntProperty("h")+2)
@@ -225,7 +230,7 @@ class edmWidget(edmWidgetSupport):
         try:
             pt = standard + classRef.V3propTable[idx]
         except:
-            print 'no V3 table for', classRef, "index", idx
+            print('no V3 table for', classRef, "index", idx)
             return standard
         return pt
 
@@ -233,9 +238,9 @@ class edmWidget(edmWidgetSupport):
     def setV3PropertyList(classRef, propValue, tags):
         propName = classRef.getV3PropertyList(tags['major'], tags['minor'], tags['release'])
         if len(propValue) != len(propName):
-            print "warning: mismatched property list", len(propName), len(propValue)
-            print propName
-            print propValue
+            print("warning: mismatched property list", len(propName), len(propValue))
+            print(propName)
+            print(propValue)
 
         for n,v in zip(propName, propValue):
             tags[n] = v
@@ -248,7 +253,7 @@ class edmWidget(edmWidgetSupport):
             self.setVisible(self.visible)
 
     def redisplay(self):
-        if self.DebugFlag > 0 :print 'redisplay', self
+        if self.DebugFlag > 0 :print('redisplay', self)
         self.checkVisible()
         self.fgColorInfo.setColor()
         self.bgColorInfo.setColor()
@@ -271,8 +276,8 @@ class edmWidget(edmWidgetSupport):
     # NOTE: currently only called by findFgColor and findBgColor
     # if alarmName != 0, flag to look for alarm sensitivity
     def findColor( self, colorName, palette, alarmpv=None, alarmName=None, fillName=None, fillTest=True):
-        if self.DebugFlag > 0 :print 'findColor(', self, colorName, palette, alarmpv, alarmName, fillName, fillTest, ')'
-        if self.DebugFlag > 0 :print '... alarmName=', self.object.getIntProperty(alarmName,0)
+        if self.DebugFlag > 0 :print('findColor(', self, colorName, palette, alarmpv, alarmName, fillName, fillTest, ')')
+        if self.DebugFlag > 0 :print('... alarmName=', self.object.getIntProperty(alarmName,0))
         # if there is a PV that we'll alarm against, list it here. Otherwise,
         # use the colorName to fill the background
         alarmid = self.getAlarmPv(alarmName)
@@ -299,7 +304,7 @@ class edmWidget(edmWidgetSupport):
     # individual widgets that don't agree with this list can over-ride the function.
     # colorName is available to select which PV's may be of interest.
     def setColorPV(self, rcinfo, colorName):
-        if self.DebugFlag > 0 : print 'setColorPV(', rcinfo, colorName, ')'
+        if self.DebugFlag > 0 : print('setColorPV(', rcinfo, colorName, ')')
         if getattr(self, "colorPV", None) != None:
             rcinfo.addColorPV( self.colorPV)
         elif getattr( self, "controlPV", None) != None:
@@ -321,7 +326,7 @@ class edmWidget(edmWidgetSupport):
     # assign a color to a palette set
     def setupPalette(self, color, paletteList):
         if len(paletteList) == 0:
-            print "setupPalette: ignoring widget", self, "color", color
+            print("setupPalette: ignoring widget", self, "color", color)
             return
         pal = self.palette()
         for colorRole in paletteList:
@@ -362,7 +367,7 @@ class edmWidget(edmWidgetSupport):
         item = self.pvItem[tag]
         mt = self.findMacroTable()
         if checkChanged:
-            if edmApp.DebugFlag > 0: print "checkchanged:", pvName
+            if edmApp.DebugFlag > 0: print("checkchanged:", pvName)
             oldPV = getattr(self, item[1], None)
             pref, newName = buildPV(pvName, mt)
             if pref.upper() in pv.prefix and newName == pv.name:
@@ -403,7 +408,7 @@ class edmWidget(edmWidgetSupport):
             if self.visInvert > 0: self.visible = 1-self.visible
         except:
             # failures should force visibility
-            print "onCheckVisible failure. Make it visible '%s'" % ( str(value),)
+            print("onCheckVisible failure. Make it visible '%s'" % ( str(value),))
             self.visible = 1
 
         if self.lastVisible != self.visible:
@@ -426,7 +431,7 @@ class edmWidget(edmWidgetSupport):
         return opModeExecute
 
     def setEditMode(self, eventfilter):
-        print "installing event filter", self
+        print("installing event filter", self)
         self.installEventFilter(eventfilter)
             
     def setExecuteMode(self, eventfilter=None):

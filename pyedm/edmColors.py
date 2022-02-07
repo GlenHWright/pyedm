@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # Support reading of an edm Colors file for defining widget colors.
 #
@@ -6,6 +7,8 @@
 # widget.someColor = findColorRule(my_Name_Or_Index)
 # something_that_needs_a_QColor( widget.someColor.getColor( ColorPV value, default Color))
 
+from builtins import range
+from builtins import object
 from os import getenv
 import re
 from PyQt4.QtCore import Qt
@@ -13,8 +16,8 @@ from PyQt4.QtGui import QColor
 # from __future__ import print_function
 
 # define one part of a rule
-class oneRule:
-    NO_OP, LT, LE, GT, GE, EQ, NE, AND, OR, DEFAULT = range(0, 10)
+class oneRule(object):
+    NO_OP, LT, LE, GT, GE, EQ, NE, AND, OR, DEFAULT = list(range(0, 10))
 
     opTable = { "<" : LT, "<=" : LE, ">" : GT, ">=" : GE, "=" : EQ, "==" : EQ,
     "!=" : NE, "&&" : AND, "||" : OR, "default" : DEFAULT, "DEFAULT" : DEFAULT}
@@ -37,13 +40,13 @@ class oneRule:
         return 0
 
     def printRule(self, indent=0):
-        print "  "*indent, self.op, self.val
+        print("  "*indent, self.op, self.val)
         if self.left != None:
             self.left.printRule(indent+1)
         if self.right != None:
             self.right.printRule(indent+1)
         
-class colorRule:
+class colorRule(object):
     invisible = QColor(0,0,0,0)
     def __init__(self, name=None):
         self.ruleList = []
@@ -68,13 +71,13 @@ class colorRule:
         for rule in self.ruleList:
             if rule.truthTest(value):
                 if rule.color == None:
-                    print self.name, "using default color (none set). value=", value, "def=",defColor
+                    print(self.name, "using default color (none set). value=", value, "def=",defColor)
                     return defColor
                 return rule.color
-        print self.name, "using default color (no match), value=", value, "def=", defColor
+        print(self.name, "using default color (no match), value=", value, "def=", defColor)
         return defColor
 
-class edmColor:
+class edmColor(object):
     # This pattern element looks weird - what it does is fails the match if
     # it immediately followed by "=" followed by a non-identifier character
     #    | [a-zA-Z0-9\.-]*(?=[^\.a-zA-Z0-9-])
@@ -134,13 +137,13 @@ class edmColor:
                 start = start+1
                 value = float(buildList[start])
             start = start+1
-        print 'buildRule dropped out the bottom!'
+        print('buildRule dropped out the bottom!')
         return start
 
     def loadColor(self, filename):
         try: fp = open(filename, "r")
         except:
-            print "Unable to open Color File '%s'" % (filename,)
+            print("Unable to open Color File '%s'" % (filename,))
             return
 
         inBlock = 0
@@ -154,7 +157,7 @@ class edmColor:
             if word == None:
                 fp.close()
                 return
-            if self.debug>0 : print word, self.wordlist, inBlock, capture, needWords, needBlock
+            if self.debug>0 : print(word, self.wordlist, inBlock, capture, needWords, needBlock)
             if inBlock:
                 if word != "}":
                     blockList.append( word)
@@ -191,11 +194,11 @@ class edmColor:
                     words = []
                     idx = 0
                     inProgress = oneRule()
-                    if self.debug > 0: print "building rules list", blockList
+                    if self.debug > 0: print("building rules list", blockList)
                     while idx < len(blockList):
                         idx = self.buildRule(blockList, inProgress, idx)
                         if blockList[idx] != ":":
-                            print "Warning: blocklist[", idx, "] != ':'"
+                            print("Warning: blocklist[", idx, "] != ':'")
                             break
                         idx = idx+1
                         staticRule = self.findRule( blockList[idx])
@@ -290,7 +293,7 @@ class edmColor:
             if line == None:
                 return None
             self.wordlist = self.pat_r.findall(line)
-            if self.debug : print "Wordlist is ", self.wordlist
+            if self.debug : print("Wordlist is ", self.wordlist)
             if self.wordlist == []:
                 return None
 
@@ -306,7 +309,7 @@ class edmColor:
 
     def getNextLine(self,fp):
         line = fp.readline()
-        if self.debug > 0 : print "Read Line:", line
+        if self.debug > 0 : print("Read Line:", line)
         return line
 
 # Wrappers for 'edmColors'

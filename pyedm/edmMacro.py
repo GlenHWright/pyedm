@@ -1,9 +1,11 @@
+from __future__ import print_function
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
+from builtins import object
 from pyedm.edmApp import edmApp
 import re
 # from __future__ import print_function
 
-class macroDictionary:
+class macroDictionary(object):
     idno = 0
     def __init__(self, parent=None):
         self.macroTable = {}
@@ -20,7 +22,7 @@ class macroDictionary:
     # Call to explicitly add a "name" entry, which expands to "value"
     def addMacro(self, name, value=None):
         name = name.lstrip()
-        if edmApp.DebugFlag > 0: print self, "adding macro <%s> with value <%s>" % (name, value)
+        if edmApp.DebugFlag > 0: print(self, "adding macro <%s> with value <%s>" % (name, value))
         if value != None and name in value:       # possible recursion: try an early expansion
             value = self.expand(value)
         self.macroTable[name] = value
@@ -39,14 +41,14 @@ class macroDictionary:
                 self.addMacro(nm[0])
 
     def findValue(self, macName):
-        if edmApp.DebugFlag > 0 : print self, "looking for", macName
+        if edmApp.DebugFlag > 0 : print(self, "looking for", macName)
         if macName in self.macroTable:
-            if edmApp.DebugFlag > 0: print  "  ... found", self.macroTable[macName]
+            if edmApp.DebugFlag > 0: print("  ... found", self.macroTable[macName])
             return self.macroTable[macName]
         if self.parent:
             return self.parent.findValue(macName)
-        if edmApp.DebugFlag > 0: print " ... not found"
-        print "Macro", macName, "not found in table", self, "or parent", self.parent
+        if edmApp.DebugFlag > 0: print(" ... not found")
+        print("Macro", macName, "not found in table", self, "or parent", self.parent)
         return None
 
     def expand( self, input):

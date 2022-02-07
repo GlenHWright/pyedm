@@ -1,11 +1,13 @@
+from __future__ import print_function
+from __future__ import absolute_import
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt, QEvent, QObject
 from PyQt4.Qt import QApplication, QClipboard
 from PyQt4.QtGui import QMenu
-from edmWidgetSupport import edmWidgetSupport
-from edmWidget import edmWidget
-from edmEditWidget import edmEditWidget
+from .edmWidgetSupport import edmWidgetSupport
+from .edmWidget import edmWidget
+from .edmEditWidget import edmEditWidget
 # from __future__ import print_function
 # A simple top-level widget, and support for managing mouse buttons.
 #
@@ -105,7 +107,7 @@ def mousePressEvent(widget, event, editMode=False):
         if ch.isWidgetType() and not ch.isWindow() and not ch.isHidden() and ch.geometry().contains(pos):
             point = ch.mapFromParent(pos)
             if ch.focusPolicy() != Qt.NoFocus:
-                if debug>0 : print "Changing focus to:", ch
+                if debug>0 : print("Changing focus to:", ch)
                 ch.setFocus()
             ch.mousePressEvent( QtGui.QMouseEvent(event.type(), point, event.globalPos(), event.button(), event.buttons(), event.modifiers() ) )
             found = True
@@ -144,7 +146,7 @@ def findDragName(widget, pos):
                 return True
         if hasattr(ch, "pvItem") == False:
             continue
-        for item in ch.pvItem.values():
+        for item in list(ch.pvItem.values()):
             pv = getattr(ch, item[1], None)
             if pv == None:
                 continue

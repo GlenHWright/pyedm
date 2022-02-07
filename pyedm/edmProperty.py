@@ -3,6 +3,7 @@
 #
 #
 
+from builtins import object
 class edmPropertyType(object):
     ''' generic class for managing the different types of edm widget properties.
         in a model/view environment, this is the model.
@@ -10,7 +11,7 @@ class edmPropertyType(object):
     def __init__(name=None, label=None, objectID=None, edit=None):
         self.name, self.label, self.objectID, self.edit = name, label, objectID, edit
 
-class edmProperty:
+class edmProperty(object):
     class Int(edmPropertyType):
          pass
 

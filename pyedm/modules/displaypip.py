@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # This module displays a "picture in picture", or embedded screen.
 #
@@ -176,7 +177,7 @@ class activePipClass(QScrollArea,edmWidget):
             return
         self.scrollable.hide()
         for child in self.scrollable.children():
-            if self.DebugFlag > 0 : print "redisplay: cleanup", child
+            if self.DebugFlag > 0 : print("redisplay: cleanup", child)
             if not child.isWidgetType() : continue
             child.cleanup()
             child.edmParent = None
@@ -189,7 +190,7 @@ class activePipClass(QScrollArea,edmWidget):
         try:
             return self.rawFileList[index]
         except:
-            if self.DebugFlag > 0 : print "return default", defValue
+            if self.DebugFlag > 0 : print("return default", defValue)
             return defValue
 
     def getLabel(self, index=None, defValue=None):

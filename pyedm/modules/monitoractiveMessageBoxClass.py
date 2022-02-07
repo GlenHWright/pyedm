@@ -46,6 +46,6 @@ class messageBoxClass(QWidget,edmWidget):
         self.line.append(self.pv.char_value)
 
     def clear(self):
-	self.line.clear()
+        self.line.clear()
 
 edmDisplay.edmClasses["activeMessageBoxClass"] = messageBoxClass

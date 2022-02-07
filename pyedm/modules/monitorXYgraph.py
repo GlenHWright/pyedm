@@ -1,6 +1,9 @@
+from __future__ import print_function
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # Module to display an XY graph
 
+from builtins import str
+from builtins import range
 import pyedm.edmDisplay as edmDisplay
 from pyedm.edmPVfactory import buildPV
 from pyedm.edmApp import redisplay
@@ -112,7 +115,7 @@ class xyGraphClass(Qwt.QwtPlot,edmWidget):
             self.setAxisTitle( Qwt.QwtPlot.xBottom, self.xLabel )
 
         if self.xAxisSrc == "fromUser":
-            print 'xAxisSrc=', self.xMin, self.xMax
+            print('xAxisSrc=', self.xMin, self.xMax)
             self.setAxisScale( Qwt.QwtPlot.xBottom, self.xMin, self.xMax )
 
         # Y-axis
@@ -156,7 +159,7 @@ class xyGraphClass(Qwt.QwtPlot,edmWidget):
             curve.nPts = npts
             curve.edmXdata = collections.deque(maxlen=npts )
             curve.edmYdata = collections.deque( maxlen=npts )
-            if self.DebugFlag > 0: print 'xyPlotData build curve', curve.xPv, curve.yPv, curve.updateMode
+            if self.DebugFlag > 0: print('xyPlotData build curve', curve.xPv, curve.yPv, curve.updateMode)
 
         if self.xAxisStyle == "time":
             if self.updateTimerMs is None:
@@ -166,11 +169,11 @@ class xyGraphClass(Qwt.QwtPlot,edmWidget):
                 self.axisScaleEngine( Qwt.QwtPlot.xBottom ).setAttribute( Qwt.QwtScaleEngine.Inverted )
                 self.setAxisScaleDraw(Qwt.QwtPlot.xBottom, TimeScaleDraw(time.time()))
 
-        print self.xLabelIntervals
+        print(self.xLabelIntervals)
         if self.xLabelIntervals != None:
             medium = self.xMajorsPerLabel
             minor = self.xMinorsPerMajor
-            print self.xLabelIntervals, medium, minor
+            print(self.xLabelIntervals, medium, minor)
             self.setAxisMaxMajor( Qwt.QwtPlot.xBottom, self.xLabelIntervals+1)
             if minor != None:
                 self.setAxisMaxMinor( Qwt.QwtPlot.xBottom, minor)
@@ -183,7 +186,7 @@ class xyGraphClass(Qwt.QwtPlot,edmWidget):
     def pvConnect( self, nameList, idx, callback=None, callbackArgs=None):
         if nameList == None or len(nameList) <= idx or nameList[idx] == None:
             return None
-        if self.DebugFlag > 0: print 'xyPlotData pvConnect', nameList[idx], callback
+        if self.DebugFlag > 0: print('xyPlotData pvConnect', nameList[idx], callback)
         pv = buildPV( nameList[idx], macroTable=self.findMacroTable())
         pv.add_callback( callback, self, callbackArgs)
         return pv
@@ -196,7 +199,7 @@ class xyGraphClass(Qwt.QwtPlot,edmWidget):
         try:
             show = { 'x':'showXAxis', 'y':'showYAxis', 'y2':'showY2Axis' }[prefix]
         except:
-            print "axisInfo: Bad prefix", prefix
+            print("axisInfo: Bad prefix", prefix)
             return
         setattr(self, show, object.getIntProperty(show, 0))
         setattr(self, prefix+"AxisStyle", object.getStringProperty(prefix+"AxisStyle", None))  # only care about time and linear
@@ -220,7 +223,7 @@ class xyGraphClass(Qwt.QwtPlot,edmWidget):
     #
     # called when a PV listed as a "y" source updates
     def yDataCallback(self, widget, userArgs=None, **args):
-        if self.DebugFlag > 0 : print 'xyPlotdata yDataCallback', widget, userArgs, args
+        if self.DebugFlag > 0 : print('xyPlotdata yDataCallback', widget, userArgs, args)
         if userArgs == None:
             return
         curve = userArgs[0]
@@ -251,7 +254,7 @@ class xyGraphClass(Qwt.QwtPlot,edmWidget):
 
     # called when a PV listed as an "x" source updates
     def xDataCallback(self, widget, userArgs=None, **args):
-        if self.DebugFlag > 0 : print 'xyPlotData xDataCallback', widget, userArgs, args
+        if self.DebugFlag > 0 : print('xyPlotData xDataCallback', widget, userArgs, args)
         if userArgs == None:
             return
         curve = userArgs[0]
@@ -270,7 +273,7 @@ class xyGraphClass(Qwt.QwtPlot,edmWidget):
             redisplay(self)
 
     def triggerCallback(self, widget, **args):
-        if self.DebugFlag > 0 : print 'xyPlotData triggerCallback', widget, args
+        if self.DebugFlag > 0 : print('xyPlotData triggerCallback', widget, args)
         if hasattr(self, "curves") == 0:
             return
         for curve in self.curves:
@@ -279,10 +282,10 @@ class xyGraphClass(Qwt.QwtPlot,edmWidget):
             if curve.edmXdata == [] :
                 if curve.edmYdata == [] :
                     continue
-                curve.edmXdata = range(1, len(curve.edmYdata)+1)
+                curve.edmXdata = list(range(1, len(curve.edmYdata)+1))
             else:
                 if curve.edmYdata == [] :
-                    curve.edmYdata = range(1, len(curve.edmXdata)+1)
+                    curve.edmYdata = list(range(1, len(curve.edmXdata)+1))
             #curve.setData(curve.edmXdata, curve.edmYdata )
         
             curve.setData(list(curve.edmXdata), list(curve.edmYdata))
@@ -298,12 +301,12 @@ class xyGraphClass(Qwt.QwtPlot,edmWidget):
     # called from redisplay on the timer queue. It is safe to redraw here.
     #
     def redisplay(self, **kw):
-        if self.DebugFlag > 0 : print 'xyPlotData redisplay', kw
+        if self.DebugFlag > 0 : print('xyPlotData redisplay', kw)
         self.checkVisible()
         self.replot()
 
     def timerEvent(self, e):
-        if self.DebugFlag > 0 : print 'timerEvent'
+        if self.DebugFlag > 0 : print('timerEvent')
         for curve in self.curves:
             if len(curve.edmYdata) == 0:
                 return

@@ -1,5 +1,6 @@
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # This module generates a display for drop-down menu
+from builtins import range
 import pyedm.edmDisplay as edmDisplay
 from pyedm.edmWidget import edmWidget
 

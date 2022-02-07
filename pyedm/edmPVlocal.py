@@ -1,5 +1,8 @@
+from __future__ import print_function
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # Support for LOC pv types
+from builtins import str
+from builtins import object
 from pyedm.edmPVfactory import edmPVbase, pvClassDict
 from pyedm.edmApp import edmApp
 # from __future__ import print_function
@@ -24,7 +27,7 @@ def intConverter(value, enums):
     else:
         val = int(value)
     return val, str(value)
-class channel:
+class channel(object):
     # these types match the general types from edmPVbase
     types = { "i":edmPVbase.typeInt,
               "d":edmPVbase.typeFloat,
@@ -62,7 +65,7 @@ class channel:
         try:
             self.value, self.char_value = self.converter[self.pvType](value, self.enums)
         except:
-            print "Local PV initialization failed:", self.name, value
+            print("Local PV initialization failed:", self.name, value)
             self.value = 0
             self.char_value = ""
 
@@ -77,20 +80,20 @@ class channel:
                 if self.pvType == edmPVbase.typeUnknown:
                     self.pvType = self.types[words[0]]
                 else:
-                    print "Type conflict for PV", self.name, self.types[words[0]], self.pvType
+                    print("Type conflict for PV", self.name, self.types[words[0]], self.pvType)
 
     def setValue(self, value):
-        if edmApp.DebugFlag > 0: print 'setValue(', self, value, ')'
+        if edmApp.DebugFlag > 0: print('setValue(', self, value, ')')
         try:
             self.value, self.char_value = self.converter[self.pvType](value, self.enums)
         except:
-            print "ERROR: setValue() failure for", self.name, value, type(value)
+            print("ERROR: setValue() failure for", self.name, value, type(value))
             return
 
         for ePV in self.connectList:
             ePV.value = self.value
             ePV.char_value = self.char_value
-            if ePV.DebugFlag > 0: print "callback LOCAL", self.name, "value=", value
+            if ePV.DebugFlag > 0: print("callback LOCAL", self.name, "value=", value)
             for fn in ePV.callbackList:
                     fn[0](fn[1], pvname=self.name, chid=0,pv=ePV,value=self.value,count=1,units=ePV.units,severity=0,userArgs=fn[2])
 

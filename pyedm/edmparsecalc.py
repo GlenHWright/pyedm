@@ -1,3 +1,5 @@
+from __future__ import division
+from __future__ import print_function
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 #
 # Majority of the code taken from EPICS libCom/calc/calcPerform.c,
@@ -7,6 +9,9 @@
 # Strings are turned into an intermediate tree, and evaluated on request.
 #
 
+from builtins import range
+from builtins import object
+from past.utils import old_div
 from pyedm.edmparsetable import *
 import re
 import math
@@ -14,14 +19,14 @@ import math
 
 opchars = "(!=|#|%|&&|&|\)|\*\*|\*|\+|,|-|/|:|:=|;|<<|<=|<|==|=|>=|>>|>|\?|\^|\|\||\||\()"
 
-class Postfix:
+class Postfix(object):
     def __init__(self, expr=None):
         self.DebugFlag = False
         if expr != None:
             self.parseExpression(expr)
 
     def __get_element__(self, need_operand, symbol):
-        if self.DebugFlag : print "__get_element__", need_operand, symbol
+        if self.DebugFlag : print("__get_element__", need_operand, symbol)
         symbol = symbol.strip()
         if need_operand == False:
             if symbol in operators:
@@ -44,9 +49,9 @@ class Postfix:
         while idx < len(words):
             elem = self.__get_element__(need_operand, words[idx])
             if elem == None:
-                print "Unexpected: '%s'" % (words[idx], )
+                print("Unexpected: '%s'" % (words[idx], ))
                 return None
-            if self.DebugFlag > 0: print "parsed as", elem.opcode
+            if self.DebugFlag > 0: print("parsed as", elem.opcode)
             if elem.stack_effect > 0:       # OPERAND
                 postfix.append(elem.opcode)
                 depth = depth+elem.stack_effect
@@ -54,7 +59,7 @@ class Postfix:
                     try:
                         lit_d = float(words[idx])
                     except:
-                        print "Bad double", words[idx]
+                        print("Bad double", words[idx])
                         return None
                     lit_i = int(lit_d)
                     if float(lit_i) == lit_d:
@@ -78,7 +83,7 @@ class Postfix:
             elif elem.type == SEPERATOR:
                 while stack[-1][0].type != OPEN_PAREN:
                     if len(stack) <= 1:
-                        print "Bad comma placement"
+                        print("Bad comma placement")
                         return None
                     e, effect = stack.pop()
                     postfix.append(e.opcode)
@@ -91,7 +96,7 @@ class Postfix:
             elif elem.type == CLOSE_PAREN:
                 while stack[-1][0].type != OPEN_PAREN:
                     if len(stack) <= 1:
-                        print "Parenthesis error"
+                        print("Parenthesis error")
                         return None
                     e, effect = stack.pop()
                     postfix.append(e.opcode)
@@ -102,7 +107,7 @@ class Postfix:
                 if len(stack) > 0:
                     stack[-1][1] = effect
                     if effect > 0:
-                        print "no args?"
+                        print("no args?")
 
             elif elem.type == CONDITIONAL:
                 while len(stack) > 0 and stack[-1][0].stack_pri > elem.input_pri:
@@ -124,7 +129,7 @@ class Postfix:
                 while len(stack) > 0:
                     e, effect = stack.pop()
                     if e.type == OPEN_PAREN:
-                        print "Missing closing parenthesis"
+                        print("Missing closing parenthesis")
                         return None
                     postfix.append(e.opcode)
                     if e.type == VARARG_OPERATOR:
@@ -132,17 +137,17 @@ class Postfix:
                     depth = depth + effect
 
                 if self.cond_count != 0:
-                    print "Bad conditional"
+                    print("Bad conditional")
                     return None
                 if depth > 1:
-                    print "Too many results returned"
+                    print("Too many results returned")
                 need_operand = True
 
             elif elem.type == STORE_OPERATOR:
                 pass
 
             else:
-                print "How did I get here?"
+                print("How did I get here?")
                 return None
 
             idx = idx + 1
@@ -169,10 +174,10 @@ class Postfix:
 
     def nextop(self, opiter):
         try:
-            op = opiter.next()
+            op = next(opiter)
             return op
         except StopIteration:
-            print "request for next op failed"
+            print("request for next op failed")
             return None
 
     def calculate(self, variables=None):
@@ -181,7 +186,7 @@ class Postfix:
         opiter = iter(self.postfix)
         while True:
             try:
-                op = opiter.next()
+                op = next(opiter)
             except StopIteration:
                 break
 
@@ -193,9 +198,9 @@ class Postfix:
             elif op == CONST_PI:
                 stack.append(math.pi)
             elif op == CONST_D2R:
-                stack.append(math.pi/180.0)
+                stack.append(old_div(math.pi,180.0))
             elif op == CONST_R2D:
-                stack.append(180.0/math.pi)
+                stack.append(old_div(180.0,math.pi))
             elif op == UNARY_NEG:
                 stack[-1] = -stack[-1]
             elif op == ADD:
@@ -209,7 +214,7 @@ class Postfix:
                 stack[-1] = stack[-1] * top
             elif op == DIV:
                 top = stack.pop()
-                stack[-1] = stack[-1] / top
+                stack[-1] = old_div(stack[-1], top)
             elif op == MODULO:
                 top = stack.pop()
                 stack[-1] = math.fmod(stack[-1] , top)
@@ -226,15 +231,15 @@ class Postfix:
             elif op == LOG_E:
                 stack[-1] = math.log(stack[-1])
             elif op == MAX:
-                nargs = opiter.next()
-                print "nargs=", nargs
+                nargs = next(opiter)
+                print("nargs=", nargs)
                 for idx in range(nargs-1):
                     top = stack.pop()
                     if stack[-1] < top or math.isnan(top):
                         stack[-1] = top
             elif op == MIN:
-                nargs = opiter.next()
-                print "nargs=", nargs
+                nargs = next(opiter)
+                print("nargs=", nargs)
                 for idx in range(nargs-1):
                     top = stack.pop()
                     if stack[-1] > top or math.isnan(top):
@@ -332,11 +337,11 @@ class Postfix:
             elif op == END_EXPRESSION:
                 pass
             else:
-                print "Bad opcode:", op
+                print("Bad opcode:", op)
                 return None
 
         if len(stack) != 1:
-            print "poorly formed expression list", stack, self.postfix
+            print("poorly formed expression list", stack, self.postfix)
             return None
         return stack[0]
 
@@ -351,15 +356,15 @@ class Postfix:
                 nest += 1
             # TO DO: skip literals, variable list functions
             elif op == LITERAL_DOUBLE or op == LITERAL_INT:
-                opiter.next()
+                next(opiter)
             elif op in (MIN, MAX, FINITE, ISNAN):
-                opiter.next()
-            op = opiter.next()
+                next(opiter)
+            op = next(opiter)
 
 if __name__ == "__main__":
     import sys
     tree = Postfix()
     tree.DebugFlag = 1
     tree.parseExpression(sys.argv[1])
-    print tree.postfix
-    print tree.calculate( [1,2,3,4,5,6,7,8,9,10,11,12] )
+    print(tree.postfix)
+    print(tree.calculate( [1,2,3,4,5,6,7,8,9,10,11,12] ))
