@@ -1,22 +1,27 @@
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # Module for generating a widget for a static text display class
 
+from builtins import str
 import pyedm.edmDisplay as edmDisplay
 from pyedm.edmWidget import edmWidget
 from pyedm.edmApp import redisplay
 
-from PyQt4.QtGui import QPushButton, QPalette
-from PyQt4 import QtCore
-from PyQt4.QtCore import SIGNAL
+from PyQt5.QtWidgets import QPushButton
+from PyQt5.QtGui import QPalette
+from PyQt5 import QtCore
+#from PyQt5.QtCore import SIGNAL
 
 class activeButtonClass(QPushButton, edmWidget):
-    V3propTable = { "2-4" : [ "INDEX", "fgColor", "fgAlarm", "INDEX", "onColor", "INDEX", "offColor", "INDEX", "unknownColor", "INDEX", "topShadowColor", "INDEX", "botShadowColor",
+    V3propTable = {
+        "2-1" : [ "fgColor", "fgAlarm", "onColor", "offColor", "unknownColor", "topShadowColor", "botShadowColor",
+        "controlPv", "readPv", "onLabel", "offLabel", "labelType", "buttonType", "threeD", "invisible", "font", "ID", "downCallbackFlag", "upCallbackFlag", "activateCallbackFlag",
+        "deactivateCallbackFlag", "objType", "visPv", "visInvert", "visMin", "visMax", "colorPv" ],
+        "2-4" : [ "INDEX", "fgColor", "fgAlarm", "INDEX", "onColor", "INDEX", "offColor", "INDEX", "unknownColor", "INDEX", "topShadowColor", "INDEX", "botShadowColor",
         "controlPv", "readPv", "onLabel", "offLabel", "labelType", "buttonType", "threeD", "invisible", "font", "ID", "downCallbackFlag", "upCallbackFlag", "activateCallbackFlag",
         "deactivateCallbackFlag", "objType", "visPv", "visInvert", "visMin", "visMax", "colorPv" ]
         }
-    def __init__(self, parent=None):
-        QPushButton.__init__(self, parent)
-        edmWidget.__init__(self, parent)
+    def __init__(self, parent=None, **kw):
+        super().__init__(parent=parent, **kw)
         # if these aren't over-ridden, then they end up being the labels by default
         self.onLabel = "1"
         self.offLabel = "0"
@@ -47,10 +52,13 @@ class activeButtonClass(QPushButton, edmWidget):
         self.setText(self.offLabel)
         # if a toggle button, use the 'clicked' signal.
         if self.isCheckable():
-            self.connect(self, SIGNAL("clicked(bool)"), self.onClicked)
+            #self.connect(self, SIGNAL("clicked(bool)"), self.onClicked)
+            self.clicked.connect(self.onClicked)
         else:
-            self.connect(self, SIGNAL("pressed()"), self.onPress)
-            self.connect(self, SIGNAL("released()"), self.onRelease)
+            #self.connect(self, SIGNAL("pressed()"), self.onPress)
+            #self.connect(self, SIGNAL("released()"), self.onRelease)
+            self.pressed.connect(self.onPress)
+            self.released.connect(self.onRelease)
         self.edmParent.buttonInterest.append(self)
         redisplay(self)
 

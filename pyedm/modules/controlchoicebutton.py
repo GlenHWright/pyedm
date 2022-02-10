@@ -1,18 +1,20 @@
+from __future__ import division
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # This module generates a widget containing one button per state for a PV
+from builtins import range
 import pyedm.edmDisplay as edmDisplay
 from pyedm.edmWidget import edmWidget
 from pyedm.edmApp import redisplay
 from pyedm.edmWindowWidget import mousePressEvent, mouseReleaseEvent
 
-from PyQt4.QtGui import QWidget, QLayout, QVBoxLayout, QHBoxLayout, QButtonGroup, QPushButton, QPalette
-from PyQt4 import QtCore
-from PyQt4.QtCore import SIGNAL
+from PyQt5.QtWidgets import QWidget, QLayout, QVBoxLayout, QHBoxLayout, QButtonGroup, QPushButton
+from PyQt5.QtGui import QPalette
+from PyQt5 import QtCore
+from PyQt5.QtCore import pyqtSlot
 
 class activeChoiceButtonClass(QWidget,edmWidget):
     def __init__(self,parent=None):
-        QWidget.__init__(self,parent)
-        edmWidget.__init__(self,parent)
+        super().__init__(parent)
         self.ready = 0
         self.pvItem["controlPv"] = [ "controlName", "controlPV", 1, None, None , onConnect, (self, ) ]
 
@@ -26,10 +28,12 @@ class activeChoiceButtonClass(QWidget,edmWidget):
         self.layout = QVBoxLayout() if self.orientation == "vertical" else QHBoxLayout()
         self.setLayout(self.layout)
         self.layout.setSpacing(0)
-        self.layout.setMargin(0)
+        #self.layout.setMargin(0)
+        self.layout.setContentsMargins(0,0,0,0)
         self.group = QButtonGroup(self)
         self.lastSelect = -2
-        self.group.connect( self.group, SIGNAL("buttonClicked(int)"), self.gotNewValue)
+        self.group.buttonClicked.connect(self.gotNewValue)
+
         self.selectColorInfo = self.findColor("selectColor",(QPalette.Button,) )
         self.buttonInterest = []
         self.edmParent.buttonInterest.append(self)
@@ -48,10 +52,13 @@ class activeChoiceButtonClass(QWidget,edmWidget):
     def findBgColor(self):
         self.bgColorInfo = self.findColor( "bgColor", (QPalette.Button,), "FGalarm", "fgAlarm")
 
-    def gotNewValue(self, value):
+    @pyqtSlot()
+    def gotNewValue(self):
+        button = self.group.checkedId()
         if self.controlPV == None or getattr(self, 'menu', None) == None:
             return
-        self.controlPV.put( value)
+        self.controlPV.put( button )
+        self.redisplay()
 
     def redisplay(self):
         # called when the control PV changes
@@ -59,10 +66,11 @@ class activeChoiceButtonClass(QWidget,edmWidget):
         self.checkVisible()
         if self.ready < 0:
             self.rebuildList()
-        bt = self.group.button(self.controlPV.value)
+        bid = int(self.controlPV.value)
+        bt = self.group.button(bid)
         if bt != None:
             bt.setChecked(True)
-        self.setButtonColors( self.controlPV.value)
+        self.setButtonColors( bid)
         self.update()
 
     def setButtonColors(self, checkVal):
@@ -96,11 +104,11 @@ class activeChoiceButtonClass(QWidget,edmWidget):
         height = self.height()
         num = len(self.menu)
         if self.orientation == "horizontal":
-            width = width / num
+            width = width// num
             xIncr = width
             yIncr = 0
         else:
-            height = height / num
+            height = height// num
             xIncr = 0
             yIncr = height
 

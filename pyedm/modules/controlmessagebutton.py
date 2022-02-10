@@ -9,13 +9,16 @@ import pyedm.edmDisplay as edmDisplay
 class activeMessageButtonClass (activeButtonClass):
 
     V3propTable = {
+        "2-1" : [ "fgColor", "onColor", "offColor", "topShadowColor", "botShadowColor",
+            "controlPv", "PressValue", "ReleaseValue", "onLabel", "offLabel", "toggle", "pressAction", "releaseAction", "3D", "invisible", "font",
+            "password", "lock", "visPv", "visInvert", "visMin", "visMax", "colorPv", "useEnumNumeric" ] ,
         "2-5" : [ "INDEX", "fgColor", "INDEX", "onColor", "INDEX", "offColor", "INDEX", "topShadowColor", "INDEX", "botShadowColor",
             "controlPv", "PressValue", "ReleaseValue", "onLabel", "offLabel", "toggle", "pressAction", "releaseAction", "3D", "invisible", "font",
             "password", "lock", "visPv", "visInvert", "visMin", "visMax", "colorPv", "useEnumNumeric" ]
         }
 
     def __init__(self, parent=None):
-        activeButtonClass.__init__(self, parent)
+        super().__init__(parent)
         self.PressedState = 0
 
     def buildFromObject(self, object):

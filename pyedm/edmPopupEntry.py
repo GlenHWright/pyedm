@@ -1,20 +1,22 @@
+from __future__ import division
+from __future__ import print_function
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # create a popup window which allows data entry as either text entry (keyboard) or
 # calculator entry (keyboard or mouse)
 # Note that Popup fails if called directly: makeKeypad and makeButtons are methods
 # defined by inheriting classes
 
-from PyQt4 import QtGui, Qt, QtCore
-from PyQt4.QtGui import QWidget, QGridLayout, QVBoxLayout, QHBoxLayout, QButtonGroup, QPushButton, QLineEdit
-from PyQt4.QtCore import SIGNAL, QSize
+from builtins import str
+from PyQt5 import QtGui, Qt, QtCore
+from PyQt5.QtWidgets import QWidget, QGridLayout, QVBoxLayout, QHBoxLayout, QButtonGroup, QPushButton, QLineEdit
+from PyQt5.QtCore import QSize
 import pyedm.edmFont as edmFont
-# from __future__ import print_function
 
 class Popup(QWidget):
     '''Generic popup base class. Must be inherited by a class that defines makeKeypad and makeButtons'''
     buttonSize = QSize(20,18)
     def __init__(self):
-        QWidget.__init__(self)
+        super().__init__()
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint | self.windowType())
         self.setAttribute(QtCore.Qt.WA_QuitOnClose, False)
         self.setFont(edmFont.getFont("helvetica-medium-r-10.0") )
@@ -49,7 +51,7 @@ class PopupNumeric(Popup):
     keys = [ [ "7", "8", "9"], ["4", "5", "6"], [ "1", "2", "3" ], [ "0", ".", "+/-"] ]
     
     def __init__(self, acceptCallback, cancelCallback=None, value=None):
-        Popup.__init__(self)
+        super().__init__()
         if value != None:
             self.textWidget.setText( str(value))
         self.acceptCallback = acceptCallback
@@ -59,7 +61,8 @@ class PopupNumeric(Popup):
         keypad = QWidget(self)
         layout = QGridLayout()
         self.group = QButtonGroup(self)
-        self.group.connect(self.group, SIGNAL("buttonClicked(int)"), self.onKeypad)
+        #self.group.connect(self.group, SIGNAL("buttonClicked(int)"), self.onKeypad)
+        self.group.buttonClicked.connect(self.onKeypad)
         for ri,rv in enumerate(self.keys):
             for ci, cv in enumerate(rv):
                 b = QPushButton(cv)
@@ -72,7 +75,7 @@ class PopupNumeric(Popup):
 
     def onKeypad(self, idx):
         if idx <= 11:
-            ri = idx/3
+            ri = idx//3
             ci = idx%3
             self.textWidget.setText( self.textWidget.text() + self.keys[ri][ci])
 
@@ -107,7 +110,7 @@ class PopupNumeric(Popup):
 class PopupText(Popup):
     '''popup window for text data entry'''
     def __init__(self, acceptCallback, cancelCallback=None, value=None):
-        Popup.__init__(self)
+        super().__init__()
         if value != None:
             self.textWidget.setText(value)
         self.acceptCallback = acceptCallback
@@ -145,20 +148,20 @@ if __name__ == "__main__":
     import sys
 
     def callback(arg):
-        print "Accept:", arg
+        print("Accept:", arg)
         sys.exit(0)
 
     def cancel():
-        print "Cancel"
+        print("Cancel")
         sys.exit(0)
 
     app = QtGui.QApplication(sys.argv)
     n = PopupNumeric(callback, cancelCallback=cancel)
     n.show()
     n.resize(n.minimumSize())
-    print "Final size n:", n.geometry(), n.minimumSize()
+    print("Final size n:", n.geometry(), n.minimumSize())
     t = PopupText(callback, cancel)
     t.show()
     t.resize(t.minimumSize())
-    print "Final size t:", t.geometry(), t.minimumSize()
+    print("Final size t:", t.geometry(), t.minimumSize())
     app.exec_()

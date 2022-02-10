@@ -1,9 +1,11 @@
+from __future__ import print_function
+from __future__ import absolute_import
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
+from builtins import object
 import pyedm.edmDisplay as edmDisplay
-from edmObject import edmObject
+from .edmObject import edmObject
 from pyedm.edmApp import edmApp
 import os
-# from __future__ import print_function
 
 class NextError(Exception):
     def __init__(self, value):
@@ -14,10 +16,7 @@ class NextError(Exception):
 #
 # A class that defines a single EDM window (or screen).
 #
-class edmScreen:
-    '''description for a single .edl screen.
-        'objectList' property lists objects within this display.
-    '''
+class edmScreen(object):
     # initialize a screen area. if given a filename, read it in. 
     def __init__(self, Filename=None, macroTable=None, paths=None):
         self.objectList = []
@@ -29,10 +28,24 @@ class edmScreen:
         return self.objectList != []
 
     def addFile(self, fileName, macroTable=None, paths=None):
-        if edmApp.DebugFlag > 0: print "reading file", fileName
+        if edmApp.DebugFlag > 0: print("reading file", fileName)
         self.tagValue = {"Class": "Screen "+fileName}
         if paths == None:
             paths = edmApp.dataPaths
+
+        dir = os.path.dirname(fileName)
+        if len(dir)>0:
+            if not dir in paths:
+                paths.append(dir)
+
+        if not fileName.endswith(".edl"):
+            filename += ".edl"
+        for remap in edmApp.remap:
+            if fileName.startswith(remap[0]):
+                fileName = fileName.replace(remap[0], remap[1], 1)
+                if edmApp.DebugFlag > 0: print("filename remapped to", fileName)
+                break
+
         edlFp = readInput(fileName, paths)
         if edlFp.valid():
             self.version = edlFp.nextline.split(" ")
@@ -48,7 +61,7 @@ class edmScreen:
                 self.tagValue["title"] = fileName
             edlFp.close()
         else:
-            print "Unable to open '%s' in" % (fileName,), paths
+            print("Unable to open '%s' in" % (fileName,), paths)
 
     def read3ScreenProperties(self, edlFp):
         endTag = "<<<E~O~D>>>"
@@ -76,14 +89,14 @@ class edmScreen:
             if edlFp.getNextLine() != endTag:
                 if edlFp.nextline == altEndTag:
                     return altEndTag
-                print "Not working...."
-                print self.tagValue
+                print("Not working....")
+                print(self.tagValue)
 
         except NextError as ne:
             if ne.value == "EOF":
-                print "Unexpected EOF in version 3 file"
+                print("Unexpected EOF in version 3 file")
             if ne.value == "End Of Block":
-                print "unexected end of properties block in version 3 file"
+                print("unexected end of properties block in version 3 file")
         return endTag
 
     def readScreenProperties(self, edlFp):
@@ -103,7 +116,7 @@ class edmScreen:
                     self.tagValue[tagname[0]] = tagname[1]
             return 0
         except NextError as ne:
-            print "EOF reading screen properties!"
+            print("EOF reading screen properties!")
 
     def read3ObjectProperties(self, container, edlFp, macroTable, endTag = "<<<E~O~D>>>"):
         ''' read version 3 edl class properties'''
@@ -128,10 +141,10 @@ class edmScreen:
                     obj.tagValue["w"] = edlFp.getNextLine()
                     obj.tagValue["h"] = edlFp.getNextLine()
                     if edlFp.getNextLine() != "{":
-                        print "group syntax - expected {"
+                        print("group syntax - expected {")
                         return 0
                 except:
-                    print "Unable to read group header info"
+                    print("Unable to read group header info")
                     return 0
                 obj.objectList = []
                 obj.show()
@@ -139,14 +152,14 @@ class edmScreen:
                     pass
 
                 if edlFp.getNextLine() != endTag:
-                    print 'group syntax - expected end tag'
+                    print('group syntax - expected end tag')
                     return 0
                 return 1
             #
 
             mmr = edlFp.getNextLine().split(" ")
             if edmApp.DebugFlag > 0:
-                print "V3 classname", classname, mmr
+                print("V3 classname", classname, mmr)
             obj = edmObject(parent=container)
             obj.tagValue["Class"] = classname
             obj.tagValue["major"] = mmr[0]
@@ -162,16 +175,16 @@ class edmScreen:
             try:
                 classRef = edmDisplay.edmClasses[classname]
             except:
-                print "No V3 Class/Property for", classname
+                print("No V3 Class/Property for", classname)
             classRef.setV3PropertyList(propValue, obj.tagValue)
             return 1
 
         except NextError as ne:
             if ne.value == "EOF":
                 if obj != None:
-                    print "Unexpected EOF reading version 3 object"
+                    print("Unexpected EOF reading version 3 object")
             elif ne.value == "End Of Block":
-                print "Unexpected end-of-block reading version 3 object"
+                print("Unexpected end-of-block reading version 3 object")
         return 0
 
     def readObjectProperties(self, container, edlFp, macroTable):
@@ -229,7 +242,7 @@ class edmScreen:
 #
 # A class that reads lines from an EDL file.
 #
-class readInput:
+class readInput(object):
     debugFlag=0
     def __init__(self, fn=None, paths=[".",]):
         self.reuseLine=0
@@ -249,9 +262,27 @@ class readInput:
 
     def open(self, fn, paths):
         self.eof = 0
+        if "/" in fn:
+            for p in edmApp.remap:
+                if fn.startswith(p[0]):
+                    fn = fn.replace(p[0], p[1], 1)
+                    break
+
+        if edmApp.DebugFlag > 0:
+            print("Requesting open edm file *", fn, "*")
         self.filename = fn
+        if fn[0] == "/":
+            try:
+                self.fp = open(fn, "r")
+                self.getNextLine()
+                return
+            except IOError:
+                pass
+
         for path in paths:
             try:
+                if edmApp.DebugFlag > 0:
+                    print("open - searching path ", path, " file ", fn)
                 self.fp = open(os.path.join(path,fn), "r")
                 self.getNextLine()
                 return
@@ -285,7 +316,7 @@ class readInput:
                 break
 
         if edmApp.DebugFlag>1 or self.debugFlag > 0:
-            print 'got *',self.nextline,'*'
+            print('got *',self.nextline,'*')
         if self.eof == 1:
             return None
         return self.nextline

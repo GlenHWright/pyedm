@@ -9,13 +9,15 @@ activeSliderClass = controlbar.activeSliderClass
 
 class activeMotifSliderClass(activeSliderClass):
     def __init__(self, parent):
-        activeSliderClass.__init__(self,parent)
+        super().__init__(parent)
+
     def buildFromObject(self, object):
         activeSliderClass.buildFromObject(self, object)
     def showScale(self):
         return 0    # this class never displays a scale
     def findReadonly(self):
-        self.setReadOnly(0)
+        pass
+        #self.setReadOnly(0)
 
 edmDisplay.edmClasses["activeMotifSliderClass"] = activeMotifSliderClass
 

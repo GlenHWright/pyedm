@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # Support reading of an edm Colors file for defining widget colors.
 #
@@ -6,15 +7,16 @@
 # widget.someColor = findColorRule(my_Name_Or_Index)
 # something_that_needs_a_QColor( widget.someColor.getColor( ColorPV value, default Color))
 
+from builtins import range
+from builtins import object
 from os import getenv
 import re
-from PyQt4.QtCore import Qt
-from PyQt4.QtGui import QColor
-# from __future__ import print_function
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QColor
 
 # define one part of a rule
-class oneRule:
-    NO_OP, LT, LE, GT, GE, EQ, NE, AND, OR, DEFAULT = range(0, 10)
+class oneRule(object):
+    NO_OP, LT, LE, GT, GE, EQ, NE, AND, OR, DEFAULT = list(range(0, 10))
 
     opTable = { "<" : LT, "<=" : LE, ">" : GT, ">=" : GE, "=" : EQ, "==" : EQ,
     "!=" : NE, "&&" : AND, "||" : OR, "default" : DEFAULT, "DEFAULT" : DEFAULT}
@@ -37,44 +39,39 @@ class oneRule:
         return 0
 
     def printRule(self, indent=0):
-        print "  "*indent, self.op, self.val
+        print("  "*indent, self.op, self.val)
         if self.left != None:
             self.left.printRule(indent+1)
         if self.right != None:
             self.right.printRule(indent+1)
         
-class colorRule:
+class colorRule(object):
     invisible = QColor(0,0,0,0)
-    def __init__(self, name=None):
+    def __init__(self):
         self.ruleList = []
-        self.name = name
 
     # add a rule for this color name
     def addRule(self, value=0.0, op=oneRule.NO_OP, color = None, blinkColor=None, left=None, right=None):
         self.ruleList.append( oneRule(value, op, color, blinkColor, left, right) )
         return self.ruleList[-1]
 
-    def getName(self):
-        '''color name this rule is known by.
-        '''
-        return self.name
-
     # return the color for this rule
-    def getColor( self, value=None, defColor=Qt.black):
-        if value == None:
-            return self.ruleList[0].color
-            
-        value = float(value)
+    def getColor( self, value=0.0, defColor=Qt.black):
+        try:
+            value = float(value)
+        except:
+            print("unable to convert", value, "to float")
+            return defColor
         for rule in self.ruleList:
             if rule.truthTest(value):
                 if rule.color == None:
-                    print self.name, "using default color (none set). value=", value, "def=",defColor
+                    print("...using default color (none set). value=", value)
                     return defColor
                 return rule.color
-        print self.name, "using default color (no match), value=", value, "def=", defColor
+        print("...using default color (no match), value=", value)
         return defColor
 
-class edmColor:
+class edmColor(object):
     # This pattern element looks weird - what it does is fails the match if
     # it immediately followed by "=" followed by a non-identifier character
     #    | [a-zA-Z0-9\.-]*(?=[^\.a-zA-Z0-9-])
@@ -91,7 +88,7 @@ class edmColor:
     # dictionary of names for colors
     colorNames = {}
     # index of names for index
-    colorIndex = []
+    colorIndex = {}
     # aliases
     aliasList = {}
     # builtin Rules
@@ -109,8 +106,8 @@ class edmColor:
         self.addBuiltin( "builtin:transparent", 0, 0, 0, 0)
 
     def addBuiltin(self, name, r, g, b, a=255):
-        self.builtin[name] = colorRule(name)
-        self.builtin[name].addRule( op=oneRule.DEFAULT, color=QColor( r, g, b, a) )
+        self.builtin[name] = colorRule()
+        self.builtin[name].addRule( 0.0, oneRule.DEFAULT, QColor( r, g, b, a) )
 
     def buildRule(self, buildList, rule, start):
         op, value = oneRule.NO_OP, 0.0
@@ -134,13 +131,13 @@ class edmColor:
                 start = start+1
                 value = float(buildList[start])
             start = start+1
-        print 'buildRule dropped out the bottom!'
+        print('buildRule dropped out the bottom!')
         return start
 
     def loadColor(self, filename):
         try: fp = open(filename, "r")
         except:
-            print "Unable to open Color File '%s'" % (filename,)
+            print("Unable to open Color File '%s'" % (filename,))
             return
 
         inBlock = 0
@@ -154,7 +151,7 @@ class edmColor:
             if word == None:
                 fp.close()
                 return
-            if self.debug>0 : print word, self.wordlist, inBlock, capture, needWords, needBlock
+            if self.debug>0 : print(word, self.wordlist, inBlock, capture, needWords, needBlock)
             if inBlock:
                 if word != "}":
                     blockList.append( word)
@@ -165,7 +162,8 @@ class edmColor:
                     # build a new color
                     #
                     # print "Build static color ", words, blockList, int(words[1])
-                    self.myRule = self.findRule( words[2], numeric=int(words[1]), create=1)
+                    self.myRule = self.findRule( words[2],
+                    numeric=int(words[1]), create=1)
                     blinkColor = None
                     if words[2] == "invisible":  # EDM Magic Value
                         color = QColor(0,0,0,0)
@@ -174,7 +172,7 @@ class edmColor:
                         if len(blockList) > 5:
                             blinkColor = QColor( int(blockList[3])>>8, int(blockList[4])>>8, int(blockList[5])>>8) 
                     words = []
-                    self.myRule.addRule( op=oneRule.DEFAULT, color=color, blinkColor=blinkColor)
+                    self.myRule.addRule( 0.0, oneRule.DEFAULT, color, blinkColor)
                     continue
 
                 # build the alarm colors
@@ -191,11 +189,11 @@ class edmColor:
                     words = []
                     idx = 0
                     inProgress = oneRule()
-                    if self.debug > 0: print "building rules list", blockList
+                    if self.debug > 0: print("building rules list", blockList)
                     while idx < len(blockList):
                         idx = self.buildRule(blockList, inProgress, idx)
                         if blockList[idx] != ":":
-                            print "Warning: blocklist[", idx, "] != ':'"
+                            print("Warning: blocklist[", idx, "] != ':'")
                             break
                         idx = idx+1
                         staticRule = self.findRule( blockList[idx])
@@ -256,10 +254,15 @@ class edmColor:
         else:
             try:
                 idx = int(index)
-                name = self.colorIndex[idx]
             except:
                 name = index
-
+            else:
+                if idx in self.colorIndex:
+                    name = self.colorIndex[idx]
+                else:
+                    name = None
+            finally:
+                pass
         if name != None:
             if name in self.colorNames:
                 return self.colorNames[name]
@@ -273,14 +276,10 @@ class edmColor:
             if name in self.colorNames:
                 return self.colorNames[name]
             return None
-
         if numeric == None:     # want to create, but no numeric value given
             return None
-
-        cr = colorRule(name)
+        cr = colorRule()
         self.colorNames[name] = cr
-        if numeric >= len(self.colorIndex):
-            self.colorIndex.extend([None]*(numeric-len(self.colorIndex)+1))
         self.colorIndex[numeric] = name
         return cr
 
@@ -290,7 +289,7 @@ class edmColor:
             if line == None:
                 return None
             self.wordlist = self.pat_r.findall(line)
-            if self.debug : print "Wordlist is ", self.wordlist
+            if self.debug : print("Wordlist is ", self.wordlist)
             if self.wordlist == []:
                 return None
 
@@ -306,7 +305,7 @@ class edmColor:
 
     def getNextLine(self,fp):
         line = fp.readline()
-        if self.debug > 0 : print "Read Line:", line
+        if self.debug > 0 : print("Read Line:", line)
         return line
 
 # Wrappers for 'edmColors'
@@ -314,13 +313,12 @@ def loadColorFile(filename):
     colorTable.loadColor(filename)
 
 def findColorRule(colorName):
-    try:
-        if colorName.startswith("index "):
-            cn = colorName.split(" ")
-            try: return colorTable.findRule( int(cn[1]))
-            except: pass
-    except: pass
-
+    if colorName.startswith("index "):
+        cn = colorName.split(" ")
+        try:
+            return colorTable.findRule( int(cn[1]))
+        except:
+            pass
     return colorTable.findRule(colorName)
 
 # Stub - return generic colors. This should use the alarm colors defined in the

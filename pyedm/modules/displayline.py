@@ -1,30 +1,21 @@
+from __future__ import division
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # Module for generating a widget for a line display class
 
+from builtins import zip
+from builtins import range
 import pyedm.edmDisplay as edmDisplay
 from pyedm.edmWidget import edmWidget
 from pyedm.edmAbstractShape import abstractShape
-from pyedm.edmEditWidget import edmEdit
 from math import acos, sin, cos, pi as Pi
 
-from PyQt4.QtGui import QFrame, QPainter, QPolygonF, QPolygon
-from PyQt4.QtCore import QLineF, QLine, QPointF, QPoint, Qt
+from PyQt5.QtWidgets import QFrame
+from PyQt5.QtGui import QPainter, QPolygonF, QPolygon
+from PyQt5.QtCore import QLineF, QLine, QPointF, QPoint, Qt
 
 class activeLineClass(abstractShape):
-    edmEditList = [
-        edmEdit.LineThick(),
-        edmEdit.Enum(label="Line Style", object="lineStyle", enumList= [ "Solid", "Dash" ] ),
-        edmEdit.Enum(label="Arrows", object="arrows", enumList= [ "None", "From", "To", "Both" ] ),
-        edmEdit.CheckButton( "Close Polygon", "closePolygon", None),
-        edmEdit.FgColor( object="lineColor"),
-        edmEdit.CheckButton( "Alarm Sensitive", "fgAlarm", None),
-        edmEdit.CheckButton( "Fill", "fill", None),
-        edmEdit.BgColor( object="fillColor"),
-        edmEdit.CheckButton( "Alarm Sensitive", "bgAlarm", None),
-        edmEdit.StringPV( "Color PV", "colorPV", None),
-        ] + edmEdit.visibleList
     def __init__(self, parent=None):
-        abstractShape.__init__(self, parent)
+        super().__init__(parent)
 
     def paintEvent(self, event=None):
         if self.npoints <= 1:
@@ -61,7 +52,7 @@ class activeLineClass(abstractShape):
         destp = line.p2()
         if line.length() <= 1:
             return
-        angle = acos(line.dx() / line.length() )
+        angle = acos(line.dx()/ line.length() )
         if line.dy() >= 0:
             angle = Pi*2 - angle
 
@@ -87,7 +78,7 @@ class activeLineClass(abstractShape):
         self.arrowSize = 15
         self.arrowAngle = Pi/2.5
         # translate points to 'QT' space
-        adj = self.arrowSize/2
+        adj = self.arrowSize//2
         self.points = [QPoint(x-self.myx+adj,y-self.myy+adj) for x,y in zip(self.xpoints,self.ypoints)]
         geom = self.geometry()
         geom.translate(-adj, -adj)

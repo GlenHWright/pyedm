@@ -1,13 +1,13 @@
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # This module displays a widget that allows text entry.
 
+from builtins import str
 import pyedm.edmDisplay as edmDisplay
 from pyedm.edmWidget import edmWidget
 
-from PyQt4.QtGui import QLineEdit, QPalette
-from PyQt4.QtCore import SIGNAL, Qt
-from edmEditWidget import edmEdit
-
+from PyQt5.QtWidgets import QLineEdit
+from PyQt5.QtGui import QPalette
+from PyQt5.QtCore import Qt
 monitortext = __import__("monitortext", globals(), locals(), 1)
 TextupdateClass = monitortext.TextupdateClass
 
@@ -20,7 +20,7 @@ class TextentryClass(TextupdateClass):
             }
                 
     def __init__(self, parent=None):
-        TextupdateClass.__init__(self, parent)
+        super().__init__(parent)
 
     def findBgColor(self):
         edmWidget.findBgColor( self, palette=(QPalette.Base,))

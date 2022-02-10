@@ -1,7 +1,9 @@
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 #/* element types */
+from builtins import range
+from builtins import object
 (OPERAND, LITERAL_OPERAND, STORE_OPERATOR, UNARY_OPERATOR, VARARG_OPERATOR, BINARY_OPERATOR, SEPERATOR,
-    OPEN_PAREN, CLOSE_PAREN, CONDITIONAL, EXPR_TERMINATOR) = range(1,12)
+    OPEN_PAREN, CLOSE_PAREN, CONDITIONAL, EXPR_TERMINATOR) = list(range(1,12))
 
 
 (	END_EXPRESSION,
@@ -74,7 +76,7 @@
 	COND_ELSE,
 	COND_END,
     # /* Misc */
-	NOT_GENERATED ) = range(0,81)
+	NOT_GENERATED ) = list(range(0,81))
 # structure of an element
 #    char *name;      /* character representation of an element */
 #    char in_stack_pri;     /* priority on translation stack */
@@ -82,7 +84,7 @@
 #    signed char runtime_effect; /* stack change, positive means push */
 #    element_type type;     /* element type */
 #    rpn_opcode code;     /* postfix opcode */
-class element:
+class element(object):
     def __init__(self, stack_pri, input_pri, stack_effect, type, opcode):
         self.stack_pri = stack_pri
         self.input_pri = input_pri

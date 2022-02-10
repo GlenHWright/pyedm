@@ -1,11 +1,14 @@
+from __future__ import division
+from __future__ import print_function
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # This module displays a bar indicating a PV value
 
 import pyedm.edmDisplay as edmDisplay
 from pyedm.edmWidget import edmWidget
 
-import PyQt4.QtCore as QtCore
-from PyQt4.QtGui import QProgressBar, QPalette
+import PyQt5.QtCore as QtCore
+from PyQt5.QtGui import QPalette
+from PyQt5.QtWidgets import QProgressBar
 
 # Display class for bars: can be inherited by controllable widgets
 #
@@ -17,8 +20,7 @@ class activeBarClass(QProgressBar,edmWidget):
             "origin","font", "labelTicks", "majorTicks", "minorTicks", "border", "limitsFromDb", "precision", "min", "max", "scaleFormat", "nullPv", "orientation" ]
             }
     def __init__(self, parent=None):
-        QProgressBar.__init__(self, parent)
-        edmWidget.__init__(self, parent)
+        super().__init__(parent)
         self.pvItem["indicatorPv"] = [ "indicatorName", "indicatorPV", 1]
         self.minField, self.maxField = "min", "max"
         self.setTextVisible(0)
@@ -62,7 +64,7 @@ class activeBarClass(QProgressBar,edmWidget):
     def redisplay(self, *kw):
         self.checkVisible()
         newval = int( (self.indicatorPV.value-self.rmin) * self.rscale)
-        if self.DebugFlag > 0:  print "activeBarClass  newval:", newval, "min:", self.rmin, "max:", self.rmax, "scale:", self.rscale
+        if self.DebugFlag > 0:  print("activeBarClass  newval:", newval, "min:", self.rmin, "max:", self.rmax, "scale:", self.rscale)
         if self.value() != newval:
             self.setValue( newval)
 

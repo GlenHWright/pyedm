@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # This module displays a "picture in picture", or embedded screen.
 #
@@ -17,15 +18,13 @@ from pyedm.edmScreen import edmScreen
 from pyedm.edmWidget import edmWidget
 import pyedm.edmWindowWidget as edmWindowWidget
 import pyedm.edmColors as edmColors
-from pyedm.edmEditWidget import edmEdit
 
-from PyQt4 import QtCore, QtGui
-from PyQt4.QtGui import QWidget, QFrame, QScrollArea
+from PyQt5 import QtCore, QtGui
+from PyQt5.QtWidgets import QWidget, QFrame, QScrollArea
 
 class scrolledWidget(QWidget, edmWidget):
     def __init__(self, parent=None):
-        QWidget.__init__(self, parent)
-        edmWidget.__init__(self, parent)
+        super().__init__(parent)
         self.parentx = 0
         self.parenty = 0
         self.scr = None
@@ -33,41 +32,18 @@ class scrolledWidget(QWidget, edmWidget):
         self.edmParent.buttonInterest.append(self)
 
     def mousePressEvent(self, event):
-        edmWindowWidget.mousePressEvent(self, event, self.getEditMode() )
+        edmWindowWidget.mousePressEvent(self, event)
 
     def mouseReleaseEvent(self, event):
-        edmWindowWidget.mouseReleaseEvent(self, event, self.getEditMode() )
+        edmWindowWidget.mouseReleaseEvent(self, event)
 
 class activePipClass(QScrollArea,edmWidget):
     V3propTable = {
         "1-0" : [ "INDEX", "fgColor", "INDEX", "bgColor", "INDEX", "topShadowColor", "INDEX", "botShadowColor",
-            "filePV", "file" ]
+            "filePv", "file" ]
             }
-
-    edmEditList = [
-        edmEdit.Enum(label="Display Source", object="displaySource", enumList=[ "String PV", "Form", "Menu" ] ),
-        edmEdit.StringPV("PV", "filePV.getTrueName"),
-        edmEdit.StringPV("Label PV", "labelPV.getTrueName"),
-        edmEdit.String("Display File Name", "file"),
-        edmEdit.CheckButton("Center", "center"),
-        edmEdit.CheckButton("Set Size", "setSize"),
-        edmEdit.Int("Size Ofs", "numDsps") ,
-
-        edmEdit.SubScreen("Menu Info",
-            [
-                [ lambda: edmEdit.String( "Label", defValue="", getter=lambda widget, index, **kw: widget.getLabel(index=index, **kw)),
-                  lambda: edmEdit.String( "File", defValue="", getter=lambda widget,index, **kw: widget.getFile(index=index, **kw )),
-                  lambda: edmEdit.String( "Macros", defValue="", getter=lambda widget, index, **kw: widget.getSymbols(index=index, **kw )) ],
-                [ lambda: edmEdit.Enum(label="Mode", defValue="Append", getter=lambda widget, index, **kw: widget.getReplaceSymbols(index=index, **kw), enumList=[ "Append", "Replace" ] ) ,
-                  lambda: edmEdit.CheckButton("Propagate", defValue=0, getter=lambda widget, index, **kw: widget.getPropagate(index=index, **kw)) ]
-            ], count=20 ),
-        edmEdit.FgColor(),
-        edmEdit.BgColor()
-        ]
-
     def __init__(self, parent=None):
-        QScrollArea.__init__(self, parent)
-        edmWidget.__init__(self, parent)
+        super().__init__(parent)
         self.pvItem["filePv"] = [ "PVname", "filePV", 0 ]
         self.pvItem["labelPv"] = [ "PVlabel", "labelPV", 0 ]
         self.setLineWidth(2)
@@ -81,10 +57,13 @@ class activePipClass(QScrollArea,edmWidget):
 
     def cleanup(self):
         '''remove references to other items.'''
+        scrollable =  self.scrollable
+        self.scrollable = None
+        edmWidget.cleanup(scrollable)
         edmWidget.cleanup(self)
 
     def buildFromObject(self, object):
-        # object.tagValue["bgColor"] = "builtin:transparent"  # edm PIP uses parent's background color.
+        object.tagValue["bgColor"] = "builtin:transparent"  # edm PIP uses parent's background color.
         edmWidget.buildFromObject(self, object,attr=None)
 
         self.scrollable = scrolledWidget(self)
@@ -105,17 +84,19 @@ class activePipClass(QScrollArea,edmWidget):
         # over-ride the widget's color info with what the screen has available.
         pal = self.scrollable.palette()
         try:
-            self.scrollable.fgColor = edmColors.findColorRule(self.scr.tagValue["fgColor"])
-            pal.setColor( self.foregroundRole(), self.scrollable.fgColor.getColor())
+            self.fgColor = edmColors.findColorRule(self.scr.tagValue["fgColor"])
+            pal.setColor( self.foregroundRole(), self.fgColor.getColor())
         except:
             pass
         try:
-            self.scrollable.bgColor = edmColors.findColorRule(self.scr.tagValue["bgColor"])
-            pal.setColor( self.backgroundRole(), self.scrollable.bgColor.getColor())
+            self.bgColor = edmColors.findColorRule(self.scr.tagValue["bgColor"])
+            pal.setColor( self.backgroundRole(), self.bgColor.getColor())
         except:
             pass
         self.scrollable.setPalette(pal)
-
+        pal = self.palette()
+        pal.setColor( self.backgroundRole(), self.bgColor.getColor())
+        self.setPalette(pal)
         self.scrollable.show()
         self.scrollable.update()
 
@@ -176,7 +157,7 @@ class activePipClass(QScrollArea,edmWidget):
             return
         self.scrollable.hide()
         for child in self.scrollable.children():
-            if self.DebugFlag > 0 : print "redisplay: cleanup", child
+            if self.DebugFlag > 0 : print("redisplay: cleanup", child)
             if not child.isWidgetType() : continue
             child.cleanup()
             child.edmParent = None
@@ -184,52 +165,6 @@ class activePipClass(QScrollArea,edmWidget):
             child.deleteLater()
         self.scrollable.buttonInterest = []
         self.setupScreen( self.fileFromPV, self.selectMt)
-
-    def getFile(self, index=None, defValue=None):
-        try:
-            return self.rawFileList[index]
-        except:
-            if self.DebugFlag > 0 : print "return default", defValue
-            return defValue
-
-    def getLabel(self, index=None, defValue=None):
-        try:
-            return self.rawMenuLabel[index]
-        except:
-            return defValue
-
-    def getSymbols(self, index=None, defValue=None):
-        try:
-            return self.rawSymbols[index]
-        except:
-            return defValue
-
-    def getReplaceSymbols(self, index=None, defValue=None):
-        try:
-            return self.replaceSymbols[index]
-        except:
-            return defValue
-
-    def getPropagate(self, index=None, defValue=None):
-        try:
-            return self.propagateMacros[index]
-        except:
-            return defValue
-
-    def setEditMode(self, filter):
-        self.rawFileList = self.object.decode("displayFileName",self.numDsps, "")
-        self.rawMenuLabel = self.object.decode("menuLabel",self.numDsps, "")
-        self.rawSymbols = self.object.decode("symbols",self.numDsps, "")
-        self.replaceSymbols = self.object.decode("replaceSymbols",self.numDsps, "Append")
-        self.propagateMacros = self.object.decode("propagateMacros",self.numDsps, 0)
-        self.scrollable.setDisabled(True)
-        self.scrollable.installEventFilter(filter)
-        self.setDisabled(True)
-        self.installEventFilter(filter)
-
-    def setExecuteMode(self):
-        self.scrollable.setEnabled(True)
-        self.setEnabled(True)
 
 buildPipList = {  "stringPV":"buildPipStringPV",  "file": "buildPipFile", "menu": "buildPipMenu" }
 

@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # This module loads and displays images. Note that it handles
 # both 'gif' and 'png', and is capable of being extended based on
@@ -8,24 +9,17 @@ import os
 from pyedm.edmApp import edmApp
 from pyedm.edmWidget import edmWidget
 from pyedm.edmAbstractShape import abstractShape
-from pyedm.edmEditWidget import edmEdit
 
-from PyQt4.QtGui import QFrame, QPainter, QImage
+from PyQt5.QtWidgets import QFrame
+from PyQt5.QtGui import QPainter, QImage
 
 class activeImageClass(abstractShape):
     V3propTable = {
         "1-2" : [ "file", "refreshRate", "uniformSize", "fastErase" ]
         }
-
-    edmEditList = [
-        edmEdit.String("GIF File", "file"),
-        edmEdit.Int("Refresh Rate (ms)", "refreshRate"),
-        edmEdit.CheckButton("Uniform Size", "uniformsize"),
-        edmEdit.CheckButton("Fast Erase", "fastErase")
-        ]
-
-    def __init__(self, parent=None):
-        abstractShape.__init__(self,parent)
+    def __init__(self, *args, **kwargs):
+        if edmApp.DebugFlag > 0 : print("activeImageClass __init()__", self, args, kwargs)
+        super().__init__(*args,**kwargs)
 
     def buildFromObject(self, object):
         edmWidget.buildFromObject(self, object)
@@ -34,14 +28,19 @@ class activeImageClass(abstractShape):
         self.image = None
         for path in edmApp.dataPaths:
             fn = os.path.join(path, self.filename)
+            for remap in edmApp.remap:
+                if fn.startswith(remap[0]):
+                    fn = fn.replace(remap[0], remap[1], 1)
+
             try:
                 os.stat(fn)
                 self.image = QImage(fn)
                 break
             except OSError:
                 pass
+
         if self.image == None:
-            print "Invalid filename:", self.filename
+            print("file not found", self.filename, "in", edmApp.dataPaths, "last tried:", fn)
 
     def paintEvent(self, event=None):
         painter = QPainter(self)

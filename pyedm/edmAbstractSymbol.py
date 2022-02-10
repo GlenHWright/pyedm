@@ -5,23 +5,24 @@
 # Any class inheriting 'AbstractSymbolClass' must have a field of 'statelist'
 # of the length of the number of supported states.
 #
+from builtins import zip
+from builtins import str
 import pyedm.edmDisplay as edmDisplay
 from pyedm.edmApp import redisplay
 from pyedm.edmScreen import edmScreen
 from pyedm.edmWidget import edmWidget
 
-from PyQt4 import QtCore, QtGui
-from PyQt4.QtGui import QWidget, QFrame, QScrollArea, QPalette, QPainter
+from PyQt5 import QtCore, QtGui
+from PyQt5.QtWidgets import QWidget, QFrame, QScrollArea
+from PyQt5.QtGui import QPalette, QPainter
 
 class symbolWidget(QWidget,edmWidget):
-    def __init__(self, parent=None):
-        QWidget.__init__(self, parent)
-        edmWidget.__init__(self,parent)
+    def __init__(self, parent=None, **kw):
+        super().__init__(parent, **kw)
 
 class AbstractSymbolClass(QFrame,edmWidget):
-    def __init__(self, parent=None):
-        QFrame.__init__(self, parent)
-        edmWidget.__init__(self, parent)
+    def __init__(self, parent=None, **kw):
+        super().__init__(parent, **kw)
         #self.setLineWidth(2)
         #self.setFrameShape(QFrame.Panel|QFrame.Sunken)
         self.parentx = 0

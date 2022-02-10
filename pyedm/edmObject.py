@@ -1,16 +1,17 @@
+from __future__ import print_function
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
+from builtins import object
 from pyedm.edmApp import edmApp
 import pyedm.edmColors as edmColors
 import pyedm.edmFont as edmFont
-# from __future__ import print_function
 
 #
 # A class that defines a generic EDM object. (A single widget)
 # All properties from the data file are stored in the dictionary 'self.tagValue'
 # self.tagType can be used for special cases (edm does this, I'm not sure
 # python needs it
-class edmObject:
-    def __init__(self, parent):
+class edmObject(object):
+    def __init__(self, parent=None):
         self.tagValue = {}
         self.tagType = {}
         self.debugFlag = edmApp.DebugFlag
@@ -68,10 +69,10 @@ class edmObject:
     def show(self):
         if self.debugFlag > 0:
             if hasattr(self, "edmParent"):
-                print "edmParent", self.edmParent.tagValue["Class"]
-            for idx, val in self.tagValue.iteritems():
-                print "Key:", idx, " Value:", val
-            print "- - - - - - - - -"
+                print("edmParent", self.edmParent.tagValue["Class"])
+            for idx, val in self.tagValue.items():
+                print("Key:", idx, " Value:", val)
+            print("- - - - - - - - -")
 
     # Decode a { ... } sequence, stripping the numeric 1st column and returning a
     # list of second columns
@@ -104,7 +105,7 @@ class edmObject:
                         idx = idx + 1
 
             if idx < 0 or idx > count:
-                print "decode: index out of range:", idx, val
+                print("decode: index out of range:", idx, val)
                 continue
             # decide if we're decoding a color, a string, an int, or a double
             if str.startswith("index "):

@@ -3,9 +3,9 @@
 import pyedm.edmDisplay as edmDisplay
 from pyedm.edmWidget import edmWidget
 
-from PyQt4.QtGui import QComboBox
-from PyQt4 import QtCore
-from PyQt4.QtCore import SIGNAL
+from PyQt5.QtWidgets import QComboBox
+from PyQt5 import QtCore
+#from PyQt5.QtCore import SIGNAL
 
 class activeMenuButtonClass(QComboBox,edmWidget):
     V3propTable = {
@@ -14,8 +14,7 @@ class activeMenuButtonClass(QComboBox,edmWidget):
         }
 
     def __init__(self,parent=None):
-        QComboBox.__init__(self,parent)
-        edmWidget.__init__(self,parent)
+        super().__init__(parent)
         self.pvItem["controlPv"] = [ "controlName", "controlPV", 1, None, None, self.onConnect, None ]
         self.pvItem["indicatorPv"] = [ "indicatorName", "indicatorPV", 1, None, None, self.onConnect, None ]
         self.edmParent.buttonInterest.append(self)
@@ -26,7 +25,8 @@ class activeMenuButtonClass(QComboBox,edmWidget):
     def buildFromObject(self, object):
         edmWidget.buildFromObject(self,object)
         self.displayPV = self.indicatorPV if hasattr(self, "indicatorPV") else getattr(self,"controlPV",None)
-        self.connect( self, SIGNAL("activated(int)"), self.gotNewValue)
+        #self.connect( self, SIGNAL("activated(int)"), self.gotNewValue)
+        self.activated.connect(self.gotNewValue)
 
     def gotNewValue(self, value):
         if hasattr(self, "controlPV"):

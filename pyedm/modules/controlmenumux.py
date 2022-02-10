@@ -1,16 +1,24 @@
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # This module generates a display for drop-down menu
+from builtins import range
 import pyedm.edmDisplay as edmDisplay
 from pyedm.edmWidget import edmWidget
 
-from PyQt4.QtGui import QComboBox
-from PyQt4 import QtCore
-from PyQt4.QtCore import SIGNAL
+from PyQt5.QtWidgets import QComboBox
+from PyQt5 import QtCore
+#from PyQt5.QtCore import SIGNAL
 
 class menuMuxClass(QComboBox,edmWidget):
+    V3propTable = {
+        "2-0" : 
+        [ "x", "y", "w", "h", "fgColor", "fgColorMode", "bgColor", "bgColorMode",
+                "topShadowColor", "botShadowColor", "controlPv", "font", "numItems" ], 
+        "2-2" :
+        [ "x", "y", "w", "h", "INDEX", "fgColor", "fgColorMode", "INDEX", "bgColor", "bgColorMode",
+                "INDEX", "topShadowColor", "INDEX", "botShadowColor", "controlPv", "font", "numItems" ]
+    }
     def __init__(self,parent=None):
-        QComboBox.__init__(self,parent)
-        edmWidget.__init__(self,parent)
+        super().__init__(parent)
         self.edmParent.buttonInterest.append(self)
         self.lastIndex = -1
 
@@ -19,9 +27,14 @@ class menuMuxClass(QComboBox,edmWidget):
     def setV3PropertyList(classRef, values, tags):
         '''explicit conversion of the variable length paramenter list in V3 files
         '''
-        for name in [ "x", "y", "w", "h", "INDEX", "fgColor", "fgColorMode", "INDEX", "bgColor", "bgColorMode",
-                "INDEX", "topShadowColor", "INDEX", "botShadowColor", "controlPv", "font", "numItems" ]:
-            tags[name] = values.pop(0)
+        print("controlmenumux tags=", tags, "values=", values)
+        idx = "%s-%s" % (tags['major'], tags['minor'])
+        
+        try:
+            for name in menuMuxClass.V3propTable[idx]:
+                tags[name] = values.pop(0)
+        except:
+            print("menuMuxClass V3 tags/values failure:", idx, tags, values)
 
         numItems = int(tags["numItems"])
         st = []
@@ -38,6 +51,7 @@ class menuMuxClass(QComboBox,edmWidget):
             tags[ "symbol%d"%(idx,)] = symbols
 
         tags["initialState"] = values.pop(0)
+        print("controlmenumux tags=", tags, "values=", values)
 
     def buildFromObject(self, object):
         edmWidget.buildFromObject(self,object)
@@ -53,9 +67,12 @@ class menuMuxClass(QComboBox,edmWidget):
             self.symbolList[i] =  self.object.decode(symname)
         self.addItems( self.symbolTag)
         self.setCurrentIndex(self.initialState)
-        self.connect( self, SIGNAL("activated(int)"), self.gotNewValue)
+        #self.connect( self, SIGNAL("activated(int)"), self.gotNewValue)
+        self.activated.connect(self.gotNewValue)
 
     def gotNewValue(self, value):
+        print("menumux: ignoring new value")
+        return
         if hasattr(self, "controlPV"):
             self.controlPV.put( value)
 

@@ -3,33 +3,18 @@
 
 import pyedm.edmDisplay as edmDisplay
 from pyedm.edmAbstractShape import abstractShape
-from edmEditWidget import edmEdit
 
-from PyQt4.QtGui import QFrame, QPainter
-from PyQt4 import QtCore
+from PyQt5.QtWidgets import QFrame
+from PyQt5.QtGui import QPainter
+from PyQt5 import QtCore
 
 class activeArcClass(abstractShape):
     V3propTable = {
         "2-1" : [ "INDEX", "lineColor", "lineAlarm", "fill", "INDEX", "fillColor", "fillAlarm", "alarmPv",
                 "visPv", "visMin", "visMax", "lineWidth", "lineStyle", "startAngle", "totalAngle", "fillMode" ]
                 }
-
-    edmEditList = [
-        edmEdit.Int("Start Angle", "startAngle", None),
-        edmEdit.Int("Total Angle", "totalAngle", None),
-        edmEdit.LineThick(),
-        edmEdit.Enum(label="Line Style", object="lineStyle", enumList=[  "Solid", "Dash"] ),
-        edmEdit.FgColor("Line Color", "fgColorInfo.getName"),
-        edmEdit.CheckButton("Alarm Sensitive", "fgColorInfo.alarmSensitive"),
-        edmEdit.CheckButton("Fill", "fill"),
-        edmEdit.Enum(label="Fill Mode", object="mode", enumList=[ "Chord", "Pie" ] ),
-        edmEdit.BgColor("Fill Color", "bgColorInfo.getName"),
-        edmEdit.CheckButton("Alarm Sensitive", "bgColorInfo.alarmSensitive"),
-        edmEdit.StringPV("Color PV", "colorPV.getPVname")
-    ] + edmEdit.visibleList
-
     def __init__(self, parent=None):
-        abstractShape.__init__(self,parent)
+        super().__init__(parent)
 
     def paintEvent(self, event=None):
         painter = QPainter(self)

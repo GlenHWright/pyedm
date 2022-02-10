@@ -1,8 +1,12 @@
+from __future__ import print_function
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # symbolClass Use portions of an edl file based on top-level "group" classification.
 # This class uses PV's to compute and index, and redisplays the "subset" with the
 # computed entry.
 #
+from builtins import zip
+from builtins import range
+from builtins import object
 import pyedm.edmDisplay as edmDisplay
 from pyedm.edmPVfactory import buildPV
 from pyedm.edmApp import redisplay
@@ -10,15 +14,16 @@ from pyedm.edmWidget import edmWidget
 import pyedm.edmWindowWidget as edmWindowWidget
 from pyedm.edmAbstractSymbol import AbstractSymbolClass
 
-from PyQt4 import QtCore, QtGui
-from PyQt4.QtGui import QWidget, QFrame, QScrollArea, QPalette, QPainter
+from PyQt5 import QtCore, QtGui
+from PyQt5.QtGui import QPalette, QPainter
+from PyQt5.QtWidgets import QWidget, QFrame, QScrollArea
 
-class symbolState:
+class symbolState(object):
     def __init__(self, min=0, max=1):
         self.min = min
         self.max = max
 
-class symbolPV:
+class symbolPV(object):
     def __init__(self, pvname, mt, idx, andMask=0, xorMask=0, shift=0):
         self.pv = buildPV(pvname,macroTable=mt)
         self.pvno = idx
@@ -36,7 +41,7 @@ class activeSymbolClass(AbstractSymbolClass):
     }
         
     def __init__(self, parent=None):
-        AbstractSymbolClass.__init__(self,parent)
+        super().__init__(parent)
 
     def cleanup(self):
         AbstractSymbolClass.cleanup(self)
@@ -125,7 +130,7 @@ class activeSymbolClass(AbstractSymbolClass):
                 self.curState = item
                 redisplay(self)
                 return
-        print "No state selected: istate=%d, count=%d/%d" % (istate, len(self.statelist),self.numStates)
+        print("No state selected: istate=%d, count=%d/%d" % (istate, len(self.statelist),self.numStates))
 
     def mousePressEvent(self, event):
         edmWindowWidget.mousePressEvent(self, event)

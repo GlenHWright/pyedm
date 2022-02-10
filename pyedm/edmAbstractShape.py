@@ -3,12 +3,15 @@
 
 from pyedm.edmWidget import edmWidget
 
-from PyQt4.QtGui import QFrame, QPainter
+from PyQt5.QtWidgets import QFrame, QWidget
+from PyQt5.QtGui import QPainter
+from PyQt5.QtCore import Qt
 
 class abstractShape(QFrame, edmWidget):
-    def __init__(self, parent=None):
-        QFrame.__init__(self, parent)
-        edmWidget.__init__(self,parent)
+    def __init__(self, parent=None, **kwargs):
+	# cannot use super() here - QFrame is called first with optional positional arguments.
+	# The amount of work to justify super() isn't realistic
+        super().__init__(parent, **kwargs)
 
     def cleanup(self):
         edmWidget.cleanup(self)
@@ -23,8 +26,7 @@ class abstractShape(QFrame, edmWidget):
 
     def findFgColor(self):
         self.lineColorInfo = self.findColor("lineColor", (), "alarmPV", "lineAlarm")
-        self.fill = self.object.getIntProperty("fill", 0)
-        if self.fill == 0:
+        if self.object.getIntProperty("fill", 0) == 0:
             self.fillColorInfo = None
         else:
             self.fillColorInfo = self.findColor("fillColor", (), "fillAlarm", "fillAlarm")

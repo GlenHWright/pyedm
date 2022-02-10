@@ -1,14 +1,15 @@
+from __future__ import print_function
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # This module manages simple text updates
 
 from pyedm.edmPVfactory import edmPVbase
 import pyedm.edmDisplay as edmDisplay
 from pyedm.edmWidget import edmWidget
-from pyedm.edmEditWidget import edmEdit
 from pyedm.edmTextFormat import convDefault, convDecimal, convHex, convEngineer, convExp
 
-from PyQt4.QtGui import QLineEdit, QPalette
-from PyQt4.QtCore import Qt
+from PyQt5.QtWidgets import QLineEdit
+from PyQt5.QtGui import QPalette
+from PyQt5.QtCore import Qt
 
 
 class TextupdateClass(QLineEdit,edmWidget):
@@ -16,26 +17,8 @@ class TextupdateClass(QLineEdit,edmWidget):
     V3propTable = {
         "7-0" : [ "controlPv", "displayMode", "precision", "INDEX", "fgColor", "fgAlarm", "INDEX", "bgColor", "colorPv", "fill", "font", "fontAlign", "lineWidth", "lineAlarm" ]
         }
-    #
-    # Edit List
-    #
-    edmEditList = [
-                edmEdit.StringPV("PV", "controlPV.getPVname"),
-                edmEdit.Enum(label="Mode", object="displayMode", enumList= ["default", "decimal", "hex", "engineering", "exp"]),
-                edmEdit.Int("Precision", "precision", "precision"),
-                edmEdit.Int("Line Width", "lineWidth", None),
-                edmEdit.CheckButton("Alarm Sensitive Line", "fgColorInfo.alarmSensitive", 0),
-                edmEdit.FgColor(),
-                edmEdit.CheckButton("Alarm Sensitive Text", "bgColorInfo.alarmSensitive", 0),
-                edmEdit.CheckButton("Filled?", "fill", None),
-                edmEdit.BgColor(),
-                edmEdit.StringPV("Color PV", "ColorPV.getPVname", None),
-                edmEdit.Font()
-        ]
-        
     def __init__(self, parent=None):
-        QLineEdit.__init__(self, parent)
-        edmWidget.__init__(self, parent)
+        super().__init__(parent)
         self.haveFocus = 0
 
     def buildFromObject(self, object):
@@ -80,7 +63,7 @@ class TextupdateClass(QLineEdit,edmWidget):
             self.setText(txt)
             return
         except:
-            print "Textupdate: conversion failure"
+            print("Textupdate: conversion failure")
         self.setText(self.controlPV.char_value)
 
 edmDisplay.edmClasses["TextupdateClass"] = TextupdateClass

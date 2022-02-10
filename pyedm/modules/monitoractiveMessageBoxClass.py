@@ -7,8 +7,9 @@
 import pyedm.edmDisplay as edmDisplay
 from pyedm.edmWidget import edmWidget
 
-from PyQt4.QtCore import Qt, SIGNAL
-from PyQt4.QtGui import QWidget, QPalette, QPushButton, QTextEdit, QVBoxLayout
+from PyQt5.QtCore import Qt#, SIGNAL
+from PyQt5.QtGui import QPalette
+from PyQt5.QtWidgets import QWidget,  QPushButton, QTextEdit, QVBoxLayout
 
 class messageBoxClass(QWidget,edmWidget):
     V3propTable = {
@@ -16,8 +17,7 @@ class messageBoxClass(QWidget,edmWidget):
             "indicatorPv", "font", "bufferSize", "fileSize", "flushTimerValue", "logFileName", "ReadOnly" ]
             }
     def __init__(self, parent=None):
-        QWidget.__init__(self, parent)
-        edmWidget.__init__(self, parent)
+        super().__init__(parent)
         self.pvItem["indicatorPv"] = [ "PVname", "pv", 1, None, None ]
 
     def buildFromObject(self, object):
@@ -25,7 +25,8 @@ class messageBoxClass(QWidget,edmWidget):
         edmWidget.buildFromObject(self, object)
         self.clearButton = QPushButton("Clear", self)
         self.line = QTextEdit(self)
-        self.clearButton.connect(self.clearButton, SIGNAL("clicked()"), self.clear)
+        #self.clearButton.connect(self.clearButton, SIGNAL("clicked()"), self.clear)
+        self.clearButton.clicked.connect(self.clear)
         self.line.setReadOnly(1)
         self.line.setGeometry( 0, self.clearButton.y() + self.clearButton.height()
             +12, self.width()-4, self.height() - self.clearButton.height() -
@@ -46,6 +47,6 @@ class messageBoxClass(QWidget,edmWidget):
         self.line.append(self.pv.char_value)
 
     def clear(self):
-	self.line.clear()
+        self.line.clear()
 
 edmDisplay.edmClasses["activeMessageBoxClass"] = messageBoxClass

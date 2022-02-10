@@ -1,31 +1,31 @@
+from __future__ import print_function
+from __future__ import absolute_import
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 #
 # generateWindow(screen) - build a QWidget for a screen entry, and fill it in
 # generateWidget(screen,parent) - build child widgets of "parent".
 from pyedm.edmApp import edmApp
-from PyQt4.QtCore import Qt
-from edmColors import findColorRule
+from PyQt5.QtCore import Qt
+from .edmColors import findColorRule
 from pyedm.edmWindowWidget import edmWindowWidget
-# from __future__ import print_function
 
-global edmClasses
 edmClasses = {}
 
 def generateWidget(screen, parent):
-    global edmClasses
-    if edmApp.DebugFlag : print "generateWidget", screen, parent, getattr(parent,"macroTable", None)
+    if edmApp.DebugFlag : print("generateWidget", screen, parent, getattr(parent,"macroTable", None))
     for obj in screen.objectList:
         otype =  obj.tagValue["Class"]
-        if edmApp.DebugFlag :  print "checking object type", otype
+        if edmApp.DebugFlag :  print("checking object type", otype)
         if otype in edmClasses:
+            # print(edmClasses[otype], parent)
             widget = edmClasses[otype](parent)
             widget.buildFromObject(obj)
         else:
-            if edmApp.DebugFlag : print "Unknown object type", otype, "in", edmClasses
-    if edmApp.DebugFlag : print "Done generateWidget"
+            if edmApp.DebugFlag : print("Unknown object type", otype, "in", edmClasses)
+    if edmApp.DebugFlag : print("Done generateWidget")
     
 def generateWindow(screen, myparent=None, macroTable=None, dataPaths=None):
-    if edmApp.DebugFlag : print "generateWindow", screen, "Parent:", myparent, "macroTable:", macroTable
+    if edmApp.DebugFlag : print("generateWindow", screen, "Parent:", myparent, "macroTable:", macroTable)
     parent = edmWindowWidget()
     parent.edmParent = myparent
     parent.dataPaths = dataPaths
@@ -55,5 +55,5 @@ def generateWindow(screen, myparent=None, macroTable=None, dataPaths=None):
     parent.parenty = 0
     generateWidget(screen, parent)
     parent.show()
-    if edmApp.DebugFlag : print "done generateWindow"
+    if edmApp.DebugFlag : print("done generateWindow")
     return parent

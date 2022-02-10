@@ -4,14 +4,14 @@
 import pyedm.edmDisplay as edmDisplay
 from pyedm.edmWidget import edmWidget
 
-from PyQt4.QtGui import QPushButton, QPalette
-from PyQt4 import QtCore
-from PyQt4.QtCore import SIGNAL
+from PyQt5.QtWidgets import QPushButton
+from PyQt5.QtGui import QPalette
+from PyQt5 import QtCore
+#from PyQt5.QtCore import SIGNAL
 
 class exitButtonClass(QPushButton, edmWidget):
     def __init__(self, parent=None):
-        QPushButton.__init__(self, parent)
-        edmWidget.__init__(self, parent)
+        super().__init__(parent)
 
     def buildFromObject(self, object):
         edmWidget.buildFromObject(self,object)
@@ -20,7 +20,8 @@ class exitButtonClass(QPushButton, edmWidget):
         self.iconifyFlag = object.getIntProperty("iconify", 0)
         self.exitProgram = object.getIntProperty("exitProgram", 0)
         self.controlParent = object.getIntProperty("controlParent", 0)
-        self.connect(self, SIGNAL("clicked(bool)"), self.onClicked)
+        #self.connect(self, SIGNAL("clicked(bool)"), self.onClicked)
+        self.clicked.connect(self.onClicked)
         self.fgColorInfo.setColor()
         self.bgColorInfo.setColor()
         self.setText(self.label)

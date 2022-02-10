@@ -1,3 +1,4 @@
+from __future__ import division
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # This module manages the displaying of a rectangle.
 # Where This Differs From EDM:
@@ -9,9 +10,9 @@
 
 import pyedm.edmDisplay as edmDisplay
 from pyedm.edmAbstractShape import abstractShape
-from pyedm.edmEditWidget import edmEdit
 
-from PyQt4.QtGui import QFrame, QPainter
+from PyQt5.QtWidgets import QFrame
+from PyQt5.QtGui import QPainter
 
 class activeRectangleClass(abstractShape):
     V3propTable = {
@@ -20,21 +21,8 @@ class activeRectangleClass(abstractShape):
         "2-1" : [ "INDEX", "lineColor", "lineAlarm", "fill", "INDEX", "fillColor", "fillAlarm",
                     "alarmPV", "visPV", "visInvert", "visMin", "visMax", "lineWidth", "lineStyle", "invisible" ]
                     }
-
-    edmEditList = [
-        edmEdit.LineThick(),
-        edmEdit.Enum(label="Line Style", object="lineStyle", enumList= [ "Solid", "Dash" ] ),
-        edmEdit.FgColor("Line Color", "lineColor"),
-        edmEdit.CheckButton("Alarm Sensitive", "fgAlarm"),
-        edmEdit.CheckButton("Fill", "fill"),
-        edmEdit.BgColor("Fill Color", "fillColor"),
-        edmEdit.CheckButton("Alarm Sensitive", "bgAlarm"),
-        edmEdit.CheckButton("Invisible", "invisible"),
-        edmEdit.StringPV("Color PV", "colorPv")
-    ] + edmEdit.visibleList
-
     def __init__(self, parent=None):
-        abstractShape.__init__(self,parent)
+        super().__init__(parent)
 
     def paintEvent(self, event=None):
         painter = QPainter(self)
@@ -49,9 +37,10 @@ class activeRectangleClass(abstractShape):
         if self.fillColorInfo != None:
             painter.setBrush( self.fillColorInfo.setColor() )
         else:
-            x,y = x+int(self.linewidth/2), y+int(self.linewidth/2)
-            w,h = w-self.linewidth, h-self.linewidth
+            x,y = x+self.linewidth, y+self.linewidth
+            w,h = w-self.linewidth*4, h-self.linewidth*4
             
+        if self.DebugFlag > 0 : print("paintRect ", x, y, w, h, self.linewidth, self.fillColorInfo != None)
         painter.drawRect( x, y, w, h)
         
 edmDisplay.edmClasses["activeRectangleClass"] = activeRectangleClass

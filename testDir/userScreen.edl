@@ -1,0 +1,1861 @@
+4 0 0
+beginScreenProperties
+major 4
+minor 0
+release 0
+x 1684
+y 114
+w 500
+h 304
+font "helvetica-bold-r-12.0"
+ctlFont "helvetica-bold-r-12.0"
+btnFont "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 50
+textColor index 14
+ctlFgColor1 index 14
+ctlFgColor2 index 0
+ctlBgColor1 index 30
+ctlBgColor2 index 14
+topShadowColor index 3
+botShadowColor index 4
+title "$(PREFIX)"
+gridSize 5
+endScreenProperties
+
+# (Lines)
+object activeLineClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 40
+y 180
+w 280
+h 80
+lineColor index 14
+fillColor index 30
+lineWidth 4
+numPoints 4
+xPoints {
+  0 40
+  1 110
+  2 250
+  3 320
+}
+yPoints {
+  0 260
+  1 180
+  2 180
+  3 260
+}
+endObjectProperties
+
+# (Rectangle)
+object activeRectangleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 434
+y 197
+w 44
+h 16
+lineColor index 21
+fill
+fillColor index 20
+visPv "$(PREFIX):TM0008:alarm"
+visMin "1"
+visMax "2"
+endObjectProperties
+
+# (Rectangle)
+object activeRectangleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 434
+y 170
+w 44
+h 16
+lineColor index 21
+fill
+fillColor index 20
+visPv "$(PREFIX):TM0007:alarm"
+visMin "1"
+visMax "2"
+endObjectProperties
+
+# (Rectangle)
+object activeRectangleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 435
+y 143
+w 44
+h 16
+lineColor index 21
+fill
+fillColor index 20
+visPv "$(PREFIX):TM0006:alarm"
+visMin "1"
+visMax "2"
+endObjectProperties
+
+# (Rectangle)
+object activeRectangleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 434
+y 117
+w 44
+h 16
+lineColor index 21
+fill
+fillColor index 20
+visPv "$(PREFIX):TM0005:alarm"
+visMin "1"
+visMax "2"
+endObjectProperties
+
+# (Rectangle)
+object activeRectangleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 434
+y 90
+w 44
+h 16
+lineColor index 21
+fill
+fillColor index 20
+visPv "$(PREFIX):TM0004:alarm"
+visMin "1"
+visMax "2"
+endObjectProperties
+
+# (Rectangle)
+object activeRectangleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 433
+y 60
+w 44
+h 16
+lineColor index 21
+fill
+fillColor index 20
+visPv "$(PREFIX):TM0003:alarm"
+visMin "1"
+visMax "2"
+endObjectProperties
+
+# (Rectangle)
+object activeRectangleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 434
+y 33
+w 44
+h 16
+lineColor index 21
+fill
+fillColor index 20
+visPv "$(PREFIX):TM0002:alarm"
+visMin "1"
+visMax "2"
+endObjectProperties
+
+# (Rectangle)
+object activeRectangleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 434
+y 7
+w 44
+h 16
+lineColor index 21
+fill
+fillColor index 20
+visPv "$(PREFIX):TM0001:alarm"
+visMin "1"
+visMax "2"
+endObjectProperties
+
+# (Rectangle)
+object activeRectangleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 434
+y 227
+w 44
+h 16
+lineColor index 21
+fill
+fillColor index 20
+visPv "$(PREFIX):TM0009:alarm"
+visMin "1"
+visMax "2"
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 110
+y 63
+w 181
+h 14
+controlPv "$(PREFIX):state1"
+font "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 30
+useDisplayBg
+autoHeight
+limitsFromDb
+nullColor index 0
+useHexPrefix
+objType "monitors"
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 109
+y 82
+w 181
+h 14
+controlPv "$(PREFIX):state2"
+font "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 30
+useDisplayBg
+autoHeight
+limitsFromDb
+nullColor index 0
+useHexPrefix
+objType "monitors"
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 109
+y 102
+w 181
+h 14
+controlPv "$(PREFIX):state3"
+font "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 30
+useDisplayBg
+autoHeight
+limitsFromDb
+nullColor index 0
+useHexPrefix
+objType "monitors"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 12
+y 64
+w 91
+h 14
+font "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 30
+useDisplayBg
+value {
+  "Restore Status"
+}
+autoSize
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 31
+y 83
+w 71
+h 14
+font "helvetica-bold-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 30
+useDisplayBg
+value {
+  "Ramp State"
+}
+autoSize
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 38
+y 103
+w 64
+h 14
+font "helvetica-bold-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 30
+useDisplayBg
+value {
+  "Test State"
+}
+autoSize
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 133
+y 6
+w 101
+h 14
+controlPv "$(PREFIX):state"
+font "helvetica-bold-r-12.0"
+fontAlign "center"
+fgColor index 14
+bgColor index 5
+autoHeight
+limitsFromDb
+nullColor index 0
+useHexPrefix
+objType "monitors"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 18
+y 151
+w 129
+h 14
+font "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 30
+useDisplayBg
+value {
+  "Average Temperature"
+}
+autoSize
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 40
+y 131
+w 106
+h 14
+font "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 30
+useDisplayBg
+value {
+  "High Temperature"
+}
+autoSize
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 158
+y 152
+w 111
+h 14
+controlPv "$(PREFIX):avg:temp"
+font "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 30
+useDisplayBg
+autoHeight
+limitsFromDb
+nullColor index 0
+useHexPrefix
+objType "monitors"
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 159
+y 132
+w 111
+h 14
+controlPv "$(PREFIX):high:temp"
+font "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 30
+useDisplayBg
+autoHeight
+limitsFromDb
+nullColor index 0
+useHexPrefix
+objType "monitors"
+endObjectProperties
+
+# (Button)
+object activeButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 405
+y 3
+w 25
+h 22
+fgColor index 14
+onColor index 15
+offColor index 20
+inconsistentColor index 36
+topShadowColor index 3
+botShadowColor index 4
+controlPv "$(PREFIX):SSR1:En"
+indicatorPv "$(PREFIX):SSR1:En:fbk"
+onLabel "Ena"
+offLabel "Off"
+labelType "literal"
+3d
+font "helvetica-bold-r-12.0"
+objType "controls"
+endObjectProperties
+
+# (Button)
+object activeButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 405
+y 30
+w 25
+h 22
+fgColor index 14
+onColor index 15
+offColor index 20
+inconsistentColor index 36
+topShadowColor index 3
+botShadowColor index 4
+controlPv "$(PREFIX):SSR2:En"
+indicatorPv "$(PREFIX):SSR2:En:fbk"
+onLabel "Ena"
+offLabel "Off"
+labelType "literal"
+3d
+font "helvetica-bold-r-12.0"
+objType "controls"
+endObjectProperties
+
+# (Button)
+object activeButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 405
+y 57
+w 25
+h 22
+fgColor index 14
+onColor index 15
+offColor index 20
+inconsistentColor index 36
+topShadowColor index 3
+botShadowColor index 4
+controlPv "$(PREFIX):SSR3:En"
+indicatorPv "$(PREFIX):SSR3:En:fbk"
+onLabel "Ena"
+offLabel "Off"
+labelType "literal"
+3d
+font "helvetica-bold-r-12.0"
+objType "controls"
+endObjectProperties
+
+# (Button)
+object activeButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 405
+y 85
+w 25
+h 22
+fgColor index 14
+onColor index 15
+offColor index 20
+inconsistentColor index 36
+topShadowColor index 3
+botShadowColor index 4
+controlPv "$(PREFIX):SSR4:En"
+indicatorPv "$(PREFIX):SSR4:En:fbk"
+onLabel "Ena"
+offLabel "Off"
+labelType "literal"
+3d
+font "helvetica-bold-r-12.0"
+objType "controls"
+endObjectProperties
+
+# (Button)
+object activeButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 405
+y 112
+w 25
+h 22
+fgColor index 14
+onColor index 15
+offColor index 20
+inconsistentColor index 36
+topShadowColor index 3
+botShadowColor index 4
+controlPv "$(PREFIX):SSR5:En"
+indicatorPv "$(PREFIX):SSR5:En:fbk"
+onLabel "Ena"
+offLabel "Off"
+labelType "literal"
+3d
+font "helvetica-bold-r-12.0"
+objType "controls"
+endObjectProperties
+
+# (Button)
+object activeButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 405
+y 139
+w 25
+h 22
+fgColor index 14
+onColor index 15
+offColor index 20
+inconsistentColor index 36
+topShadowColor index 3
+botShadowColor index 4
+controlPv "$(PREFIX):SSR6:En"
+indicatorPv "$(PREFIX):SSR6:En:fbk"
+onLabel "Ena"
+offLabel "Off"
+labelType "literal"
+3d
+font "helvetica-bold-r-12.0"
+objType "controls"
+endObjectProperties
+
+# (Button)
+object activeButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 405
+y 167
+w 25
+h 22
+fgColor index 14
+onColor index 15
+offColor index 20
+inconsistentColor index 36
+topShadowColor index 3
+botShadowColor index 4
+controlPv "$(PREFIX):SSR7:En"
+indicatorPv "$(PREFIX):SSR7:En:fbk"
+onLabel "Ena"
+offLabel "Off"
+labelType "literal"
+3d
+font "helvetica-bold-r-12.0"
+objType "controls"
+endObjectProperties
+
+# (Button)
+object activeButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 405
+y 194
+w 25
+h 22
+fgColor index 14
+onColor index 15
+offColor index 20
+inconsistentColor index 36
+topShadowColor index 3
+botShadowColor index 4
+controlPv "$(PREFIX):SSR8:En"
+indicatorPv "$(PREFIX):SSR8:En:fbk"
+onLabel "Ena"
+offLabel "Off"
+labelType "literal"
+3d
+font "helvetica-bold-r-12.0"
+objType "controls"
+endObjectProperties
+
+# (Button)
+object activeButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 405
+y 222
+w 25
+h 22
+fgColor index 14
+onColor index 15
+offColor index 20
+inconsistentColor index 36
+topShadowColor index 3
+botShadowColor index 4
+controlPv "$(PREFIX):SSR9:En"
+indicatorPv "$(PREFIX):SSR9:En:fbk"
+onLabel "Ena"
+offLabel "Off"
+labelType "literal"
+3d
+font "helvetica-bold-r-12.0"
+objType "controls"
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 380
+y 3
+w 23
+h 23
+
+beginGroup
+
+# (Circle)
+object activeCircleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 380
+y 3
+w 23
+h 23
+lineColor index 16
+fill
+fillColor index 16
+visPv "$(PREFIX):SSR1:relay"
+visMin "1"
+visMax "2"
+endObjectProperties
+
+# (Circle)
+object activeCircleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 380
+y 3
+w 23
+h 23
+lineColor index 36
+fill
+fillColor index 36
+visPv "$(PREFIX):SSR1:relay"
+visMin "0"
+visMax "1"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 387
+y 9
+w 7
+h 14
+font "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 30
+useDisplayBg
+value {
+  "1"
+}
+autoSize
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 380
+y 30
+w 23
+h 23
+
+beginGroup
+
+# (Circle)
+object activeCircleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 380
+y 30
+w 23
+h 23
+lineColor index 16
+fill
+fillColor index 16
+visPv "$(PREFIX):SSR2:relay"
+visMin "1"
+visMax "2"
+endObjectProperties
+
+# (Circle)
+object activeCircleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 380
+y 30
+w 23
+h 23
+lineColor index 36
+fill
+fillColor index 36
+visPv "$(PREFIX):SSR2:relay"
+visMin "0"
+visMax "1"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 387
+y 36
+w 7
+h 14
+font "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 30
+useDisplayBg
+value {
+  "2"
+}
+autoSize
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 380
+y 57
+w 23
+h 23
+
+beginGroup
+
+# (Circle)
+object activeCircleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 380
+y 57
+w 23
+h 23
+lineColor index 16
+fill
+fillColor index 16
+visPv "$(PREFIX):SSR3:relay"
+visMin "1"
+visMax "2"
+endObjectProperties
+
+# (Circle)
+object activeCircleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 380
+y 57
+w 23
+h 23
+lineColor index 36
+fill
+fillColor index 36
+visPv "$(PREFIX):SSR3:relay"
+visMin "0"
+visMax "1"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 386
+y 63
+w 7
+h 14
+font "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 30
+useDisplayBg
+value {
+  "3"
+}
+autoSize
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 380
+y 84
+w 23
+h 23
+
+beginGroup
+
+# (Circle)
+object activeCircleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 380
+y 84
+w 23
+h 23
+lineColor index 16
+fill
+fillColor index 16
+visPv "$(PREFIX):SSR4:relay"
+visMin "1"
+visMax "2"
+endObjectProperties
+
+# (Circle)
+object activeCircleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 380
+y 84
+w 23
+h 23
+lineColor index 36
+fill
+fillColor index 36
+visPv "$(PREFIX):SSR4:relay"
+visMin "0"
+visMax "1"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 386
+y 90
+w 7
+h 14
+font "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 30
+useDisplayBg
+value {
+  "4"
+}
+autoSize
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 380
+y 111
+w 23
+h 23
+
+beginGroup
+
+# (Circle)
+object activeCircleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 380
+y 111
+w 23
+h 23
+lineColor index 16
+fill
+fillColor index 16
+visPv "$(PREFIX):SSR5:relay"
+visMin "1"
+visMax "2"
+endObjectProperties
+
+# (Circle)
+object activeCircleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 380
+y 111
+w 23
+h 23
+lineColor index 36
+fill
+fillColor index 36
+visPv "$(PREFIX):SSR5:relay"
+visMin "0"
+visMax "1"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 386
+y 117
+w 7
+h 14
+font "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 30
+useDisplayBg
+value {
+  "5"
+}
+autoSize
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 380
+y 139
+w 23
+h 23
+
+beginGroup
+
+# (Circle)
+object activeCircleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 380
+y 139
+w 23
+h 23
+lineColor index 16
+fill
+fillColor index 16
+visPv "$(PREFIX):SSR6:relay"
+visMin "1"
+visMax "2"
+endObjectProperties
+
+# (Circle)
+object activeCircleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 380
+y 139
+w 23
+h 23
+lineColor index 36
+fill
+fillColor index 36
+visPv "$(PREFIX):SSR6:relay"
+visMin "0"
+visMax "1"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 387
+y 145
+w 7
+h 14
+font "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 30
+useDisplayBg
+value {
+  "6"
+}
+autoSize
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 380
+y 166
+w 23
+h 23
+
+beginGroup
+
+# (Circle)
+object activeCircleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 380
+y 166
+w 23
+h 23
+lineColor index 16
+fill
+fillColor index 16
+visPv "$(PREFIX):SSR7:relay"
+visMin "1"
+visMax "2"
+endObjectProperties
+
+# (Circle)
+object activeCircleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 380
+y 166
+w 23
+h 23
+lineColor index 36
+fill
+fillColor index 36
+visPv "$(PREFIX):SSR7:relay"
+visMin "0"
+visMax "1"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 387
+y 172
+w 7
+h 14
+font "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 30
+useDisplayBg
+value {
+  "7"
+}
+autoSize
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 380
+y 193
+w 23
+h 23
+
+beginGroup
+
+# (Circle)
+object activeCircleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 380
+y 193
+w 23
+h 23
+lineColor index 16
+fill
+fillColor index 16
+visPv "$(PREFIX):SSR8:relay"
+visMin "1"
+visMax "2"
+endObjectProperties
+
+# (Circle)
+object activeCircleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 380
+y 193
+w 23
+h 23
+lineColor index 36
+fill
+fillColor index 36
+visPv "$(PREFIX):SSR8:relay"
+visMin "0"
+visMax "1"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 388
+y 199
+w 7
+h 14
+font "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 30
+useDisplayBg
+value {
+  "8"
+}
+autoSize
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 380
+y 221
+w 23
+h 23
+
+beginGroup
+
+# (Circle)
+object activeCircleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 380
+y 221
+w 23
+h 23
+lineColor index 16
+fill
+fillColor index 16
+visPv "$(PREFIX):SSR9:relay"
+visMin "1"
+visMax "2"
+endObjectProperties
+
+# (Circle)
+object activeCircleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 380
+y 221
+w 23
+h 23
+lineColor index 36
+fill
+fillColor index 36
+visPv "$(PREFIX):SSR9:relay"
+visMin "0"
+visMax "1"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 388
+y 227
+w 7
+h 14
+font "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 30
+useDisplayBg
+value {
+  "9"
+}
+autoSize
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 436
+y 3
+w 59
+h 25
+controlPv "$(PREFIX):TM0001"
+fgColor index 14
+fgAlarm
+bgColor index 50
+font "helvetica-bold-r-12.0"
+fontAlign "center"
+endObjectProperties
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 436
+y 30
+w 59
+h 25
+controlPv "$(PREFIX):TM0002"
+fgColor index 14
+fgAlarm
+bgColor index 50
+font "helvetica-bold-r-12.0"
+fontAlign "center"
+endObjectProperties
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 436
+y 57
+w 59
+h 25
+controlPv "$(PREFIX):TM0003"
+fgColor index 14
+fgAlarm
+bgColor index 50
+font "helvetica-bold-r-12.0"
+fontAlign "center"
+endObjectProperties
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 436
+y 85
+w 59
+h 25
+controlPv "$(PREFIX):TM0004"
+fgColor index 14
+fgAlarm
+bgColor index 50
+font "helvetica-bold-r-12.0"
+fontAlign "center"
+endObjectProperties
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 436
+y 112
+w 59
+h 25
+controlPv "$(PREFIX):TM0005"
+fgColor index 14
+fgAlarm
+bgColor index 50
+font "helvetica-bold-r-12.0"
+fontAlign "center"
+endObjectProperties
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 436
+y 139
+w 59
+h 25
+controlPv "$(PREFIX):TM0006"
+fgColor index 14
+fgAlarm
+bgColor index 50
+font "helvetica-bold-r-12.0"
+fontAlign "center"
+endObjectProperties
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 436
+y 167
+w 59
+h 25
+controlPv "$(PREFIX):TM0007"
+fgColor index 14
+fgAlarm
+bgColor index 50
+font "helvetica-bold-r-12.0"
+fontAlign "center"
+endObjectProperties
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 436
+y 194
+w 59
+h 25
+controlPv "$(PREFIX):TM0008"
+fgColor index 14
+fgAlarm
+bgColor index 50
+font "helvetica-bold-r-12.0"
+fontAlign "center"
+endObjectProperties
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 436
+y 222
+w 59
+h 25
+controlPv "$(PREFIX):TM0009"
+fgColor index 14
+fgAlarm
+bgColor index 50
+font "helvetica-bold-r-12.0"
+fontAlign "center"
+endObjectProperties
+
+# (Related Display)
+object relatedDisplayClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 256
+y 4
+w 97
+h 22
+fgColor index 14
+bgColor index 40
+topShadowColor index 3
+botShadowColor index 4
+font "helvetica-bold-r-12.0"
+xPosOffset 200
+yPosOffset 150
+buttonLabel "Configure"
+numPvs 4
+numDsps 1
+displayFileName {
+  0 "$(baseDir)/configure.edl"
+}
+setPosition {
+  0 "parentWindow"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 384
+y 247
+w 14
+h 14
+font "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 30
+useDisplayBg
+value {
+  "10"
+}
+autoSize
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 384
+y 264
+w 14
+h 14
+font "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 30
+useDisplayBg
+value {
+  "11"
+}
+autoSize
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 383
+y 280
+w 14
+h 14
+font "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 30
+useDisplayBg
+value {
+  "12"
+}
+autoSize
+endObjectProperties
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 435
+y 243
+w 59
+h 20
+controlPv "$(PREFIX):TM0010"
+fgColor index 14
+fgAlarm
+bgColor index 50
+fill
+font "helvetica-bold-r-12.0"
+fontAlign "center"
+endObjectProperties
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 435
+y 262
+w 59
+h 18
+controlPv "$(PREFIX):TM0011"
+fgColor index 14
+fgAlarm
+bgColor index 50
+fill
+font "helvetica-bold-r-12.0"
+fontAlign "center"
+endObjectProperties
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 435
+y 279
+w 59
+h 18
+controlPv "$(PREFIX):TM0012"
+fgColor index 14
+fgAlarm
+bgColor index 50
+fill
+font "helvetica-bold-r-12.0"
+fontAlign "center"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 6
+y 5
+w 118
+h 16
+font "helvetica-bold-r-14.0"
+fgColor index 14
+bgColor index 30
+useDisplayBg
+value {
+  "$(PREFIX)"
+}
+autoSize
+endObjectProperties
+
+# (Button)
+object activeButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 15
+y 28
+w 60
+h 29
+fgColor index 14
+onColor index 16
+offColor index 7
+inconsistentColor index 14
+topShadowColor index 3
+botShadowColor index 4
+controlPv "$(PREFIX):Epics:On"
+onLabel "Start"
+offLabel "Start"
+labelType "literal"
+3d
+font "helvetica-bold-r-12.0"
+objType "controls"
+endObjectProperties
+
+# (Button)
+object activeButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 98
+y 28
+w 60
+h 29
+fgColor index 14
+onColor index 1
+offColor index 7
+inconsistentColor index 14
+topShadowColor index 3
+botShadowColor index 4
+controlPv "$(PREFIX):Epics:Off"
+onLabel "Stop"
+offLabel "Stop"
+labelType "literal"
+3d
+font "helvetica-bold-r-12.0"
+objType "controls"
+endObjectProperties
+
+# (Bar)
+object activeBarClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 40
+y 264
+w 279
+h 11
+indicatorColor index 16
+fgColor index 14
+bgColor index 6
+indicatorPv "$(PREFIX):high:complete"
+font "helvetica-bold-r-12.0"
+labelTicks 10
+majorTicks 2
+minorTicks 2
+limitsFromDb
+precision 0
+scaleFormat "FFloat"
+endObjectProperties
+
+# (Bar)
+object activeBarClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 40
+y 276
+w 279
+h 11
+indicatorColor index 16
+fgColor index 14
+bgColor index 6
+indicatorPv "$(PREFIX):low:complete"
+font "helvetica-bold-r-12.0"
+labelTicks 10
+majorTicks 2
+minorTicks 2
+limitsFromDb
+precision 0
+scaleFormat "FFloat"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 292
+y 104
+w 76
+h 28
+font "helvetica-bold-r-12.0"
+fontAlign "center"
+fgColor index 20
+bgColor index 30
+useDisplayBg
+visPv "$(PREFIX):HiTemp:Alarm"
+visMin "0"
+visMax "1"
+value {
+  "Over"
+  "Temperature"
+}
+autoSize
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 307
+y 139
+w 44
+h 14
+font "helvetica-bold-r-12.0"
+fontAlign "center"
+fgColor index 20
+bgColor index 30
+useDisplayBg
+visPv "$(PREFIX):TurboPump1"
+visMin "0"
+visMax "1"
+value {
+  "Pump 1"
+}
+autoSize
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 307
+y 158
+w 44
+h 14
+font "helvetica-bold-r-12.0"
+fontAlign "center"
+fgColor index 20
+bgColor index 30
+useDisplayBg
+visPv "$(PREFIX):TurboPump2"
+visMin "0"
+visMax "1"
+value {
+  "Pump 2"
+}
+autoSize
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 291
+y 176
+w 67
+h 28
+font "helvetica-bold-r-12.0"
+fontAlign "center"
+fgColor index 20
+bgColor index 30
+useDisplayBg
+visPv "$(PREFIX):EOS_0001"
+visMin "0"
+visMax "1"
+value {
+  "Emergency"
+  "OFF"
+}
+autoSize
+endObjectProperties
+

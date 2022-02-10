@@ -1,26 +1,25 @@
+from __future__ import print_function
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 #
 
 from pyedm.edmPVfactory import edmPVbase, pvClassDict, buildPV
 from pyedm.edmparsecalc import Postfix
-# from __future__ import print_function
 
 class calcPV(edmPVbase):
-    def __init__(self, **kw):
-        edmPVbase.__init__(self, **kw)
-        self.name = kw.get("name" )
+    def __init__(self, name=None, macroTable=None, **kw):
+        super().__init__( name="CALC", macroTable=macroTable, **kw)
+        self.name = name
         self.inInit = True
-        expression = self.name.split("}", 1)
+        expression = name.split("}", 1)
         self.setCalc(expression[0].strip("{}\\"))
-        self.setPVargs(expression[1][1:-1], kw.get("macroTable") )
+        self.setPVargs(expression[1][1:-1], macroTable )
         self.pvType = edmPVbase.typeFloat
         self.precision = 4
         self.prefix = "CALC\\"
-        self.inInit = False
-        # Potential race condition: if any multi-threaded PV updates are happening
-        # (which shouldn't given no preemptive callback), then the possibility is
-        # 
+        #
         self.allValid = [ pv.isValid for pv in self.pvArgs ]
+        self.inInit = False
+        # There shouldn't be a race condition, here, but I'm not confident of the proof of that.
         if False not in self.allValid:
             self.isValid = True
             self.severity = 0
@@ -51,7 +50,7 @@ class calcPV(edmPVbase):
         return self.calcValue()
 
     def onChange(self, item, **kw):
-        if self.DebugFlag > 0: print "callback CALC onChange", item
+        if self.DebugFlag > 0: print("callback CALC onChange", item)
         if 'userArgs' in kw:
             userArgs = kw['userArgs']
         else: return
@@ -70,10 +69,10 @@ class calcPV(edmPVbase):
 
         self.isValid = True
         self.severity = 0
-        if self.DebugFlag > 0: print "callback CALC", self.name, "value=", self.value, self.callbackList
+        if self.DebugFlag > 0: print("callback CALC", self.name, "value=", self.value, self.callbackList)
         for fn in self.callbackList:
             fn[0](fn[1], pvname=self.name, chid=0,pv=self,value=self.value,count=1,units=self.units,severity=0,userArgs=fn[2])
-        if self.DebugFlag > 0: print "END callback CALC", self.name
+        if self.DebugFlag > 0: print("END callback CALC", self.name)
 
     # recalculate the value for the equation
     def calcValue(self):
@@ -82,7 +81,7 @@ class calcPV(edmPVbase):
             if val != None:
                 return val
         except:
-            print "Calculation failed:", self.name, self.pvValues
+            print("Calculation failed:", self.name, self.pvValues)
         return 0.0
 
 def buildCalcPV(**kw):

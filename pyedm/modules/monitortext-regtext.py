@@ -6,11 +6,10 @@ monitortext = __import__("monitortext", globals(), locals(), 1)
 TextupdateClass = monitortext.TextupdateClass
 
 import pyedm.edmDisplay as edmDisplay
-import copy
 
 class RegTextupdateClass(TextupdateClass):
     def __init__(self, parent=None):
-        TextupdateClass.__init__(self, parent)
+        super().__init__(parent)
 
     def buildFromObject(self, object):
         TextupdateClass.buildFromObject(self, object)

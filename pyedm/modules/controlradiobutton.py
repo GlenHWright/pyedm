@@ -4,9 +4,9 @@ import pyedm.edmDisplay as edmDisplay
 from pyedm.edmWidget import edmWidget
 from pyedm.edmWindowWidget import mousePressEvent, mouseReleaseEvent
 
-from PyQt4.QtGui import QWidget, QVBoxLayout, QButtonGroup, QRadioButton
-from PyQt4 import QtCore
-from PyQt4.QtCore import SIGNAL
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QButtonGroup, QRadioButton
+from PyQt5 import QtCore
+from PyQt5.QtCore import pyqtSlot
 
 class activeRadioButtonClass(QWidget,edmWidget):
     V3propTable = {
@@ -15,29 +15,29 @@ class activeRadioButtonClass(QWidget,edmWidget):
         ]
         }
     def __init__(self,parent=None):
-        QWidget.__init__(self,parent)
-        edmWidget.__init__(self,parent)
+        super().__init__(parent)
         self.layout = QVBoxLayout()
         self.group = QButtonGroup(self)
         self.pvItem["controlPv"] = [ "controlName", "controlPV", 1, None, None, onConnect, (self, "controlPv") ]
 
     def buildFromObject(self, object):
         edmWidget.buildFromObject(self,object)
-        self.group.connect( self.group, SIGNAL("buttonClicked(int)"),
-        self.gotNewValue)
+        self.group.buttonClicked.connect(self.gotNewValue)
+
         self.buttonInterest = []
         self.edmParent.buttonInterest.append(self)
 
-    def gotNewValue(self, value):
+    @pyqtSlot()
+    def gotNewValue(self):
         if self.controlPV == None:
             return
-        self.controlPV.put( value)
+        self.controlPV.put( self.group.checkedId() )
 
     def redisplay(self):
         # called when the control PV changes
         self.checkVisible()
         # find the button that corresponds to the index, and mark it
-        bt = self.group.button(self.controlPV.value)
+        bt = self.group.button(int(self.controlPV.value) )
         if bt != None:
             bt.setChecked(True)
 

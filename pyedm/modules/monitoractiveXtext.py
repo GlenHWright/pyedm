@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # Module for generating a widget for a text monitor class
 
@@ -6,8 +7,9 @@ from pyedm.edmWidget import edmWidget
 from pyedm.edmTextFormat import convDefault, convDecimal, convHex, convEngineer, convExp
 from pyedm.edmPVfactory import edmPVbase
 
-from PyQt4.QtGui import QLineEdit, QPalette
-from PyQt4.QtCore import Qt
+from PyQt5.QtWidgets import QLineEdit
+from PyQt5.QtGui import QPalette
+from PyQt5.QtCore import Qt
 
 class activeXTextDspClass_noedit(QLineEdit,edmWidget):
     displayModeList = { "default" : convDefault, "float" :convDefault, "exponential": convExp, "decimal":convDecimal, "hex":convHex, "string":convDefault }
@@ -20,8 +22,7 @@ class activeXTextDspClass_noedit(QLineEdit,edmWidget):
                 }
 
     def __init__(self, parent=None):
-        QLineEdit.__init__(self, parent)
-        edmWidget.__init__(self, parent)
+        super().__init__(parent)
 
     def buildFromObject(self, object):
         edmWidget.buildFromObject(self,object)
@@ -58,7 +59,7 @@ class activeXTextDspClass_noedit(QLineEdit,edmWidget):
             txt = self.displayModeList[self.formatType] (self.controlPV.value, charValue=self.controlPV.char_value, precision=precision, units=self.controlPV.units, showUnits=self.showUnits)
             self.setText(txt)
             return
-        except: print "activeXTextDspClass:noedit : conversion failure"
+        except: print("activeXTextDspClass:noedit : conversion failure")
         self.setText(self.controlPV.char_value)
 
 edmDisplay.edmClasses["activeXTextDspClass:noedit"] = activeXTextDspClass_noedit

@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # This module runs a shell command.
 
@@ -6,21 +7,23 @@
 # is the management of the macros, so that macro expansion occurs using
 # the correct macro set.
 #
+from builtins import range
 import os
 from threading import Thread
 import pyedm.edmDisplay as edmDisplay
 from pyedm.edmWidget import edmWidget
 
-from PyQt4.QtGui import QPushButton, QMenu, QPalette
-from PyQt4.QtCore import SIGNAL
+from PyQt5.QtWidgets import QPushButton, QMenu
+from PyQt5.QtGui import QPalette
+#from PyQt5.QtCore import SIGNAL
 
 class popUpMenu(QMenu):
     def __init__(self, parent=None):
-        QMenu.__init__(self, parent)
+        super().__init__(parent)
 
 class shellThread(Thread):
     def __init__(self, cmd):
-        Thread.__init__(self)
+        super().__init__()
         self.cmd = cmd
 
     def run(self):
@@ -28,8 +31,7 @@ class shellThread(Thread):
 
 class shellCmdClass(QPushButton,edmWidget):
     def __init__(self, parent=None):
-        QPushButton.__init__(self, parent)
-        edmWidget.__init__(self, parent)
+        super().__init__(parent)
 
     def setV3PropertyList(classRef, values, tag):
         for name in [ "INDEX", "fgColor", "INDEX", "bgColor", "INDEX", "topShadowColor", "INDEX", "botShadowColor",
@@ -65,7 +67,8 @@ class shellCmdClass(QPushButton,edmWidget):
         if self.cmdLabel == None:
             self.cmdLabel = self.command
         if len(self.cmdLabel) == 1:
-            self.connect(self, SIGNAL("pressed()"), self.onPress)
+            #self.connect(self, SIGNAL("pressed()"), self.onPress)
+            self.pressed.connect(self.onPress)
         else:
             self.newmenu = popUpMenu(self)
             self.setMenu(self.newmenu)
@@ -84,7 +87,7 @@ class shellCmdClass(QPushButton,edmWidget):
         self.onMenu(0)
 
     def onMenu(self, idx):
-        print "onMenu(", idx , ")"
+        print("onMenu(", idx , ")")
         if self.threads[idx] and self.threads[idx].isAlive():
             # To Do. Support for multiple "exec's" of a command.
             return
@@ -95,7 +98,7 @@ class shellCmdClass(QPushButton,edmWidget):
         self.threads[idx].start()
 
     def lostChild(self, childIdx):
-        print "lost child", childIdx
+        print("lost child", childIdx)
         self.widgets[childIdx] = None
         
 edmDisplay.edmClasses["shellCmdClass"] = shellCmdClass

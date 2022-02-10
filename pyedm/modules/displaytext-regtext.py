@@ -3,8 +3,8 @@
 
 import pyedm.edmDisplay as edmDisplay
 
-from PyQt4.QtGui import QTextEdit
-from PyQt4 import QtCore
+from PyQt5.QtWidgets import QTextEdit
+from PyQt5 import QtCore
 # from pyedm.displaytext import activeXTextClass
 displaytext = __import__("displaytext", globals(), locals(), 1)
 activeXTextClass = displaytext.activeXTextClass
@@ -15,7 +15,7 @@ class activeXRegTextClass(activeXTextClass):
             "visPv", "visInvert", "visMin", "visMax", "value", "font", "fontAlign", "autoSize", "ID" , "regExpr" ]
             }
     def __init__(self, parent=None):
-        activeXTextClass.__init__(self, parent)
+        super().__init__(parent)
 
     def onUpdate(self, **kw):
         self.setText(self.controlPV.char_value)

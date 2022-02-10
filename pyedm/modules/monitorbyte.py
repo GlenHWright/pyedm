@@ -1,10 +1,13 @@
+from __future__ import division
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # This module displays a set of boxes for the bit values of a PV
 
+from builtins import range
 import pyedm.edmDisplay as edmDisplay
 from pyedm.edmWidget import edmWidget
 
-from PyQt4.QtGui import QWidget, QPainter
+from PyQt5.QtGui import QPainter
+from PyQt5.QtWidgets import QWidget
 
 
 # Display class for bars: can be inherited by controllable widgets
@@ -16,8 +19,7 @@ class byteClass(QWidget,edmWidget):
          "controlPv", "lineWidth", "lineStyle", "direction", "numBits", "shifting" ]
          }
     def __init__(self, parent=None):
-        QWidget.__init__(self, parent)
-        edmWidget.__init__(self, parent)
+        super().__init__(parent)
         self.pvItem["controlPv"] = [ "PVname", "pv", 1 ]
 
     def cleanup(self):
@@ -50,7 +52,7 @@ class byteClass(QWidget,edmWidget):
         if self.noBits <= 0:
             return
         xoffset = 0
-        width = self.width() / self.noBits
+        width = self.width() // self.noBits
         height = self.height()
         painter = QPainter(self)
         if event == None:

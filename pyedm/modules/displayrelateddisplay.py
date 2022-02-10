@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # Module for generating a widget for a related display
 
@@ -6,23 +7,24 @@
 # is the management of the macros, so that macro expansion occurs using
 # the correct macro set.
 #
+from builtins import zip
+from builtins import range
 import os
 import pyedm.edmDisplay as edmDisplay
 from pyedm.edmScreen import edmScreen
 from pyedm.edmWidget import edmWidget
 from pyedm.edmDisplay import generateWindow
 
-from PyQt4.QtGui import QPushButton, QMenu, QPalette
-from PyQt4.QtCore import SIGNAL
+from PyQt5.QtWidgets import QPushButton, QMenu
+from PyQt5.QtGui import QPalette
 
 class popUpMenu(QMenu):
     def __init__(self, parent=None):
-        QMenu.__init__(self, parent)
+        super().__init__(parent)
 
 class relatedDisplayClass(QPushButton,edmWidget):
     def __init__(self, parent=None):
-        QPushButton.__init__(self, parent)
-        edmWidget.__init__(self, parent)
+        super().__init__(parent)
 
     def buildFromObject(self, object):
         edmWidget.buildFromObject(self,object)
@@ -41,18 +43,18 @@ class relatedDisplayClass(QPushButton,edmWidget):
         numDsps = self.object.getIntProperty("numDsps", "0")
         
         if numDsps == 0:
-            print "relatedDisplayClass: no files to display"
+            print("relatedDisplayClass: no files to display")
             return
 
         self.filename = [ self.macroExpand(filename) for filename in self.filelist]
         self.generated = [ None for idx in range(0, len(self.filename))]
         self.widgets = [ None for idx in range(0, len(self.filename))]
         if len(self.filename) == 1:
-            self.connect(self, SIGNAL("pressed()"), self.onPress)
+            self.pressed.connect(self.onPress)
         else:
             self.newmenu = popUpMenu(self)
             self.setMenu(self.newmenu)
-            self.actions = [ self.newmenu.addAction(menu, lambda idx=idx:self.onMenu(idx)) for (menu,idx) in zip(self.menulist,range(0,len(self.filename))) ]
+            self.actions = [ self.newmenu.addAction(menu, lambda idx=idx:self.onMenu(idx)) for (menu,idx) in zip(self.menulist,list(range(0,len(self.filename)))) ]
         self.edmParent.buttonInterest.append(self)
 
     @classmethod
@@ -123,17 +125,16 @@ class relatedDisplayClass(QPushButton,edmWidget):
         try:
             if self.generated[idx] == None:
                 mt = self.findMacroTable()
-                filename = mt.expand(self.filename[idx])
                 mt = mt.newTable()
                 mt.addMacro("!W", "!W%d" %(mt.myid,) )
                 if self.symbollist != None: mt.macroDecode( self.symbollist[idx])
-                self.generated[idx] = edmScreen( filename, mt, self.findDataPaths())
+                self.generated[idx] = edmScreen( self.filename[idx],mt,self.findDataPaths())
                 self.generated[idx].macroTable = mt
                 self.widgets[idx] = None
 
             if self.widgets[idx] == None:
                 self.widgets[idx] = generateWindow( self.generated[idx], myparent=self, macroTable=self.generated[idx].macroTable)
-                self.widgets[idx].connect( self.widgets[idx], SIGNAL("destroyed()"), lambda idx=idx:self.lostChild(idx) )
+                self.widgets[idx].destroyed.connect(lambda idx=idx: self.lostChild(idx))
             self.widgets[idx].show()
 
         #except:
@@ -142,7 +143,7 @@ class relatedDisplayClass(QPushButton,edmWidget):
             pass
 
     def lostChild(self, childIdx):
-        print "lost child", childIdx
+        print("lost child", childIdx)
         self.widgets[childIdx] = None
         
 edmDisplay.edmClasses["relatedDisplayClass"] = relatedDisplayClass

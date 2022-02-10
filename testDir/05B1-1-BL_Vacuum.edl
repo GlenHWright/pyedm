@@ -1,0 +1,3464 @@
+4 0 0
+beginScreenProperties
+major 4
+minor 0
+release 0
+x 300
+y 214
+w 1205
+h 555
+font "helvetica-medium-r-18.0"
+ctlFont "helvetica-medium-r-18.0"
+btnFont "helvetica-medium-r-18.0"
+fgColor index 14
+bgColor index 0
+textColor index 14
+ctlFgColor1 index 14
+ctlFgColor2 index 0
+ctlBgColor1 index 10
+ctlBgColor2 index 5
+topShadowColor index 2
+botShadowColor index 7
+endScreenProperties
+
+# (PNG Image)
+object activePngClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 2
+y 2
+w 1199
+h 581
+file "$(baseDir)/Graphics/05B1-1-BL.png"
+endObjectProperties
+
+# (Message Button)
+object activeMessageButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 5
+y 68
+w 109
+h 28
+fgColor index 49
+onColor index 92
+offColor index 92
+topShadowColor index 5
+botShadowColor index 10
+controlPv "LOC\\overlayVacuum=i:1"
+pressValue "0"
+releaseValue "1"
+onLabel "Vacuum Valve"
+offLabel "Vacuum Valve"
+toggle
+3d
+font "utopia-bold-r-14.0"
+colorPv "CALC\\\{A=1\}(LOC\\overlayVacuum)"
+endObjectProperties
+
+# (Message Button)
+object activeMessageButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 5
+y 4
+w 109
+h 28
+fgColor index 49
+onColor index 92
+offColor index 92
+topShadowColor index 5
+botShadowColor index 10
+controlPv "LOC\\overlayCCG=i:1"
+pressValue "0"
+releaseValue "1"
+onLabel "CCG"
+offLabel "CCG"
+toggle
+3d
+useEnumNumeric
+font "utopia-bold-r-14.0"
+colorPv "CALC\\\{A=1\}(LOC\\overlayCCG)"
+endObjectProperties
+
+# (Message Button)
+object activeMessageButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 5
+y 36
+w 109
+h 28
+fgColor index 49
+onColor index 92
+offColor index 92
+topShadowColor index 5
+botShadowColor index 10
+controlPv "LOC\\overlayIOP=i:1"
+pressValue "0"
+releaseValue "1"
+onLabel "Ion Pump"
+offLabel "Ion Pump"
+toggle
+3d
+useEnumNumeric
+font "utopia-bold-r-14.0"
+colorPv "CALC\\\{A=1\}(LOC\\overlayIOP)"
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 490
+y 388
+w 112
+h 161
+
+beginGroup
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 490
+y 467
+w 112
+h 82
+
+beginGroup
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 490
+y 467
+w 112
+h 14
+font "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 10
+useDisplayBg
+visMin "1"
+visMax "2"
+value {
+  "VVR1605-1-B10-04"
+}
+autoSize
+endObjectProperties
+
+# (Button)
+object activeButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 514
+y 482
+w 63
+h 21
+fgColor index 91
+fgAlarm
+onColor index 10
+offColor index 10
+inconsistentColor index 5
+topShadowColor index 5
+botShadowColor index 12
+controlPv "VVR1605-1-B10-04:opr:open"
+onLabel "OPEN"
+offLabel "OPEN"
+labelType "literal"
+buttonType "push"
+3d
+font "helvetica-bold-r-10.0"
+objType "controls"
+colorPv "VVR1605-1-B10-04:vacstat"
+endObjectProperties
+
+# (Button)
+object activeButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 514
+y 506
+w 63
+h 21
+fgColor index 31
+onColor index 10
+offColor index 10
+inconsistentColor index 5
+topShadowColor index 5
+botShadowColor index 12
+controlPv "VVR1605-1-B10-04:opr:close"
+onLabel "CLOSE"
+offLabel "CLOSE"
+labelType "literal"
+buttonType "push"
+3d
+font "helvetica-bold-r-10.0"
+objType "controls"
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 520
+y 534
+w 51
+h 15
+controlPv "VVR1605-1-B10-04:state"
+font "courier-bold-r-14.0"
+fontAlign "center"
+fgColor index 17
+fgAlarm
+bgColor index 0
+autoHeight
+limitsFromDb
+nullColor index 0
+useHexPrefix
+objType "monitors"
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+# (Lines)
+object activeLineClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 541
+y 388
+w 8
+h 77
+lineColor index 15
+lineAlarm
+fill
+fillColor index 15
+fillAlarm
+alarmPv "VVR1605-1-B10-04:vacstat"
+closePolygon
+arrows "from"
+numPoints 2
+xPoints {
+  0 541
+  1 549
+}
+yPoints {
+  0 388
+  1 465
+}
+endObjectProperties
+
+endGroup
+
+visPv "LOC\\overlayVacuum"
+visMin "1"
+visMax "2"
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 823
+y 363
+w 112
+h 186
+
+beginGroup
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 823
+y 467
+w 112
+h 82
+
+beginGroup
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 823
+y 467
+w 112
+h 14
+font "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 10
+useDisplayBg
+visMin "1"
+visMax "2"
+value {
+  "VVR1605-1-B10-06"
+}
+autoSize
+endObjectProperties
+
+# (Button)
+object activeButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 847
+y 482
+w 63
+h 21
+fgColor index 91
+fgAlarm
+onColor index 10
+offColor index 10
+inconsistentColor index 5
+topShadowColor index 5
+botShadowColor index 12
+controlPv "VVR1605-1-B10-06:opr:open"
+onLabel "OPEN"
+offLabel "OPEN"
+labelType "literal"
+buttonType "push"
+3d
+font "helvetica-bold-r-10.0"
+objType "controls"
+colorPv "VVR1605-1-B10-06:vacstat"
+endObjectProperties
+
+# (Button)
+object activeButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 847
+y 506
+w 63
+h 21
+fgColor index 31
+onColor index 10
+offColor index 10
+inconsistentColor index 5
+topShadowColor index 5
+botShadowColor index 12
+controlPv "VVR1605-1-B10-06:opr:close"
+onLabel "CLOSE"
+offLabel "CLOSE"
+labelType "literal"
+buttonType "push"
+3d
+font "helvetica-bold-r-10.0"
+objType "controls"
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 853
+y 534
+w 51
+h 15
+controlPv "VVR1605-1-B10-06:state"
+font "courier-bold-r-14.0"
+fontAlign "center"
+fgColor index 17
+fgAlarm
+bgColor index 0
+autoHeight
+limitsFromDb
+nullColor index 0
+useHexPrefix
+objType "monitors"
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+# (Lines)
+object activeLineClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 873
+y 363
+w 0
+h 99
+lineColor index 15
+lineAlarm
+fill
+fillColor index 15
+fillAlarm
+alarmPv "VVR1605-1-B10-06:vacstat"
+closePolygon
+arrows "from"
+numPoints 2
+xPoints {
+  0 873
+  1 873
+}
+yPoints {
+  0 363
+  1 462
+}
+endObjectProperties
+
+endGroup
+
+visPv "LOC\\overlayVacuum"
+visMin "1"
+visMax "2"
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 655
+y 360
+w 112
+h 189
+
+beginGroup
+
+# (Lines)
+object activeLineClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 705
+y 360
+w 1
+h 107
+lineColor index 15
+lineAlarm
+fill
+fillColor index 15
+fillAlarm
+alarmPv "VVR1605-1-B10-05:vacstat"
+closePolygon
+arrows "from"
+numPoints 2
+xPoints {
+  0 706
+  1 705
+}
+yPoints {
+  0 360
+  1 467
+}
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 655
+y 467
+w 112
+h 82
+
+beginGroup
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 655
+y 467
+w 112
+h 14
+font "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 10
+useDisplayBg
+visMin "1"
+visMax "2"
+value {
+  "VVR1605-1-B10-05"
+}
+autoSize
+endObjectProperties
+
+# (Button)
+object activeButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 679
+y 482
+w 63
+h 21
+fgColor index 91
+fgAlarm
+onColor index 10
+offColor index 10
+inconsistentColor index 5
+topShadowColor index 5
+botShadowColor index 12
+controlPv "VVR1605-1-B10-05:opr:open"
+onLabel "OPEN"
+offLabel "OPEN"
+labelType "literal"
+buttonType "push"
+3d
+font "helvetica-bold-r-10.0"
+objType "controls"
+colorPv "VVR1605-1-B10-05:vacstat"
+endObjectProperties
+
+# (Button)
+object activeButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 679
+y 506
+w 63
+h 21
+fgColor index 31
+onColor index 10
+offColor index 10
+inconsistentColor index 5
+topShadowColor index 5
+botShadowColor index 12
+controlPv "VVR1605-1-B10-05:opr:close"
+onLabel "CLOSE"
+offLabel "CLOSE"
+labelType "literal"
+buttonType "push"
+3d
+font "helvetica-bold-r-10.0"
+objType "controls"
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 685
+y 534
+w 51
+h 15
+controlPv "VVR1605-1-B10-05:state"
+font "courier-bold-r-14.0"
+fontAlign "center"
+fgColor index 17
+fgAlarm
+bgColor index 0
+autoHeight
+limitsFromDb
+nullColor index 0
+useHexPrefix
+objType "monitors"
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+endGroup
+
+visPv "LOC\\overlayVacuum"
+visMin "1"
+visMax "2"
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 929
+y 26
+w 136
+h 228
+
+beginGroup
+
+# (Lines)
+object activeLineClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 936
+y 37
+w 1
+h 217
+lineColor index 15
+lineAlarm
+fill
+fillColor index 15
+fillAlarm
+alarmPv "IOP1605-1-B10-09"
+closePolygon
+arrows "from"
+numPoints 2
+xPoints {
+  0 936
+  1 937
+}
+yPoints {
+  0 254
+  1 37
+}
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 929
+y 26
+w 136
+h 17
+
+beginGroup
+
+# (Circle)
+object activeCircleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 929
+y 26
+w 18
+h 17
+lineColor index 15
+lineAlarm
+fill
+fillColor index 15
+fillAlarm
+alarmPv "IOP1605-1-B10-09"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 956
+y 28
+w 109
+h 14
+font "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 10
+useDisplayBg
+value {
+  "IOP1605-1-B10-09"
+}
+autoSize
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+endGroup
+
+visPv "LOC\\overlayIOP"
+visMin "1"
+visMax "2"
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 647
+y 104
+w 163
+h 172
+
+beginGroup
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 673
+y 104
+w 137
+h 19
+
+beginGroup
+
+# (Circle)
+object activeCircleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 673
+y 104
+w 18
+h 19
+lineColor index 15
+lineAlarm
+fill
+fillColor index 15
+fillAlarm
+alarmPv "IOP1605-1-B10-07"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 700
+y 106
+w 109
+h 14
+font "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 10
+useDisplayBg
+value {
+  "IOP1605-1-B10-07"
+}
+autoSize
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+# (Lines)
+object activeLineClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 647
+y 115
+w 36
+h 161
+lineColor index 15
+lineAlarm
+fill
+fillColor index 15
+fillAlarm
+alarmPv "IOP1605-1-B10-07"
+closePolygon
+arrows "from"
+numPoints 2
+xPoints {
+  0 647
+  1 683
+}
+yPoints {
+  0 276
+  1 115
+}
+endObjectProperties
+
+endGroup
+
+visPv "LOC\\overlayIOP"
+visMin "1"
+visMax "2"
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 501
+y 177
+w 135
+h 107
+
+beginGroup
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 501
+y 177
+w 135
+h 17
+
+beginGroup
+
+# (Circle)
+object activeCircleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 501
+y 177
+w 18
+h 17
+lineColor index 15
+lineAlarm
+fill
+fillColor index 15
+fillAlarm
+alarmPv "IOP1605-1-B10-06"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 528
+y 179
+w 109
+h 14
+font "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 10
+useDisplayBg
+value {
+  "IOP1605-1-B10-06"
+}
+autoSize
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+# (Lines)
+object activeLineClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 508
+y 191
+w 1
+h 93
+lineColor index 15
+lineAlarm
+fill
+fillColor index 15
+fillAlarm
+alarmPv "IOP1605-1-B10-06"
+closePolygon
+arrows "from"
+numPoints 2
+xPoints {
+  0 508
+  1 509
+}
+yPoints {
+  0 284
+  1 191
+}
+endObjectProperties
+
+endGroup
+
+visPv "LOC\\overlayIOP"
+visMin "1"
+visMax "2"
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 618
+y 56
+w 188
+h 217
+
+beginGroup
+
+# (Lines)
+object activeLineClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 618
+y 91
+w 43
+h 182
+lineColor index 15
+lineAlarm
+fill
+fillColor index 15
+fillAlarm
+alarmPv "CCG1605-1-B10-06:vac"
+closePolygon
+arrows "from"
+numPoints 2
+xPoints {
+  0 618
+  1 661
+}
+yPoints {
+  0 273
+  1 91
+}
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 652
+y 56
+w 154
+h 38
+
+beginGroup
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 688
+y 56
+w 113
+h 14
+font "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 10
+useDisplayBg
+value {
+  "CCG1605-1-B10-06"
+}
+autoSize
+endObjectProperties
+
+# (Circle)
+object activeCircleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 652
+y 76
+w 18
+h 17
+lineColor index 15
+lineAlarm
+fill
+fillColor index 15
+fillAlarm
+alarmPv "CCG1605-1-B10-06:vac"
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 682
+y 75
+w 124
+h 19
+
+beginGroup
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 682
+y 75
+w 84
+h 19
+controlPv "CCG1605-1-B10-06:vac:p"
+displayMode "exp"
+precision 2
+fgColor index 17
+fgAlarm
+bgColor index 10
+font "courier-bold-r-18.0"
+fontAlign "center"
+endObjectProperties
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 770
+y 75
+w 44
+h 19
+controlPv "CCG1605-1-B10-06:vac:p.EGU"
+displayMode "exp"
+precision 2
+fgColor index 17
+fgAlarm
+bgColor index 10
+font "courier-bold-r-18.0"
+fontAlign "center"
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+endGroup
+
+visPv "LOC\\overlayCCG"
+visMin "1"
+visMax "2"
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 965
+y 57
+w 155
+h 181
+
+beginGroup
+
+# (Lines)
+object activeLineClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 974
+y 88
+w 89
+h 150
+lineColor index 15
+lineAlarm
+fill
+fillColor index 15
+fillAlarm
+alarmPv "CCG1605-1-B10-08:vac"
+closePolygon
+arrows "from"
+numPoints 2
+xPoints {
+  0 1063
+  1 974
+}
+yPoints {
+  0 238
+  1 88
+}
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 965
+y 57
+w 155
+h 40
+
+beginGroup
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 1001
+y 57
+w 113
+h 14
+font "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 10
+useDisplayBg
+value {
+  "CCG1605-1-B10-08"
+}
+autoSize
+endObjectProperties
+
+# (Circle)
+object activeCircleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 965
+y 78
+w 18
+h 18
+lineColor index 15
+lineAlarm
+fill
+fillColor index 15
+fillAlarm
+alarmPv "CCG1605-1-B10-08:vac"
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 995
+y 77
+w 125
+h 20
+
+beginGroup
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 995
+y 77
+w 85
+h 20
+controlPv "CCG1605-1-B10-08:vac:p"
+displayMode "exp"
+precision 2
+fgColor index 17
+fgAlarm
+bgColor index 10
+font "courier-bold-r-18.0"
+fontAlign "center"
+endObjectProperties
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 1084
+y 77
+w 44
+h 20
+controlPv "CCG1605-1-B10-08:vac:p.EGU"
+displayMode "exp"
+precision 2
+fgColor index 17
+fgAlarm
+bgColor index 10
+font "courier-bold-r-18.0"
+fontAlign "center"
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+endGroup
+
+visPv "LOC\\overlayCCG"
+visMin "1"
+visMax "2"
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 1023
+y 516
+w 178
+h 16
+
+beginGroup
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 1123
+y 516
+w 78
+h 16
+controlPv "PCT1402-01:mA:fbk"
+font "helvetica-bold-r-14.0"
+fontAlign "right"
+fgColor index 11
+bgColor index 0
+autoHeight
+precision 1
+nullColor index 0
+useHexPrefix
+showUnits
+objType "monitors"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 1023
+y 516
+w 96
+h 16
+font "helvetica-bold-r-14.0"
+fontAlign "right"
+fgColor index 11
+bgColor index 10
+useDisplayBg
+value {
+  "Ring Current:"
+}
+autoSize
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 997
+y 534
+w 204
+h 16
+controlPv "WIG1405-01:systemTime"
+font "helvetica-bold-r-14.0"
+fontAlign "right"
+fgColor index 11
+bgColor index 0
+autoHeight
+limitsFromDb
+precision 2
+nullColor index 0
+useHexPrefix
+objType "monitors"
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 433
+y 104
+w 190
+h 139
+
+beginGroup
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 487
+y 104
+w 136
+h 18
+
+beginGroup
+
+# (Circle)
+object activeCircleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 487
+y 104
+w 18
+h 18
+lineColor index 15
+lineAlarm
+fill
+fillColor index 15
+fillAlarm
+alarmPv "IOP1605-1-B10-05"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 514
+y 106
+w 109
+h 14
+font "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 10
+useDisplayBg
+value {
+  "IOP1605-1-B10-05"
+}
+autoSize
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+# (Lines)
+object activeLineClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 433
+y 116
+w 62
+h 127
+lineColor index 15
+lineAlarm
+fill
+fillColor index 15
+fillAlarm
+alarmPv "IOP1605-1-B10-05"
+closePolygon
+arrows "from"
+numPoints 2
+xPoints {
+  0 433
+  1 495
+}
+yPoints {
+  0 243
+  1 116
+}
+endObjectProperties
+
+endGroup
+
+visPv "LOC\\overlayIOP"
+visMin "1"
+visMax "2"
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 407
+y 55
+w 215
+h 180
+
+beginGroup
+
+# (Lines)
+object activeLineClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 407
+y 86
+w 68
+h 149
+lineColor index 15
+lineAlarm
+fill
+fillColor index 15
+fillAlarm
+alarmPv "CCG1605-1-B10-05:vac"
+closePolygon
+arrows "from"
+numPoints 2
+xPoints {
+  0 407
+  1 475
+}
+yPoints {
+  0 235
+  1 86
+}
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 465
+y 55
+w 157
+h 40
+
+beginGroup
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 501
+y 55
+w 113
+h 14
+font "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 10
+useDisplayBg
+value {
+  "CCG1605-1-B10-05"
+}
+autoSize
+endObjectProperties
+
+# (Circle)
+object activeCircleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 465
+y 75
+w 18
+h 19
+lineColor index 15
+lineAlarm
+fill
+fillColor index 15
+fillAlarm
+alarmPv "CCG1605-1-B10-05:vac"
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 495
+y 75
+w 127
+h 20
+
+beginGroup
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 495
+y 75
+w 86
+h 20
+controlPv "CCG1605-1-B10-05:vac:p"
+displayMode "exp"
+precision 2
+fgColor index 17
+fgAlarm
+bgColor index 10
+font "courier-bold-r-18.0"
+fontAlign "center"
+endObjectProperties
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 585
+y 75
+w 44
+h 20
+controlPv "CCG1605-1-B10-05:vac:p.EGU"
+displayMode "exp"
+precision 2
+fgColor index 17
+fgAlarm
+bgColor index 10
+font "courier-bold-r-18.0"
+fontAlign "center"
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+endGroup
+
+visPv "LOC\\overlayCCG"
+visMin "1"
+visMax "2"
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 107
+y 190
+w 147
+h 34
+
+beginGroup
+
+# (Circle)
+object activeCircleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 107
+y 205
+w 18
+h 18
+lineColor index 15
+lineAlarm
+fill
+fillColor index 15
+fillAlarm
+alarmPv "CCG1605-1-B10-03:vac"
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 129
+y 190
+w 125
+h 34
+
+beginGroup
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 129
+y 204
+w 125
+h 20
+
+beginGroup
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 129
+y 204
+w 85
+h 20
+controlPv "CCG1605-1-B10-03:vac:p"
+displayMode "exp"
+precision 2
+fgColor index 17
+fgAlarm
+bgColor index 10
+font "courier-bold-r-18.0"
+fontAlign "center"
+endObjectProperties
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 218
+y 204
+w 44
+h 20
+controlPv "CCG1605-1-B10-03:vac:p.EGU"
+displayMode "exp"
+precision 2
+fgColor index 17
+fgAlarm
+bgColor index 10
+font "courier-bold-r-18.0"
+fontAlign "center"
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 135
+y 187
+w 113
+h 14
+font "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 10
+useDisplayBg
+value {
+  "CCG1605-1-B10-03"
+}
+autoSize
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+endGroup
+
+visPv "LOC\\overlayCCG"
+visMin "1"
+visMax "2"
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 291
+y 177
+w 130
+h 77
+
+beginGroup
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 312
+y 179
+w 109
+h 14
+font "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 10
+useDisplayBg
+value {
+  "IOP1605-1-B10-04"
+}
+autoSize
+endObjectProperties
+
+# (Lines)
+object activeLineClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 300
+y 183
+w 16
+h 71
+lineColor index 15
+lineAlarm
+fill
+fillColor index 15
+fillAlarm
+alarmPv "IOP1605-1-B10-04"
+closePolygon
+arrows "from"
+numPoints 2
+xPoints {
+  0 316
+  1 300
+}
+yPoints {
+  0 254
+  1 183
+}
+endObjectProperties
+
+# (Circle)
+object activeCircleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 291
+y 177
+w 18
+h 18
+lineColor index 15
+lineAlarm
+fill
+fillColor index 15
+fillAlarm
+alarmPv "IOP1605-1-B10-04"
+endObjectProperties
+
+endGroup
+
+visPv "LOC\\overlayIOP"
+visMin "1"
+visMax "2"
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 255
+y 52
+w 170
+h 221
+
+beginGroup
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 270
+y 52
+w 155
+h 42
+
+beginGroup
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 306
+y 52
+w 113
+h 14
+font "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 10
+useDisplayBg
+value {
+  "CCG1605-1-B10-04"
+}
+autoSize
+endObjectProperties
+
+# (Circle)
+object activeCircleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 270
+y 74
+w 18
+h 19
+lineColor index 15
+lineAlarm
+fill
+fillColor index 15
+fillAlarm
+alarmPv "CCG1605-1-B10-04:vac"
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 300
+y 73
+w 125
+h 21
+
+beginGroup
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 300
+y 73
+w 85
+h 21
+controlPv "CCG1605-1-B10-04:vac:p"
+displayMode "exp"
+precision 2
+fgColor index 17
+fgAlarm
+bgColor index 10
+font "courier-bold-r-18.0"
+fontAlign "center"
+endObjectProperties
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 389
+y 73
+w 44
+h 21
+controlPv "CCG1605-1-B10-04:vac:p.EGU"
+displayMode "exp"
+precision 2
+fgColor index 17
+fgAlarm
+bgColor index 10
+font "courier-bold-r-18.0"
+fontAlign "center"
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+# (Lines)
+object activeLineClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 255
+y 79
+w 24
+h 194
+lineColor index 15
+lineAlarm
+fill
+fillColor index 15
+fillAlarm
+alarmPv "CCG1605-1-B10-04:vac"
+closePolygon
+arrows "from"
+numPoints 2
+xPoints {
+  0 255
+  1 279
+}
+yPoints {
+  0 273
+  1 79
+}
+endObjectProperties
+
+endGroup
+
+visPv "LOC\\overlayCCG"
+visMin "1"
+visMax "2"
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 961
+y 187
+w 49
+h 48
+
+beginGroup
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 961
+y 219
+w 49
+h 16
+controlPv "PSH1605-1-B10-01:state"
+font "helvetica-bold-r-14.0"
+fgColor index 14
+fgAlarm
+bgColor index 0
+autoHeight
+limitsFromDb
+nullColor index 0
+useHexPrefix
+objType "monitors"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 962
+y 187
+w 45
+h 28
+font "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 10
+useDisplayBg
+value {
+  "Photon "
+  "Shutter"
+}
+autoSize
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 1088
+y 187
+w 49
+h 48
+
+beginGroup
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 1088
+y 219
+w 49
+h 16
+controlPv "SSH1605-1-B10:state:new"
+font "helvetica-bold-r-14.0"
+fgColor index 14
+fgAlarm
+bgColor index 0
+autoHeight
+limitsFromDb
+nullColor index 0
+useHexPrefix
+objType "monitors"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 1089
+y 187
+w 45
+h 28
+font "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 10
+useDisplayBg
+value {
+  "Safety"
+  "Shutter"
+}
+autoSize
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 269
+y 99
+w 152
+h 179
+
+beginGroup
+
+# (Lines)
+object activeLineClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 269
+y 108
+w 23
+h 170
+lineColor index 15
+lineAlarm
+fill
+fillColor index 15
+fillAlarm
+alarmPv "IOP1605-1-B10-03"
+closePolygon
+arrows "from"
+numPoints 2
+xPoints {
+  0 269
+  1 292
+}
+yPoints {
+  0 278
+  1 108
+}
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 285
+y 99
+w 136
+h 18
+
+beginGroup
+
+# (Circle)
+object activeCircleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 285
+y 99
+w 18
+h 18
+lineColor index 15
+lineAlarm
+fill
+fillColor index 15
+fillAlarm
+alarmPv "IOP1605-1-B10-03"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 312
+y 101
+w 109
+h 14
+font "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 10
+useDisplayBg
+value {
+  "IOP1605-1-B10-03"
+}
+autoSize
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+endGroup
+
+visPv "LOC\\overlayIOP"
+visMin "1"
+visMax "2"
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 120
+y 229
+w 129
+h 48
+
+beginGroup
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 120
+y 229
+w 129
+h 18
+
+beginGroup
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 140
+y 233
+w 109
+h 14
+font "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 10
+useDisplayBg
+value {
+  "IOP1605-1-B10-02"
+}
+autoSize
+endObjectProperties
+
+# (Circle)
+object activeCircleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 120
+y 229
+w 18
+h 18
+lineColor index 15
+lineAlarm
+fill
+fillColor index 15
+fillAlarm
+alarmPv "IOP1605-1-B10-02"
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+# (Lines)
+object activeLineClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 129
+y 239
+w 34
+h 38
+lineColor index 15
+lineAlarm
+fill
+fillColor index 15
+fillAlarm
+alarmPv "IOP1605-1-B10-02"
+closePolygon
+arrows "from"
+numPoints 2
+xPoints {
+  0 163
+  1 129
+}
+yPoints {
+  0 277
+  1 239
+}
+endObjectProperties
+
+endGroup
+
+visPv "LOC\\overlayIOP"
+visMin "1"
+visMax "2"
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 47
+y 115
+w 147
+h 179
+
+beginGroup
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 47
+y 115
+w 147
+h 34
+
+beginGroup
+
+# (Circle)
+object activeCircleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 47
+y 130
+w 18
+h 18
+lineColor index 15
+lineAlarm
+fill
+fillColor index 15
+fillAlarm
+alarmPv "CCG1605-1-B10-02:vac"
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 69
+y 115
+w 125
+h 34
+
+beginGroup
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 69
+y 129
+w 125
+h 20
+
+beginGroup
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 69
+y 129
+w 85
+h 20
+controlPv "CCG1605-1-B10-02:vac:p"
+displayMode "exp"
+precision 2
+fgColor index 17
+fgAlarm
+bgColor index 10
+font "courier-bold-r-18.0"
+fontAlign "center"
+endObjectProperties
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 158
+y 129
+w 44
+h 20
+controlPv "CCG1605-1-B10-02:vac:p.EGU"
+displayMode "exp"
+precision 2
+fgColor index 17
+fgAlarm
+bgColor index 10
+font "courier-bold-r-18.0"
+fontAlign "center"
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 75
+y 112
+w 113
+h 14
+font "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 10
+useDisplayBg
+value {
+  "CCG1605-1-B10-02"
+}
+autoSize
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+endGroup
+
+visPv "LOC\\overlayCCG"
+visMin "1"
+visMax "2"
+endObjectProperties
+
+# (Lines)
+object activeLineClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 52
+y 140
+w 78
+h 154
+lineColor index 15
+lineAlarm
+fill
+fillColor index 15
+fillAlarm
+alarmPv "CCG1605-1-B10-02:vac"
+closePolygon
+arrows "from"
+numPoints 2
+xPoints {
+  0 130
+  1 52
+}
+yPoints {
+  0 294
+  1 140
+}
+endObjectProperties
+
+endGroup
+
+visPv "LOC\\overlayCCG"
+visMin "1"
+visMax "2"
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 756
+y 164
+w 155
+h 134
+
+beginGroup
+
+# (Lines)
+object activeLineClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 767
+y 197
+w 56
+h 101
+lineColor index 15
+lineAlarm
+fill
+fillColor index 15
+fillAlarm
+alarmPv "CCG1605-1-B10-07:vac"
+closePolygon
+arrows "from"
+numPoints 2
+xPoints {
+  0 823
+  1 767
+}
+yPoints {
+  0 298
+  1 197
+}
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 756
+y 164
+w 155
+h 40
+
+beginGroup
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 792
+y 164
+w 113
+h 14
+font "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 10
+useDisplayBg
+value {
+  "CCG1605-1-B10-07"
+}
+autoSize
+endObjectProperties
+
+# (Circle)
+object activeCircleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 756
+y 185
+w 18
+h 18
+lineColor index 15
+lineAlarm
+fill
+fillColor index 15
+fillAlarm
+alarmPv "CCG1605-1-B10-07:vac"
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 786
+y 184
+w 125
+h 20
+
+beginGroup
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 786
+y 184
+w 85
+h 20
+controlPv "CCG1605-1-B10-07:vac:p"
+displayMode "exp"
+precision 2
+fgColor index 17
+fgAlarm
+bgColor index 10
+font "courier-bold-r-18.0"
+fontAlign "center"
+endObjectProperties
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 875
+y 184
+w 44
+h 20
+controlPv "CCG1605-1-B10-07:vac:p.EGU"
+displayMode "exp"
+precision 2
+fgColor index 17
+fgAlarm
+bgColor index 10
+font "courier-bold-r-18.0"
+fontAlign "center"
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+endGroup
+
+visPv "LOC\\overlayCCG"
+visMin "1"
+visMax "2"
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 794
+y 209
+w 136
+h 77
+
+beginGroup
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 794
+y 209
+w 136
+h 18
+
+beginGroup
+
+# (Circle)
+object activeCircleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 794
+y 209
+w 18
+h 18
+lineColor index 15
+lineAlarm
+fill
+fillColor index 15
+fillAlarm
+alarmPv "IOP1605-1-B10-08"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 821
+y 211
+w 109
+h 14
+font "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 10
+useDisplayBg
+value {
+  "IOP1605-1-B10-08"
+}
+autoSize
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+# (Lines)
+object activeLineClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 804
+y 220
+w 33
+h 66
+lineColor index 15
+lineAlarm
+fill
+fillColor index 15
+fillAlarm
+alarmPv "IOP1605-1-B10-08"
+closePolygon
+arrows "from"
+numPoints 2
+xPoints {
+  0 837
+  1 804
+}
+yPoints {
+  0 286
+  1 220
+}
+endObjectProperties
+
+endGroup
+
+visPv "LOC\\overlayIOP"
+visMin "1"
+visMax "2"
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 998
+y 104
+w 136
+h 139
+
+beginGroup
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 998
+y 104
+w 136
+h 18
+
+beginGroup
+
+# (Circle)
+object activeCircleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 998
+y 104
+w 18
+h 18
+lineColor index 15
+lineAlarm
+fill
+fillColor index 15
+fillAlarm
+alarmPv "IOP1605-1-B10-10"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 1025
+y 106
+w 109
+h 14
+font "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 10
+useDisplayBg
+value {
+  "IOP1605-1-B10-10"
+}
+autoSize
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+# (Lines)
+object activeLineClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 1008
+y 116
+w 73
+h 127
+lineColor index 15
+lineAlarm
+fill
+fillColor index 15
+fillAlarm
+alarmPv "IOP1605-1-B10-10"
+closePolygon
+arrows "from"
+numPoints 2
+xPoints {
+  0 1081
+  1 1008
+}
+yPoints {
+  0 243
+  1 116
+}
+endObjectProperties
+
+endGroup
+
+visPv "LOC\\overlayIOP"
+visMin "1"
+visMax "2"
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 70
+y 156
+w 136
+h 133
+
+beginGroup
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 70
+y 156
+w 136
+h 18
+
+beginGroup
+
+# (Circle)
+object activeCircleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 70
+y 156
+w 18
+h 18
+lineColor index 15
+lineAlarm
+fill
+fillColor index 15
+fillAlarm
+alarmPv "IOP1605-1-B10-01"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 97
+y 158
+w 109
+h 14
+font "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 10
+useDisplayBg
+value {
+  "IOP1605-1-B10-01"
+}
+autoSize
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+# (Lines)
+object activeLineClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 77
+y 167
+w 61
+h 122
+lineColor index 15
+lineAlarm
+fill
+fillColor index 15
+fillAlarm
+alarmPv "IOP1605-1-B10-01"
+closePolygon
+arrows "from"
+numPoints 2
+xPoints {
+  0 138
+  1 77
+}
+yPoints {
+  0 289
+  1 167
+}
+endObjectProperties
+
+endGroup
+
+visPv "LOC\\overlayIOP"
+visMin "1"
+visMax "2"
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 500
+y 6
+w 234
+h 16
+
+beginGroup
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 500
+y 6
+w 105
+h 16
+font "helvetica-bold-i-14.0"
+fgColor index 41
+bgColor index 10
+useDisplayBg
+value {
+  "Beam Direction"
+}
+autoSize
+endObjectProperties
+
+# (Lines)
+object activeLineClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 611
+y 15
+w 123
+h 0
+lineColor index 41
+fill
+fillColor index 41
+lineWidth 2
+closePolygon
+arrows "from"
+numPoints 2
+xPoints {
+  0 734
+  1 611
+}
+yPoints {
+  0 15
+  1 15
+}
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 17
+y 366
+w 112
+h 182
+
+beginGroup
+
+# (Lines)
+object activeLineClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 100
+y 366
+w 0
+h 93
+lineColor index 15
+lineAlarm
+fill
+fillColor index 15
+fillAlarm
+alarmPv "VVR1605-1-B10-01:vacstat"
+closePolygon
+arrows "from"
+numPoints 2
+xPoints {
+  0 100
+  1 100
+}
+yPoints {
+  0 366
+  1 459
+}
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 48
+y 533
+w 51
+h 15
+controlPv "VVR1605-1-B10-01:state"
+font "courier-bold-r-14.0"
+fontAlign "center"
+fgColor index 17
+fgAlarm
+bgColor index 0
+autoHeight
+limitsFromDb
+nullColor index 0
+useHexPrefix
+objType "monitors"
+endObjectProperties
+
+# (Button)
+object activeButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 42
+y 505
+w 63
+h 21
+fgColor index 31
+onColor index 10
+offColor index 10
+inconsistentColor index 5
+topShadowColor index 5
+botShadowColor index 12
+controlPv "VVR1605-1-B10-01:opr:close"
+onLabel "CLOSE"
+offLabel "CLOSE"
+labelType "literal"
+buttonType "push"
+3d
+font "helvetica-bold-r-10.0"
+objType "controls"
+endObjectProperties
+
+# (Button)
+object activeButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 42
+y 481
+w 63
+h 21
+fgColor index 91
+fgAlarm
+onColor index 10
+offColor index 10
+inconsistentColor index 5
+topShadowColor index 5
+botShadowColor index 12
+controlPv "VVR1605-1-B10-01:opr:open"
+onLabel "OPEN"
+offLabel "OPEN"
+labelType "literal"
+buttonType "push"
+3d
+font "helvetica-bold-r-10.0"
+objType "controls"
+colorPv "VVR1605-1-B10-01:vacstat"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 17
+y 465
+w 112
+h 14
+font "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 10
+useDisplayBg
+visMin "1"
+visMax "2"
+value {
+  "VVR1605-1-B10-01"
+}
+autoSize
+endObjectProperties
+
+endGroup
+
+visPv "LOC\\overlayVacuum"
+visMin "1"
+visMax "2"
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 143
+y 367
+w 112
+h 181
+
+beginGroup
+
+# (Lines)
+object activeLineClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 182
+y 367
+w 0
+h 93
+lineColor index 15
+lineAlarm
+fill
+fillColor index 15
+fillAlarm
+alarmPv "VVR1605-1-B10-02:vacstat"
+closePolygon
+arrows "from"
+numPoints 2
+xPoints {
+  0 182
+  1 182
+}
+yPoints {
+  0 367
+  1 460
+}
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 174
+y 533
+w 51
+h 15
+controlPv "VVR1605-1-B10-02:state"
+font "courier-bold-r-14.0"
+fontAlign "center"
+fgColor index 17
+fgAlarm
+bgColor index 0
+autoHeight
+limitsFromDb
+nullColor index 0
+useHexPrefix
+objType "monitors"
+endObjectProperties
+
+# (Button)
+object activeButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 168
+y 505
+w 63
+h 21
+fgColor index 31
+onColor index 10
+offColor index 10
+inconsistentColor index 5
+topShadowColor index 5
+botShadowColor index 12
+controlPv "VVR1605-1-B10-02:opr:close"
+onLabel "CLOSE"
+offLabel "CLOSE"
+labelType "literal"
+buttonType "push"
+3d
+font "helvetica-bold-r-10.0"
+objType "controls"
+endObjectProperties
+
+# (Button)
+object activeButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 168
+y 481
+w 63
+h 21
+fgColor index 91
+fgAlarm
+onColor index 10
+offColor index 10
+inconsistentColor index 5
+topShadowColor index 5
+botShadowColor index 12
+controlPv "VVR1605-1-B10-02:opr:open"
+onLabel "OPEN"
+offLabel "OPEN"
+labelType "literal"
+buttonType "push"
+3d
+font "helvetica-bold-r-10.0"
+objType "controls"
+colorPv "VVR1605-1-B10-02:vacstat"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 143
+y 465
+w 112
+h 14
+font "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 10
+useDisplayBg
+visMin "1"
+visMax "2"
+value {
+  "VVR1605-1-B10-02"
+}
+autoSize
+endObjectProperties
+
+endGroup
+
+visPv "LOC\\overlayVacuum"
+visMin "1"
+visMax "2"
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 278
+y 375
+w 112
+h 173
+
+beginGroup
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 310
+y 533
+w 51
+h 15
+controlPv "VVR1605-1-B10-03:state"
+font "courier-bold-r-14.0"
+fontAlign "center"
+fgColor index 17
+fgAlarm
+bgColor index 0
+autoHeight
+limitsFromDb
+nullColor index 0
+useHexPrefix
+objType "monitors"
+endObjectProperties
+
+# (Button)
+object activeButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 304
+y 505
+w 63
+h 21
+fgColor index 31
+onColor index 10
+offColor index 10
+inconsistentColor index 5
+topShadowColor index 5
+botShadowColor index 12
+controlPv "VVR1605-1-B10-03:opr:close"
+onLabel "CLOSE"
+offLabel "CLOSE"
+labelType "literal"
+buttonType "push"
+3d
+font "helvetica-bold-r-10.0"
+objType "controls"
+endObjectProperties
+
+# (Button)
+object activeButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 304
+y 481
+w 63
+h 21
+fgColor index 91
+fgAlarm
+onColor index 10
+offColor index 10
+inconsistentColor index 5
+topShadowColor index 5
+botShadowColor index 12
+controlPv "VVR1605-1-B10-03:opr:open"
+onLabel "OPEN"
+offLabel "OPEN"
+labelType "literal"
+buttonType "push"
+3d
+font "helvetica-bold-r-10.0"
+objType "controls"
+colorPv "VVR1605-1-B10-03:vacstat"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 278
+y 465
+w 112
+h 14
+font "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 10
+useDisplayBg
+visMin "1"
+visMax "2"
+value {
+  "VVR1605-1-B10-03"
+}
+autoSize
+endObjectProperties
+
+# (Lines)
+object activeLineClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 337
+y 375
+w 20
+h 85
+lineColor index 15
+lineAlarm
+fill
+fillColor index 15
+fillAlarm
+alarmPv "VVR1605-1-B10-03:vacstat"
+closePolygon
+arrows "from"
+numPoints 2
+xPoints {
+  0 357
+  1 337
+}
+yPoints {
+  0 375
+  1 460
+}
+endObjectProperties
+
+endGroup
+
+visPv "LOC\\overlayVacuum"
+visMin "1"
+visMax "2"
+endObjectProperties
+

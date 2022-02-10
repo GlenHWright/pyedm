@@ -1,0 +1,158 @@
+4 0 0
+beginScreenProperties
+major 4
+minor 0
+release 0
+x 656
+y 544
+w 405
+h 228
+font "helvetica-medium-r-18.0"
+ctlFont "helvetica-medium-r-18.0"
+btnFont "helvetica-medium-r-18.0"
+fgColor index 14
+bgColor index 0
+textColor index 14
+ctlFgColor1 index 14
+ctlFgColor2 index 0
+ctlBgColor1 index 0
+ctlBgColor2 index 14
+topShadowColor index 0
+botShadowColor index 14
+endScreenProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 48
+y 40
+w 43
+h 43
+
+beginGroup
+
+# (Rectangle)
+object activeRectangleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 48
+y 40
+w 43
+h 43
+lineColor index 14
+fillColor index 0
+invisible
+endObjectProperties
+
+# (PNG Image)
+object activePngClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 53
+y 45
+w 32
+h 32
+file "heart0.png"
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 146
+y 32
+w 43
+h 43
+
+beginGroup
+
+# (Rectangle)
+object activeRectangleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 146
+y 32
+w 43
+h 43
+lineColor index 14
+fillColor index 0
+invisible
+endObjectProperties
+
+# (PNG Image)
+object activePngClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 152
+y 40
+w 32
+h 32
+file "heart1.png"
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 250
+y 33
+w 43
+h 43
+
+beginGroup
+
+# (Rectangle)
+object activeRectangleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 250
+y 33
+w 43
+h 43
+lineColor index 14
+fillColor index 0
+invisible
+endObjectProperties
+
+# (PNG Image)
+object activePngClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 255
+y 39
+w 32
+h 32
+file "heart2.png"
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+

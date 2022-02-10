@@ -3,19 +3,23 @@
 import pyedm.edmDisplay as edmDisplay
 from pyedm.edmWidget import edmWidget
 
-from PyQt4.QtCore import SIGNAL, Qt
-from PyQt4.Qwt5 import QwtSlider, QwtScaleDraw
+from PyQt5.QtWidgets import QSlider
+from PyQt5.QtCore import Qt
 
-class activeSliderClass(QwtSlider, edmWidget):
+#class activeSliderClass(QwtSlider, edmWidget):
+class activeSliderClass(QSlider, edmWidget):
     V3propTable = {
+        "2-0" : [ "fgColor", "bgColor", "shadeColor", "controlColor", "readColor",
+                "increment", "controlPv", "indicatorPv", "savedValuePvName", "controlLabelName", "controlLabelType", "readLabelName", "readLabelType", "font",
+                "bgAlarm", "fgAlarm", "readAlarm", "ID", "changeCallbackFlag", "activateCallbackFlag", "deactivateCallbackFlag",
+                "limitsFromDb", "precision", "scaleMin", "scaleMax", "accelMultiplier" ],
         "2-2" : [ "INDEX", "fgColor", "INDEX", "bgColor", "INDEX", "shadeColor", "INDEX", "controlColor", "INDEX", "readColor",
                 "increment", "controlPv", "indicatorPv", "savedValuePvName", "controlLabelName", "readLabelName", "readLabelType", "font",
                 "bgAlarm", "fgAlarm", "readAlarm", "ID", "changeCallbackFlag", "activateCallbackFlag", "deactivateCallbackFlag",
                 "limitsFromDb", "precision", "scaleMin", "scaleMax", "accelMultiplier" ]
                 }
     def __init__(self, parent):
-        QwtSlider.__init__(self, parent)
-        edmWidget.__init__(self, parent)
+        super().__init__(parent)
         self.pvItem["indicatorPv"] = [ "indicatorName", "indicatorPV", 1]
         self.pvItem["controlPv"] = [ "controlName", "controlPV", 0]
         self.minField, self.maxField = "scaleMin", "scaleMax"
@@ -29,6 +33,9 @@ class activeSliderClass(QwtSlider, edmWidget):
         self.objMax = self.object.getDoubleProperty(self.maxField, None)
         if self.orientation == "vertical":
             self.setOrientation(Qt.Vertical)
+        else:
+            self.setOrientation(Qt.Horizontal)
+        '''
         if self.showScale():
             self.scale = QwtScaleDraw()
             self.setScaleDraw(self.scale)
@@ -36,10 +43,12 @@ class activeSliderClass(QwtSlider, edmWidget):
                 self.setScalePosition(QwtSlider.LeftScale)
             else:
                 self.setScalePosition(QwtSlider.BottomScale)
+                '''
         if hasattr(self, "indicatorPV") and self.displayLimits:
             self.indicatorPV.add_callback(self.setDisplayLimits, None)
 
-        self.connect(self, SIGNAL("valueChanged(double)"), self.gotNewValue)
+        #self.connect(self, SIGNAL("valueChanged(double)"), self.gotNewValue)
+        self.valueChanged.connect(self.gotNewValue)
         # if we have a controlPv, but no indicatorPv in the tags list, try and
         # make the indicatorPv (from activeBarClass) the same as the controlPv
         if hasattr(self, "controlPV") and "indicatorPv" not in self.object.tagValue:
@@ -51,7 +60,8 @@ class activeSliderClass(QwtSlider, edmWidget):
         return 1
 
     def findReadonly(self):
-        self.setReadOnly(0)
+        pass
+        # self.setReadOnly(0)
 
     def setDisplayLimits(self, *kw, **args):
         pv = args["pv"]

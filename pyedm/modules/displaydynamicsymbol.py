@@ -7,18 +7,20 @@
 #     Use PV Up/PV Down and value comparisons for the gate
 #     Use up/down or just up (selected by continuous)
 
+from builtins import range
+from builtins import object
 import pyedm.edmDisplay as edmDisplay
 from pyedm.edmApp import redisplay
 from pyedm.edmWidget import edmWidget
 import pyedm.edmWindowWidget as edmWindowWidget
 from pyedm.edmAbstractSymbol import AbstractSymbolClass
-from pyedm.edmEditWidget import edmEdit
 
-from PyQt4 import QtCore, QtGui
-from PyQt4.QtGui import QWidget, QFrame, QScrollArea, QPalette, QPainter
+from PyQt5 import QtCore, QtGui
+from PyQt5.QtWidgets import QWidget, QFrame, QScrollArea
+from PyQt5.QtGui import QPalette, QPainter
 
 # Placeholder for widget list.
-class symbolState:
+class symbolState(object):
     def __init__(self, stateno):
         self.stateNo = stateno
 
@@ -29,28 +31,8 @@ class activeDynSymbolClass(AbstractSymbolClass):
                 "ID", "initialIndex", "colorPv", "useOriginalColors","fgColor", "bgColor", "showOOBState", "onMouseOver" ]
                 }
 
-    edmEditList = [
-        edmEdit.String("DynSymbol File", "file"),
-        edmEdit.StringPV("Color PV", "colorPV"),
-        edmEdit.CheckButton("Use Gate", "useGate"),
-        edmEdit.CheckButton("Gate On Mouse-over", "onMouseOver"),
-        edmEdit.StringPV("Gate Up PV", "gateUpPv"),
-        edmEdit.Enum( label="Gate Up Value", object="gateUpValue", enumList= [ "0", "1" ] ),
-        edmEdit.StringPV("Gate Down PV", "gateDownPv"),
-        edmEdit.Enum( label="Gate Down Value", object="gateDownValue", enumList= [ "0", "1" ] ),
-        edmEdit.CheckButton("Continuous", "continuous"),
-        edmEdit.Int("Rate (s)", "rate"),
-        edmEdit.Int("initial", "initialIndex"),
-        edmEdit.CheckButton("Show OOB State", "showOOBState"),
-        edmEdit.CheckButton("Preserve Original Size", "useOriginalSize"),
-        edmEdit.CheckButton("Preserve Original Colors", "useOriginalColors"),
-        edmEdit.FgColor("Fg/Line Color"),
-        edmEdit.BgColor("Bg/Fill Color")
-        ]
-
-
     def __init__(self,parent=None):
-        AbstractSymbolClass.__init__(self,parent)
+        super().__init__(parent)
         self.pvItem["gateUpPv"] = ["gateUpName", "gateUpPV", 0 , self.onGateUp, self, self.onGateUpConnect, None]
         self.pvItem["gateDownPv"] = ["gateDownName", "gateDownPV", 0, self.onGateDown, self, self.onGateDownConnect, None]
         self.useGate = False

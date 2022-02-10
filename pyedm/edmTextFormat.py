@@ -6,6 +6,7 @@
 
 # Convert Default: if charValue is set, then make the simplistic assumption
 # that that is what is wanted
+from builtins import str
 def convDefault(value, charValue=None, pv=None, precision=-1, units=None, showUnits=1):
     if precision==-1 and charValue != None:
         return charValue

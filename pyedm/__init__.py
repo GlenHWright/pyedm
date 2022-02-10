@@ -1,18 +1,16 @@
+from __future__ import print_function
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # If opened as 'main', use our mainline
 #
-
-from __future__ import print_function
-
 if __name__ == "__main__":
-    print( """To call pyedm as a script rather than a module,
-use 'python -m edm [edmargs...]'.""") 
+    print("""To call pyedm as a script rather than a module,
+use 'python -m edm [edmargs...]'.""")
     exit()
 
 # Standard 'main' imports
 
 import sys
-import getopt
+import argparse
 import glob
 import os
 import threading
@@ -29,19 +27,28 @@ from pyedm.edmColors import findColorRule
 #
 def pyedm_main(argv):
     """pyedm_main(argv) - start QT, and load flags"""
-    from PyQt4 import QtGui
+    from PyQt5 import QtWidgets
 
-    style = QtGui.QStyleFactory.create("plastique")
-    QtGui.QApplication.setStyle(style)
-    app = QtGui.QApplication(sys.argv)
+    style = QtWidgets.QStyleFactory.create("plastique")
+    QtWidgets.QApplication.setStyle(style)
+    app = QtWidgets.QApplication(sys.argv)
 
     pyedm(argv)
 
     if len(edmApp.windowList) == 0:
-        print ("No Windows. Exiting.")
+        print("No Windows. Exiting.")
         exit()
 
     app.exec_()
+
+class remapAction(argparse.Action):
+    def __init__(self, *args, **kw):
+        super().__init__(*args, **kw)
+        setattr(self, args[1], [] )
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        getattr(self, self.dest).append( values)
+        
 
 # Called to load screens. 
 # Interprets a subset of EDM flags.
@@ -52,23 +59,42 @@ def pyedm(argv):
     mt = macroDictionary()
     mt.addMacro("!W", "!W%d" % ( mt.myid,) )
     mt.addMacro("!A", "!A1")
-    try:
-        opts, args = getopt.getopt(argv,"hdm:")
-    except getopt.GetoptError:
-        print ('getopt failure...')
-        sys.exit(2)
-    for opt, arg in opts:
-        if opt == "-h":
-            pass
-        elif opt == "-m":
-            mt.macroDecode(arg)
-        elif opt == "-d":
-            edmApp.DebugFlag = edmApp.DebugFlag+1
-            print ("global debugging enabled")
 
-    # Each argument is taken as a file name. Each file name will generate one
-    # window.
-    for files in args:
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument( "--macro", "-m", action="append", default=[], help='introduces list of macros/expansions e.g -m "facility=beamline-5,section=z"')
+    parser.add_argument( "--debug", "-d", action="count", default=0, help="produces diagnostic output of window creation and PV creation")
+    parser.add_argument( "--remap", nargs=2, action="append", default=[], help="--remap PATH NEWPATH remaps paths matching PATH to NEWPATH")
+
+# following items are not implemented - either low priority or not applicable
+    parser.add_argument( "--execute", "-x", action="count", help="(not implemented) Open all displays in execute rather than edit mode" )
+    parser.add_argument( "--noedit", action="count",  help="(not implemented) Remove capability to put display in edit mode, used with  -x to produce execute only operation" )
+    parser.add_argument( "--ctl", nargs=1, help="(not implemented)Takes name of string process variable, writing a display file name to this string causes edm to open the display in execute mode")
+    parser.add_argument( "--color", help="(not implemented) Set Colormode - index (default) or rgb")
+    parser.add_argument( "--cmap", action="count", help="(not implemented) use private colormap if necessary")
+    parser.add_argument( "--restart", action="count", help="(not implemented) Takes PID number, restart from last shutdown")
+    parser.add_argument( "--convert", action="count", help="(not implemented) Convert input file to new versin and exit")
+    parser.add_argument( "--server", action="count", help="(not implemented) Communicate with or become a display file server which can manage multiple displays")
+    parser.add_argument( "--port", nargs=1, help="(not implemented) Use specified TCP/IP port number (default=19000)")
+    parser.add_argument( "--local", action="count", help="(not implemented) Do not communicate with the display file server (default)" )
+    parser.add_argument( "--one", action="count", help="(not implemented) Allow only one edm instance" )
+    parser.add_argument( "--open", action="count", help="(not implemented) Request edm server to open files" )
+    parser.add_argument( "--eolc", action="count", help="(not implemented) Exit when last screen is closed" )
+    parser.add_argument( "--ul", action="count", help="(not implemented) Takes name of usre written shareable library")
+
+# any unused arguments are considered files.
+    parser.add_argument( "files", nargs=argparse.REMAINDER, help="list of .edl files that will be used to create the display")
+
+    results = parser.parse_args(argv)
+    edmApp.DebugFlag = results.debug
+    for macro in results.macro:
+        mt.macroDecode(macro)
+
+    edmApp.remap = results.remap
+
+    print(edmApp.remap)
+
+    for files in results.files:
         scr = edmScreen(files, mt)
         if scr.valid():
             edmApp.screenList.append(scr)
@@ -116,7 +142,7 @@ def loadScreen(fileName, macros="", parentWidget=None, parentDictionary=None, da
 # Prevent duplication on names: if there are (e.g.) multiple edmPVepics.py files
 # in the path, the first one gets imported, and then myImports[] flags 'edmPVepics'
 # as having been imported.
-myImports = []
+myImports = ()
 
 def genImport(pattern):
     global myImports
@@ -127,7 +153,7 @@ def genImport(pattern):
         head, tail = os.path.split(fname[0:-3])
         if tail in myImports:
             continue
-        myImports.append(tail)
+        myImports = myImports + (tail,)
         path = sys.path[:]
         sys.path.insert(0,  head)
         if head not in __path__:

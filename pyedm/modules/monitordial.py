@@ -1,3 +1,4 @@
+from __future__ import division
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # This module displays a meter of the value of a PV.
 # Tries to build a display that matches the EDM meter.
@@ -6,9 +7,10 @@ import pyedm.edmDisplay as edmDisplay
 import math
 from pyedm.edmWidget import edmWidget
 
-from PyQt4.QtGui import QAbstractSlider, QPainter, QFontMetrics, QPolygon
-from PyQt4 import QtCore
-from PyQt4.QtCore import QString, QPoint
+from PyQt5.QtWidgets import QAbstractSlider
+from PyQt5.QtGui import QPainter, QFontMetrics, QPolygon
+from PyQt5 import QtCore
+from PyQt5.QtCore import QPoint
 
 class activeMeterClass(QAbstractSlider,edmWidget):
     V3propTable = {
@@ -18,20 +20,29 @@ class activeMeterClass(QAbstractSlider,edmWidget):
             "labelFont", "scaleFont" ]
             }
     def __init__(self, parent=None):
-        QAbstractSlider.__init__(self, parent)
-        edmWidget.__init__(self,parent)
+        super().__init__(parent)
         self.pvItem["readPv"] = [ "PVname", "pv", 1 ]
         self.readV = 0.0
 
     def buildFromObject(self, object):
         edmWidget.buildFromObject(self,object)
         self.scaleFont = self.object.getFontProperty("scaleFontTag", "helvetica-18")
+        self.useDbLimits = self.object.checkProperty("scaleLimitsFromDb")
+        self.showScale  = self.object.checkProperty("showScale")
 
-    def getMin(self):
-        return self.object.getDoubleProperty("scaleMin", 0.0)
+    def getMinMax(self):
+        # if useDbLimits is True, then get Db scale limits and return that.
+        if self.useDbLimits:
+            try:
+                mymin, mymax = self.pv.getLimits()
+                return mymin, mymax
+            except: pass
 
-    def getMax(self):
-        return self.object.getDoubleProperty("scaleMax", 0.0)
+        mymin = self.object.getDoubleProperty("scaleMin", 0.0)
+        mymax = self.object.getDoubleProperty("scaleMax", 0.0)
+        if mymin == mymax:
+            return ( 0.0, 1.0)
+        return (mymin, mymax)
 
     def getPoints(self, center, angle, *radius):
         c = math.cos(angle)
@@ -76,27 +87,31 @@ class activeMeterClass(QAbstractSlider,edmWidget):
         else:
             fmt = "f"
 
-        minval = self.getMin()
-        maxval = self.getMax()
-        scaleMinStr = QString("%1").arg( minval, 0, fmt, scalePrecision)
-        scaleMaxStr = QString("%1").arg( maxval, 0, fmt, scalePrecision)
+        minval, maxval = self.getMinMax()
+
+        # moved from an obfuscated QString call to an obfuscated Python string function
+        scaleMinStr = ("%%.%d%s"% (scalePrecision, fmt))%minval
+        scaleMaxStr = ("%%.%d%s"% (scalePrecision, fmt))%maxval
+
+
+
         # calculate the biggest scale width needed
         interval = self.object.getDoubleProperty("labelIntervals", 1.0)
         incr = max( (maxval-minval)/interval, 1.0)
         scaleWidth = self.checkWidth(fm, scaleMinStr, 0)
         scaleWidth = self.checkWidth(fm, scaleMaxStr, scaleWidth)
-        scaleWidth = self.checkWidth(fm, QString("%1").arg(minval+incr, scalePrecision), scaleWidth)
-        scaleWidth = self.checkWidth(fm, QString("%1").arg(maxval-incr, scalePrecision), scaleWidth)
+        scaleWidth = self.checkWidth(fm, ("%%.%dg"%scalePrecision)%(minval+incr), scaleWidth)
+        scaleWidth = self.checkWidth(fm, ("%%.%dg"%scalePrecision)%(maxval+incr), scaleWidth)
 
         descent = ( math.pi - mta)/2
         horizNeedlePlusScale = 0.5 * faceW -4 - scaleWidth;
         if descent > 0:
             horizNeedlePlusScale /= math.cos(descent)
             vf = 1.1 * (1 - 0.6*descent )
-            vertNeedlePlusScale = (faceH - fm.ascent() - 4 ) / vf
+            vertNeedlePlusScale = (faceH - fm.ascent() - 4 )/ vf
         else:
             vf = 1 - math.sin(descent)
-            vertNeedlePlusScale = (faceH - fm.ascent() - 12 ) / vf
+            vertNeedlePlusScale = (faceH - fm.ascent() - 12 )/ vf
         if vertNeedlePlusScale < horizNeedlePlusScale:
             needlePlusScale = vertNeedlePlusScale
         else:
@@ -104,7 +119,7 @@ class activeMeterClass(QAbstractSlider,edmWidget):
             ve = visibleFraction * needlePlusScale + fm.ascent() + 12
             if 1.1*ve < faceH:
                 faceH = int(ve)
-        center = QPoint(faceX+faceW/2, faceY+int(needlePlusScale + 4 +
+        center = QPoint(faceX+faceW//2, faceY+int(needlePlusScale + 4 +
             fm.ascent() ) )
         beginAngle = descent
         endAngle = beginAngle + mta
@@ -140,9 +155,9 @@ class activeMeterClass(QAbstractSlider,edmWidget):
         # label the major tick marks,
         # draw the tick marks
         if interval > 0.0:
-            lai = mta /interval # label angle increment
-            mjai = lai / max(0.1, self.object.getDoubleProperty("majorIntervals", 5.0) )    # major angle increment
-            miai = mjai / max(0.1, self.object.getDoubleProperty("minorIntervals", 2.0) )   # minor angle increment
+            lai = mta/interval # label angle increment
+            mjai = lai/ max(0.1, self.object.getDoubleProperty("majorIntervals", 5.0) )    # major angle increment
+            miai = mjai/ max(0.1, self.object.getDoubleProperty("minorIntervals", 2.0) )   # minor angle increment
             labelVal = maxval
             la = beginAngle
             while la <= endAngle:
@@ -150,19 +165,22 @@ class activeMeterClass(QAbstractSlider,edmWidget):
                 line = self.getPoints( center, la, insideArc, insideArc+labelTickSize)
                 painter.drawLine( line[0], line[1])
                 # label
-                labelStr = QString("%1").arg( labelVal, 0, fmt, scalePrecision)
+                #labelStr = QString("%1").arg( labelVal, 0, fmt, scalePrecision)
+                #labelStr = qstring_wrapper(labelVal, 0, fmt, scalePrecision)
+                labelStr = ("%%.%d%s"% (scalePrecision, fmt))%labelVal
+
                 labelVal -= incr
                 position = self.getPoints(center, la, insideArc+labelTickSize+2)
                 if la == beginAngle:
-                    position[0] += QPoint(0, fm.ascent()/2 )
+                    position[0] += QPoint(0, fm.ascent()//2 )
                 elif la <= 1.5:
                     position[0] += QPoint(0,  0 )
                 elif la <= 1.65:
-                    position[0] += QPoint(-fm.width(labelStr)/2, -fm.ascent() + 2)
+                    position[0] += QPoint(-fm.width(labelStr)//2, -fm.ascent() + 2)
                 elif la < endAngle:
                     position[0] += QPoint(-fm.width(labelStr), 0 )
                 else:
-                    position[0] += QPoint(-fm.width(labelStr), fm.ascent()/2)
+                    position[0] += QPoint(-fm.width(labelStr), fm.ascent()//2)
                 painter.drawText(position[0], labelStr)
 
                 # major tick marks

@@ -1,18 +1,21 @@
+from __future__ import print_function
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 #
 # "global" variables.
 #
-from __future__ import print_function
-import sip
+from builtins import object
 import os
 import traceback
-from PyQt4.QtGui import QStyle, QStyleFactory
+from PyQt5.QtWidgets import QStyle, QStyleFactory
+import PyQt5.sip as sip
+
+cur_dir = os.path.dirname(os.path.abspath(__file__))
 
 class edmCommonStyle(QStyle) :
     def __init__(self):
-        QStyle.__init__(self)
+        super().__init__()
 
-class edmAppClass:
+class edmAppClass(object):
     def __init__(self):
         self.timer = None
         self.DebugFlag = 0
@@ -24,7 +27,7 @@ class edmAppClass:
 
         # CLS HARD-CODED DEFAULTS
         if "EDMCOLORFILE" not in os.environ:
-            os.environ['EDMCOLORFILE'] = "/home/epics/edmBase1-10f/colors.list"
+            os.environ['EDMCOLORFILE'] = os.path.join(cur_dir, "colors.list")
         self.setPath()
 
     def setPath(self):
@@ -43,16 +46,16 @@ class edmAppClass:
 
     def startTimer(self):
         if self.timer == None:
-            from PyQt4.QtCore import QTimer, SIGNAL
+            from PyQt5.QtCore import QTimer
             self.timer = QTimer()
-            self.timer.connect(self.timer, SIGNAL("timeout()"), self.onTimer)
+            self.timer.timeout.connect(self.onTimer)
             self.timer.start(100)
 
     def onTimer(self):
         copyDisplay, self.redisplayList = self.redisplayList, []
         for li in copyDisplay:
             if sip.isdeleted(li):
-                print ('necessary cleanup of', li.__dict__)
+                print('necessary cleanup of', li.__dict__)
                 try: li.cleanup()
                 except: traceback.print_exc()
                 continue
@@ -61,15 +64,15 @@ class edmAppClass:
                 li.redisplay()
             except RuntimeError:
                 traceback.print_exc()
-                print ("forcing cleanup of", li.__dict__)
+                print("forcing cleanup of", li.__dict__)
                 try: li.cleanup()
                 except: traceback.print_exc()
             except AttributeError:
                 traceback.print_exc()
                 if hasattr(li, "controlPV"):
-                    print ("AttributeError exception: redisplay of", li.controlPV, li.controlName, "Widget=", li)
+                    print("AttributeError exception: redisplay of", li.controlPV, li.controlName, "Widget=", li)
                 else:
-                    print ("AttributeError exception: redisplay of widget", li)
+                    print("AttributeError exception: redisplay of widget", li)
             except:
                 traceback.print_exc()
 

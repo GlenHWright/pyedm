@@ -32,6 +32,12 @@ record(bo, "destinationPV")
 	field(ZNAM, "Zero")
 }
 
+record(ao, "ControlPV2")
+{
+	field(PREC, "2")
+	field(LOPR, "0")
+	field(HOPR, "100")
+}
 record(ao, "ControlPV")
 {
 	field(PREC, "2")
@@ -51,6 +57,9 @@ record(ai, "ReadbackPV")
 	field(PREC, "2")
 	field(LOPR, "0")
 	field(HOPR, "100")
+}
+record(ai, "ReadbackPV2")
+{
 }
 record(ao, "colorPV")
 {

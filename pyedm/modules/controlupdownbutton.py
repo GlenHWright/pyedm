@@ -1,15 +1,18 @@
+from __future__ import division
+from __future__ import print_function
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # This module generates a widget for an up/down button. Left button presses cause the value
 # to decrement, Right button presses cause the value to increment. This isn't a Qt Button,
 # it just has a passing display relationship to one.
 
 import pyedm.edmDisplay as edmDisplay
-import edmPopupEntry
+import pyedm.edmPopupEntry as edmPopupEntry
 from pyedm.edmWidget import edmWidget
 
-from PyQt4.QtGui import QPalette, QWidget, QFontMetrics, QPainter, QMenu
-from PyQt4 import QtCore
-from PyQt4.QtCore import SIGNAL, QSize, QPoint
+from PyQt5.QtWidgets import QWidget, QMenu
+from PyQt5.QtGui import QPalette, QFontMetrics, QPainter
+from PyQt5 import QtCore
+from PyQt5.QtCore import QSize, QPoint
 
 class updownButtonClass(QWidget, edmWidget):
     V3propTable = {
@@ -19,8 +22,7 @@ class updownButtonClass(QWidget, edmWidget):
     }
     menuLabels = [ "Save", "Restore", "Set Coarse", "Set Fine", "Set Rate", "Set Value" ]
     def __init__(self, parent=None):
-        QWidget.__init__(self, parent)
-        edmWidget.__init__(self, parent)
+        super().__init__(parent)
         self.edmParent.buttonInterest.append(self)
         self.pvItem["savedValuePv"] = [ "savedValueName", "savedValuePV", 0 ]
 
@@ -47,10 +49,12 @@ class updownButtonClass(QWidget, edmWidget):
         painter.setFont(self.edmFont)
         if event == None:
             painter.eraseRect(0, 0, self.width(), self.height() )
+        if self.invisible:
+            return
         fm = painter.fontMetrics()
         w = fm.width(self.label)
         painter.fillRect(0, 0, self.width(), self.height(), self.palette().brush(QPalette.Window) )
-        painter.drawText( (self.width()-w)/2, (self.height()+fm.height())/2,self.label)
+        painter.drawText( (self.width()-w)//2, (self.height()+fm.height())//2,self.label)
         if self.width() > 20 and self.height() > fm.height() + 10:
             painter.drawLine( 10, 15, self.width()-20, 15)
 
@@ -69,7 +73,7 @@ class updownButtonClass(QWidget, edmWidget):
             self.menu.exec_(self.mapToGlobal(pos) )
             return
         if hasattr(self,"controlPV") == 0 or self.controlPV.isValid == 0:
-            if self.DebugFlag > 0 : print "Ignoring - no", hasattr(self, "controlPV")
+            if self.DebugFlag > 0 : print("Ignoring - no", hasattr(self, "controlPV"))
             return
         if event.button() == QtCore.Qt.RightButton:
             # increase the value
@@ -96,7 +100,7 @@ class updownButtonClass(QWidget, edmWidget):
         self.timerActive = False
 
     def onMenu(self, arg):
-        if self.DebugFlag > 0 : print "onMenu", arg
+        if self.DebugFlag > 0 : print("onMenu", arg)
         activity = self.menuLabels.index(arg)
         if activity < 0:
             return

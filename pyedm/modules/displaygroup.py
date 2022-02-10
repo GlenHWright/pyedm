@@ -5,21 +5,15 @@
 import pyedm.edmDisplay as edmDisplay
 from pyedm.edmWindowWidget import edmWindowWidget
 from pyedm.edmWidget import edmWidget
-from pyedm.edmEditWidget import edmEdit
 
-from PyQt4 import QtCore, QtGui
+from PyQt5 import QtCore, QtGui
 
 class activeGroupClass(edmWindowWidget, edmWidget):
     '''group display widget
         because the data input is handled by the edmScreen module, there isn't much to
         do at this level, and there is no need of alternate file input handling here'''
-
-    edmEditList = [
-            ] + edmEdit.visibleList
-
-    def __init__(self, parent=None):
-        edmWindowWidget.__init__(self, parent)
-        edmWidget.__init__(self, parent)
+    def __init__(self, parent=None, **kw):
+        super().__init__(parent, **kw)
 
     def cleanup(self):
         self.buttonInterest = []
