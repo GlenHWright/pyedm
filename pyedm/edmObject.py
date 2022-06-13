@@ -100,12 +100,12 @@ class edmObject(object):
                     try:
                         idx = int(str[0])
                         str = str[1]
-                    except:
+                    except ValueError:
                         str = val
                         idx = idx + 1
 
-            if idx < 0 or idx > count:
-                print("decode: index out of range:", idx, val)
+            if idx < 0 or idx >= count:
+                print(f"decode: index out of range: {idx} of {count}, string:{val}")
                 continue
             # decide if we're decoding a color, a string, an int, or a double
             if str.startswith("index "):

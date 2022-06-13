@@ -36,15 +36,15 @@ class relatedDisplayClass(QPushButton,edmWidget):
             self.transparent = 1
             self.setFlat(1)
                                             
-        self.filelist = self.object.decode("displayFileName")
-        self.poslist = self.object.decode("setPosition")
-        self.menulist = self.object.decode("menuLabel")
-        self.symbollist = self.object.decode("symbols")
         numDsps = self.object.getIntProperty("numDsps", "0")
         
         if numDsps == 0:
             print("relatedDisplayClass: no files to display")
             return
+        self.filelist = self.object.decode("displayFileName",count=numDsps)
+        self.poslist = self.object.decode("setPosition",count=numDsps)
+        self.menulist = self.object.decode("menuLabel",count=numDsps)
+        self.symbollist = self.object.decode("symbols",count=numDsps)
 
         self.filename = [ self.macroExpand(filename) for filename in self.filelist]
         self.generated = [ None for idx in range(0, len(self.filename))]
@@ -134,7 +134,7 @@ class relatedDisplayClass(QPushButton,edmWidget):
 
             if self.widgets[idx] == None:
                 self.widgets[idx] = generateWindow( self.generated[idx], myparent=self, macroTable=self.generated[idx].macroTable)
-                self.widgets[idx].destroyed.connect(lambda idx=idx: self.lostChild(idx))
+                self.widgets[idx].destroyed.connect(lambda *args, idx=idx: self.lostChild(*args, childIdx=idx))
             self.widgets[idx].show()
 
         #except:

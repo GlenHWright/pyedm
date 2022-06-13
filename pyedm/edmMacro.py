@@ -29,8 +29,11 @@ class macroDictionary(object):
     # Call with possible comma separated list of macros, with '=' separating
     # macro names from values
     def macroDecode(self, name, value=None):
+        if name == None:
+            return
         if value != None:
-            return self.addMacro(name, value)
+            self.addMacro(name, value)
+            return
 
         for oneMacro in name.split(","):
             nm = oneMacro.split("=")
