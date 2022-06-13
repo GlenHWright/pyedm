@@ -31,7 +31,7 @@ class relatedDisplayClass(QPushButton,edmWidget):
         self.update()
         name = self.object.getStringProperty("buttonLabel", None)
         if name != None:
-            self.setText(name)
+            self.setText(self.macroExpand(name))
         if self.object.getIntProperty("invisible",0) == 1:
             self.transparent = 1
             self.setFlat(1)
@@ -142,9 +142,9 @@ class relatedDisplayClass(QPushButton,edmWidget):
         finally:
             pass
 
-    def lostChild(self, childIdx):
-        print("lost child", childIdx)
-        self.widgets[childIdx] = None
+    def lostChild(self, *args, childIdx=None):
+        if childIdx != None:
+            self.widgets[childIdx] = None
         
 edmDisplay.edmClasses["relatedDisplayClass"] = relatedDisplayClass
 
