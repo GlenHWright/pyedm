@@ -3,7 +3,6 @@ from __future__ import print_function
 #
 # "global" variables.
 #
-from builtins import object
 import os
 import traceback
 from PyQt5.QtWidgets import QStyle, QStyleFactory
@@ -15,7 +14,7 @@ class edmCommonStyle(QStyle) :
     def __init__(self):
         super().__init__()
 
-class edmAppClass(object):
+class edmAppClass:
     def __init__(self):
         self.timer = None
         self.DebugFlag = 0

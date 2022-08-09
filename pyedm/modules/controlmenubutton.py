@@ -22,8 +22,8 @@ class activeMenuButtonClass(QComboBox,edmWidget):
         self.displayPV = None
         self.lastIndex = -1
 
-    def buildFromObject(self, object):
-        edmWidget.buildFromObject(self,object)
+    def buildFromObject(self, objectDesc):
+        edmWidget.buildFromObject(self,objectDesc)
         self.displayPV = self.indicatorPV if hasattr(self, "indicatorPV") else getattr(self,"controlPV",None)
         #self.connect( self, SIGNAL("activated(int)"), self.gotNewValue)
         self.activated.connect(self.gotNewValue)

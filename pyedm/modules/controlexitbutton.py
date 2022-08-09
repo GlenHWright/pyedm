@@ -13,13 +13,13 @@ class exitButtonClass(QPushButton, edmWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-    def buildFromObject(self, object):
-        edmWidget.buildFromObject(self,object)
-        self.invisible = object.getIntProperty("invisible", 0)
-        self.label = object.getStringProperty("label", "EXIT")
-        self.iconifyFlag = object.getIntProperty("iconify", 0)
-        self.exitProgram = object.getIntProperty("exitProgram", 0)
-        self.controlParent = object.getIntProperty("controlParent", 0)
+    def buildFromObject(self, objectDesc):
+        edmWidget.buildFromObject(self,objectDesc)
+        self.invisible = objectDesc.getIntProperty("invisible", 0)
+        self.label = objectDesc.getStringProperty("label", "EXIT")
+        self.iconifyFlag = objectDesc.getIntProperty("iconify", 0)
+        self.exitProgram = objectDesc.getIntProperty("exitProgram", 0)
+        self.controlParent = objectDesc.getIntProperty("controlParent", 0)
         #self.connect(self, SIGNAL("clicked(bool)"), self.onClicked)
         self.clicked.connect(self.onClicked)
         self.fgColorInfo.setColor()

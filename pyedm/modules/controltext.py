@@ -26,9 +26,9 @@ class activeXTextDspClass(activeXTextDspClass_noedit):
     def __init__(self, parent):
         super().__init__(parent)
 
-    def buildFromObject(self, object):
-        activeXTextDspClass_noedit.buildFromObject(self, object)
-        if object.getIntProperty("editable", 0) :
+    def buildFromObject(self, objectDesc):
+        activeXTextDspClass_noedit.buildFromObject(self, objectDesc)
+        if objectDesc.getIntProperty("editable", 0) :
             self.setReadOnly(0)
             self.setFocusPolicy(Qt.StrongFocus)
             self.edmParent.buttonInterest.append(self)

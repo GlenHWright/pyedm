@@ -50,19 +50,19 @@ class shellCmdClass(QPushButton,edmWidget):
 
         tag['requiredHostName'] = value.pop(0)
             
-    def buildFromObject(self, object):
-        edmWidget.buildFromObject(self,object)
+    def buildFromObject(self, objectDesc):
+        edmWidget.buildFromObject(self,objectDesc)
         self.update()
-        name = self.object.getStringProperty("buttonLabel", None)
+        name = self.objectDesc.getStringProperty("buttonLabel", None)
         if name != None:
             self.setText(name)
-        if self.object.getIntProperty("invisible",0) == 1:
+        if self.objectDesc.getIntProperty("invisible",0) == 1:
             self.transparent = 1
             self.setFlat(1)
                                             
-        self.numCmds = object.getIntProperty("numCmds")
-        self.cmdLabel = object.decode("commandLabel", self.numCmds)
-        self.command = object.decode("command", self.numCmds)
+        self.numCmds = objectDesc.getIntProperty("numCmds")
+        self.cmdLabel = objectDesc.decode("commandLabel", self.numCmds)
+        self.command = objectDesc.decode("command", self.numCmds)
         self.threads = [None]*self.numCmds
         if self.cmdLabel == None:
             self.cmdLabel = self.command

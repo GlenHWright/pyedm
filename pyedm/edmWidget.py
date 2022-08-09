@@ -6,7 +6,6 @@ from __future__ import absolute_import
 #
 from builtins import zip
 from builtins import str
-from builtins import object
 import traceback
 from PyQt5.QtCore import Qt#, SIGNAL
 from PyQt5.QtGui import QPalette, QFontDatabase
@@ -24,7 +23,7 @@ from .edmEditWidget import edmEditInt
 # Palette Set. When a change occurs to color value or alarm status,
 # the widget "redisplay()" must be able to redraw
 #
-class reColorInfo(object):
+class reColorInfo:
     def __init__(self, widget, cr=None):
         self.widget = widget
         self.alarmSensitive = 0
@@ -179,23 +178,23 @@ class edmWidget(edmWidgetSupport):
                 delattr(self, pvname)
 
     # Generic object creation
-    def buildFromObject(self, object, attr=Qt.WA_TransparentForMouseEvents):
-        if self.DebugFlag > 0: print("buildFromObject", object)
-        self.setGeometry(object.getIntProperty("x")-1-self.edmParent.parentx,
-        object.getIntProperty("y")-1-self.edmParent.parenty,
-        object.getIntProperty("w")+2, object.getIntProperty("h")+2)
-        self.object = object
+    def buildFromObject(self, objectDesc, attr=Qt.WA_TransparentForMouseEvents):
+        if self.DebugFlag > 0: print("buildFromObject", objectDesc)
+        self.setGeometry(objectDesc.getIntProperty("x")-1-self.edmParent.parentx,
+        objectDesc.getIntProperty("y")-1-self.edmParent.parenty,
+        objectDesc.getIntProperty("w")+2, objectDesc.getIntProperty("h")+2)
+        self.objectDesc = objectDesc
         if attr != None:
             self.setAttribute(attr)
             self.setAttribute(Qt.WA_NoMousePropagation)
         #
         # Manage object visibility rules
         # do this before setting the visibility PV
-        pvn = object.getStringProperty("visPv")
+        pvn = objectDesc.getStringProperty("visPv")
         if pvn != None:
-            self.visMin = object.getDoubleProperty("visMin", 0.0)
-            self.visMax = object.getDoubleProperty("visMax", 1.0)
-            self.visInvert = object.getIntProperty("visInvert", 0)
+            self.visMin = objectDesc.getDoubleProperty("visMin", 0.0)
+            self.visMax = objectDesc.getDoubleProperty("visMax", 1.0)
+            self.visInvert = objectDesc.getIntProperty("visInvert", 0)
             if self.visMin > self.visMax:
                 self.visMin, self.visMax = self.visMax, self.visMin
             self.visible = 0
@@ -203,7 +202,7 @@ class edmWidget(edmWidgetSupport):
             self.setVisible(self.visible)
         # Manage display fonts
         # Do this before setting a PV that may cause a redisplay
-        self.fontName = object.getStringProperty("font")
+        self.fontName = objectDesc.getStringProperty("font")
         if self.fontName != None:
             self.edmFont = edmFont.getFont(self.fontName)
             self.setFont(self.edmFont)
@@ -276,15 +275,15 @@ class edmWidget(edmWidgetSupport):
     # if alarmName != 0, flag to look for alarm sensitivity
     def findColor( self, colorName, palette, alarmpv=None, alarmName=None, fillName=None, fillTest=True):
         if self.DebugFlag > 0 :print('findColor(', self, colorName, palette, alarmpv, alarmName, fillName, fillTest, ')')
-        if self.DebugFlag > 0 :print('... alarmName=', self.object.getIntProperty(alarmName,0))
+        if self.DebugFlag > 0 :print('... alarmName=', self.objectDesc.getIntProperty(alarmName,0))
         # if there is a PV that we'll alarm against, list it here. Otherwise,
         # use the colorName to fill the background
         alarmid = self.getAlarmPv(alarmName)
 
-        if fillName != None and self.object.getIntProperty(fillName, 0) == fillTest:
+        if fillName != None and self.objectDesc.getIntProperty(fillName, 0) == fillTest:
             colorRule = edmColors.findColorRule("builtin:transparent")
         else:
-            colorRule = self.object.getColorProperty(colorName)
+            colorRule = self.objectDesc.getColorProperty(colorName)
         rcinfo = reColorInfo(self, colorRule)
         rcinfo.colorPalette = palette
         if colorRule != None and len(colorRule.ruleList) > 1:
@@ -296,7 +295,7 @@ class edmWidget(edmWidgetSupport):
     #   default PV is the control PV, if there is one.
     def getAlarmPv(self, alarmName=None):
         # check if alarm sensitive: is so, find a PV to use
-        if self.object.getIntProperty(alarmName, 0) == 0: return None
+        if self.objectDesc.getIntProperty(alarmName, 0) == 0: return None
         return getattr(self, "alarmPV", getattr(self,"controlPV", None) )
 
     # Priority for using a color PV: "colorPV", "controlPV", "alarmPV"
@@ -312,7 +311,7 @@ class edmWidget(edmWidgetSupport):
             rcinfo.addColorPV(self.alarmPV)
 
     def findAlignment(self, alignName, defValue=Qt.AlignLeft):
-        align = self.object.getStringProperty(alignName)
+        align = self.objectDesc.getStringProperty(alignName)
         if align != None:
             if align == "center" or align == "1":
                 return Qt.AlignHCenter
@@ -393,8 +392,8 @@ class edmWidget(edmWidgetSupport):
     def getName(self, pvname, tag):
         if pvname != None and pvname != "":
             return pvname
-        if tag in self.object.tagValue:
-            return self.object.tagValue[tag]
+        if tag in self.objectDesc.tagValue:
+            return self.objectDesc.tagValue[tag]
         return None
 
     # change the visibility of a PV

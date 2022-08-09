@@ -1,7 +1,6 @@
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 #/* element types */
 from builtins import range
-from builtins import object
 (OPERAND, LITERAL_OPERAND, STORE_OPERATOR, UNARY_OPERATOR, VARARG_OPERATOR, BINARY_OPERATOR, SEPERATOR,
     OPEN_PAREN, CLOSE_PAREN, CONDITIONAL, EXPR_TERMINATOR) = list(range(1,12))
 
@@ -84,7 +83,7 @@ from builtins import object
 #    signed char runtime_effect; /* stack change, positive means push */
 #    element_type type;     /* element type */
 #    rpn_opcode code;     /* postfix opcode */
-class element(object):
+class element:
     def __init__(self, stack_pri, input_pri, stack_effect, type, opcode):
         self.stack_pri = stack_pri
         self.input_pri = input_pri

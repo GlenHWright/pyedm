@@ -21,9 +21,9 @@ class activeImageClass(abstractShape):
         if edmApp.DebugFlag > 0 : print("activeImageClass __init()__", self, args, kwargs)
         super().__init__(*args,**kwargs)
 
-    def buildFromObject(self, object):
-        edmWidget.buildFromObject(self, object)
-        self.filename = object.getStringProperty("file", None)
+    def buildFromObject(self, objectDesc):
+        edmWidget.buildFromObject(self, objectDesc)
+        self.filename = objectDesc.getStringProperty("file", None)
         self.filename = self.macroExpand(self.filename)
         self.image = None
         for path in edmApp.dataPaths:

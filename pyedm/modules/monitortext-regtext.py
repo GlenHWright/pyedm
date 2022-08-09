@@ -11,8 +11,8 @@ class RegTextupdateClass(TextupdateClass):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-    def buildFromObject(self, object):
-        TextupdateClass.buildFromObject(self, object)
+    def buildFromObject(self, objectDesc):
+        TextupdateClass.buildFromObject(self, objectDesc)
 
     def redisplay(self, **kw):
         self.checkVisible()

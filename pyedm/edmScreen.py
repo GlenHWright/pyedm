@@ -1,7 +1,6 @@
 from __future__ import print_function
 from __future__ import absolute_import
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
-from builtins import object
 import pyedm.edmDisplay as edmDisplay
 from .edmObject import edmObject
 from pyedm.edmApp import edmApp
@@ -16,7 +15,7 @@ class NextError(Exception):
 #
 # A class that defines a single EDM window (or screen).
 #
-class edmScreen(object):
+class edmScreen:
     # initialize a screen area. if given a filename, read it in. 
     def __init__(self, Filename=None, macroTable=None, paths=None):
         self.objectList = []
@@ -242,7 +241,7 @@ class edmScreen(object):
 #
 # A class that reads lines from an EDL file.
 #
-class readInput(object):
+class readInput:
     debugFlag=0
     def __init__(self, fn=None, paths=[".",]):
         self.reuseLine=0

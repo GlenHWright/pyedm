@@ -11,8 +11,8 @@ class activeMotifSliderClass(activeSliderClass):
     def __init__(self, parent):
         super().__init__(parent)
 
-    def buildFromObject(self, object):
-        activeSliderClass.buildFromObject(self, object)
+    def buildFromObject(self, objectDesc):
+        activeSliderClass.buildFromObject(self, objectDesc)
     def showScale(self):
         return 0    # this class never displays a scale
     def findReadonly(self):

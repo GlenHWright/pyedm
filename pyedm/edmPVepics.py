@@ -1,7 +1,6 @@
 from __future__ import print_function
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 from builtins import str
-from builtins import object
 from pyedm.edmPVfactory import pvClassDict, edmPVbase, convText
 
 from epics import ca, __version__ as epicsVersion
@@ -77,7 +76,7 @@ class watchPV(QTimer):
         pass
 
 # one element per PV name. an epicsPV connects a widget to a channel
-class channel(object):
+class channel:
     def __init__(self, pvName=None):
         self.connectorList = []
         self.isValid = False

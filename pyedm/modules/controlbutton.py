@@ -34,19 +34,19 @@ class activeButtonClass(QPushButton, edmWidget):
         self.onColorInfo.cleanup()
         self.offColorInfo.cleanup()
 
-    def buildFromObject(self, object):
-        edmWidget.buildFromObject(self,object)
+    def buildFromObject(self, objectDesc):
+        edmWidget.buildFromObject(self,objectDesc)
         type = self.getToggleType()
         self.setCheckable( type )
         self.setAutoFillBackground(True)
-        self.labeltype = object.getStringProperty("labelType", "literal")
+        self.labeltype = objectDesc.getStringProperty("labelType", "literal")
         if self.labeltype == "literal" or self.labeltype == "1":
-            self.onLabel = self.macroExpand(object.getStringProperty("onLabel", ""))
-            self.offLabel = self.macroExpand(object.getStringProperty("offLabel", ""))
+            self.onLabel = self.macroExpand(objectDesc.getStringProperty("onLabel", ""))
+            self.offLabel = self.macroExpand(objectDesc.getStringProperty("offLabel", ""))
             self.needLabel = False
         elif self.labeltype == "pvState" or self.labeltype == "0":
             self.needLabel = True
-        if self.object.getIntProperty("invisible",0) == 1:
+        if self.objectDesc.getIntProperty("invisible",0) == 1:
             self.transparent = 1
             self.setFlat(1)
         self.setText(self.offLabel)
@@ -73,7 +73,7 @@ class activeButtonClass(QPushButton, edmWidget):
         self.fgColorInfo.setColor()
         
     def getToggleType(self):
-        type = self.object.getStringProperty("buttonType")
+        type = self.objectDesc.getStringProperty("buttonType")
         return (type != "push" or type != "1")
 
     # toggle button changed

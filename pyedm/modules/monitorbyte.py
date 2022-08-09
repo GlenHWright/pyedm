@@ -28,10 +28,10 @@ class byteClass(QWidget,edmWidget):
         self.onColorInfo.cleanup()
         self.offColorInfo.cleanup()
 
-    def buildFromObject(self, object):
-        edmWidget.buildFromObject(self,object)
-        self.noBits = object.getIntProperty("numBits", 16)
-        self.shiftBits = object.getIntProperty("shifting", 0)
+    def buildFromObject(self, objectDesc):
+        edmWidget.buildFromObject(self,objectDesc)
+        self.noBits = objectDesc.getIntProperty("numBits", 16)
+        self.shiftBits = objectDesc.getIntProperty("shifting", 0)
         self.lineColorInfo = self.findColor("lineColor", ())
         self.value = 0
 

@@ -2,7 +2,6 @@ from __future__ import print_function
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # Support for LOC pv types
 from builtins import str
-from builtins import object
 import re
 from pyedm.edmPVfactory import edmPVbase, pvClassDict
 from pyedm.edmApp import edmApp
@@ -27,7 +26,7 @@ def intConverter(value, enums):
     else:
         val = int(value)
     return val, str(value)
-class channel(object):
+class channel:
     # these types match the general types from edmPVbase
     types = { "i":edmPVbase.typeInt,
               "d":edmPVbase.typeFloat,

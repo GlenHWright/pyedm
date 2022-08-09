@@ -22,9 +22,9 @@ class activeChoiceButtonClass(QWidget,edmWidget):
         edmWidget.cleanup(self)
         self.selectColorInfo.cleanup()
 
-    def buildFromObject(self, object):
-        edmWidget.buildFromObject(self,object)
-        self.orientation = object.getStringProperty("orientation", "vertical")
+    def buildFromObject(self, objectDesc):
+        edmWidget.buildFromObject(self,objectDesc)
+        self.orientation = objectDesc.getStringProperty("orientation", "vertical")
         self.layout = QVBoxLayout() if self.orientation == "vertical" else QHBoxLayout()
         self.setLayout(self.layout)
         self.layout.setSpacing(0)

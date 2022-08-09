@@ -65,16 +65,16 @@ class activeLineClass(abstractShape):
         painter.drawPolygon( QPolygonF( [destp, p0, p1]))
 
 
-    def buildFromObject(self, object):
-        abstractShape.buildFromObject(self,object)
-        self.myx = object.getIntProperty("x")
-        self.myy = object.getIntProperty("y")
-        self.npoints = self.object.getIntProperty("numPoints",0)
-        self.closePolygon = self.object.getIntProperty("closePolygon",0)
-        self.lineStyle = self.object.getStringProperty("lineStyle", "solid")
-        self.xpoints = self.object.decode("xPoints", self.npoints,0)
-        self.ypoints = self.object.decode("yPoints", self.npoints,0)
-        self.arrows = self.object.getStringProperty("arrows", "none")
+    def buildFromObject(self, objectDesc):
+        abstractShape.buildFromObject(self,objectDesc)
+        self.myx = objectDesc.getIntProperty("x")
+        self.myy = objectDesc.getIntProperty("y")
+        self.npoints = self.objectDesc.getIntProperty("numPoints",0)
+        self.closePolygon = self.objectDesc.getIntProperty("closePolygon",0)
+        self.lineStyle = self.objectDesc.getStringProperty("lineStyle", "solid")
+        self.xpoints = self.objectDesc.decode("xPoints", self.npoints,0)
+        self.ypoints = self.objectDesc.decode("yPoints", self.npoints,0)
+        self.arrows = self.objectDesc.getStringProperty("arrows", "none")
         self.arrowSize = 15
         self.arrowAngle = Pi/2.5
         # translate points to 'QT' space

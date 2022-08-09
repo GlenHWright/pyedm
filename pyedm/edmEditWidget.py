@@ -4,21 +4,20 @@ from __future__ import absolute_import
 # Classes to manage EDM-style edit field for widgets
 #
 
-from builtins import object
 from PyQt5 import QtWidgets
 # from . import edmWidget
 
-class edmEditField(object):
+class edmEditField:
     ''' base class for the edit fields. Derived classes
         handle generating a specific widget set to display,
     '''
-    def __init__(self, label=None, object=None, field=None):
+    def __init__(self, label=None, objectDesc=None, field=None):
         ''' label is the displayed label on the edit screen
-            object is the keyword indexed in edmObject
+            objectDesc is the keyword indexed in edmObject
             field is the field in the defined class to be edited.
         '''
         self.label = label
-        self.object = object
+        self.objectDesc = objectDesc
         self.field = field
 
     def showEditWidget(self):

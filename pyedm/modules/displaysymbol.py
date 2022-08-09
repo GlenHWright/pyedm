@@ -6,7 +6,6 @@ from __future__ import print_function
 #
 from builtins import zip
 from builtins import range
-from builtins import object
 import pyedm.edmDisplay as edmDisplay
 from pyedm.edmPVfactory import buildPV
 from pyedm.edmApp import redisplay
@@ -18,12 +17,12 @@ from PyQt5 import QtCore, QtGui
 from PyQt5.QtGui import QPalette, QPainter
 from PyQt5.QtWidgets import QWidget, QFrame, QScrollArea
 
-class symbolState(object):
+class symbolState:
     def __init__(self, min=0, max=1):
         self.min = min
         self.max = max
 
-class symbolPV(object):
+class symbolPV:
     def __init__(self, pvname, mt, idx, andMask=0, xorMask=0, shift=0):
         self.pv = buildPV(pvname,macroTable=mt)
         self.pvno = idx
@@ -48,21 +47,21 @@ class activeSymbolClass(AbstractSymbolClass):
         for pv in self.pvList:
             pv.pv.del_callback(self)
 
-    def buildFromObject(self, object):
-        edmWidget.buildFromObject(self, object)
-        self.file = object.getStringProperty("file", "")
-        self.truthTable = object.getIntProperty("truthTable", 0)
+    def buildFromObject(self, objectDesc):
+        edmWidget.buildFromObject(self, objectDesc)
+        self.file = objectDesc.getStringProperty("file", "")
+        self.truthTable = objectDesc.getIntProperty("truthTable", 0)
         # PV information
-        self.numPvs = object.getIntProperty("numPvs", 0)
-        self.controlPvs = object.decode("controlPvs", self.numPvs, None)
-        self.andMask = object.decode("andMask", self.numPvs, 0)
-        self.xorMask = object.decode("xorMask", self.numPvs, 0)
-        self.shiftCount = object.decode("shiftCount", self.numPvs, 0)
+        self.numPvs = objectDesc.getIntProperty("numPvs", 0)
+        self.controlPvs = objectDesc.decode("controlPvs", self.numPvs, None)
+        self.andMask = objectDesc.decode("andMask", self.numPvs, 0)
+        self.xorMask = objectDesc.decode("xorMask", self.numPvs, 0)
+        self.shiftCount = objectDesc.decode("shiftCount", self.numPvs, 0)
         # State information
         self.statelist = []
-        self.numStates = object.getIntProperty("numStates", 0)
-        self.minValues = object.decode("minValues", self.numStates, 0)
-        self.maxValues = object.decode("maxValues", self.numStates, 1)
+        self.numStates = objectDesc.getIntProperty("numStates", 0)
+        self.minValues = objectDesc.decode("minValues", self.numStates, 0)
+        self.maxValues = objectDesc.decode("maxValues", self.numStates, 1)
 
         if(self.minValues == None):
             self.minValues = [0,0]

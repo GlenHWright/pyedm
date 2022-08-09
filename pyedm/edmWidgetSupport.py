@@ -1,11 +1,10 @@
-from __future__ import print_function
-from __future__ import absolute_import
+#from __future__ import print_function
+#from __future__ import absolute_import
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
-from builtins import object
 from .edmApp import edmApp
 
-class edmWidgetSupport(object):
-    def __init__(self):
+class edmWidgetSupport:
+    def __init__(self): # this seems unnecessary...
          super().__init__()
     '''methods shared by edmWidget and edmWindowWidget'''
     def macroExpand(self, str):

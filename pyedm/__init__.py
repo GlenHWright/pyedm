@@ -80,19 +80,19 @@ def pyedm(argv):
     parser.add_argument( "--one", action="count", help="(not implemented) Allow only one edm instance" )
     parser.add_argument( "--open", action="count", help="(not implemented) Request edm server to open files" )
     parser.add_argument( "--eolc", action="count", help="(not implemented) Exit when last screen is closed" )
-    parser.add_argument( "--ul", action="count", help="(not implemented) Takes name of usre written shareable library")
+    parser.add_argument( "--ul", action="count", help="(not implemented) Takes name of user written shareable library")
 
 # any unused arguments are considered files.
     parser.add_argument( "files", nargs=argparse.REMAINDER, help="list of .edl files that will be used to create the display")
 
     results = parser.parse_args(argv)
+
     edmApp.DebugFlag = results.debug
+
     for macro in results.macro:
         mt.macroDecode(macro)
 
     edmApp.remap = results.remap
-
-    print(edmApp.remap)
 
     for files in results.files:
         scr = edmScreen(files, mt)

@@ -21,14 +21,14 @@ class activeMessageButtonClass (activeButtonClass):
         super().__init__(parent)
         self.PressedState = 0
 
-    def buildFromObject(self, object):
-        activeButtonClass.buildFromObject(self, object)
-        self.pushValue = object.getStringProperty("pressValue")
-        self.releaseValue = object.getStringProperty("releaseValue")
+    def buildFromObject(self, objectDesc):
+        activeButtonClass.buildFromObject(self, objectDesc)
+        self.pushValue = objectDesc.getStringProperty("pressValue")
+        self.releaseValue = objectDesc.getStringProperty("releaseValue")
 
     # toggle type is determined by "toggle" property
     def getToggleType(self):
-        ty = self.object.getIntProperty("toggle")
+        ty = self.objectDesc.getIntProperty("toggle")
         return ty==1
 
     # change the onPress() callback to set the label value

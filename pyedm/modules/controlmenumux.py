@@ -53,18 +53,18 @@ class menuMuxClass(QComboBox,edmWidget):
         tags["initialState"] = values.pop(0)
         print("controlmenumux tags=", tags, "values=", values)
 
-    def buildFromObject(self, object):
-        edmWidget.buildFromObject(self,object)
-        self.initialState = self.object.getIntProperty("initialState", 0)
-        self.numItems = self.object.getIntProperty("numItems", 0)
-        self.symbolTag = self.object.decode("symbolTag")
+    def buildFromObject(self, objectDesc):
+        edmWidget.buildFromObject(self,objectDesc)
+        self.initialState = self.objectDesc.getIntProperty("initialState", 0)
+        self.numItems = self.objectDesc.getIntProperty("numItems", 0)
+        self.symbolTag = self.objectDesc.decode("symbolTag")
         self.valueList = [None]*self.numItems
         self.symbolList = [None]*self.numItems
         for i in range(0, self.numItems):
             valname = "value%d"%(i,)
-            self.valueList[i] =  self.object.decode(valname)
+            self.valueList[i] =  self.objectDesc.decode(valname)
             symname = "symbol%d"%(i,)
-            self.symbolList[i] =  self.object.decode(symname)
+            self.symbolList[i] =  self.objectDesc.decode(symname)
         self.addItems( self.symbolTag)
         self.setCurrentIndex(self.initialState)
         #self.connect( self, SIGNAL("activated(int)"), self.gotNewValue)

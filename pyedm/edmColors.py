@@ -8,14 +8,13 @@ from __future__ import print_function
 # something_that_needs_a_QColor( widget.someColor.getColor( ColorPV value, default Color))
 
 from builtins import range
-from builtins import object
 from os import getenv
 import re
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor
 
 # define one part of a rule
-class oneRule(object):
+class oneRule:
     NO_OP, LT, LE, GT, GE, EQ, NE, AND, OR, DEFAULT = list(range(0, 10))
 
     opTable = { "<" : LT, "<=" : LE, ">" : GT, ">=" : GE, "=" : EQ, "==" : EQ,
@@ -45,7 +44,7 @@ class oneRule(object):
         if self.right != None:
             self.right.printRule(indent+1)
         
-class colorRule(object):
+class colorRule:
     invisible = QColor(0,0,0,0)
     def __init__(self):
         self.ruleList = []
@@ -71,7 +70,7 @@ class colorRule(object):
         print("...using default color (no match), value=", value)
         return defColor
 
-class edmColor(object):
+class edmColor:
     # This pattern element looks weird - what it does is fails the match if
     # it immediately followed by "=" followed by a non-identifier character
     #    | [a-zA-Z0-9\.-]*(?=[^\.a-zA-Z0-9-])

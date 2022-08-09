@@ -125,20 +125,20 @@ class xyGraphClass(pgraph.PlotWidget, edmWidget):
         values.pop(0) # ignore!
         tags['y2Label'] = values.pop(0)
             
-    def buildFromObject(self, object):
-        edmWidget.buildFromObject(self, object)
+    def buildFromObject(self, objectDesc):
+        edmWidget.buildFromObject(self, objectDesc)
 
-        npts = object.getIntProperty("nPts", 100)
-        self.updateTimerMs = object.getIntProperty("updateTimerMs", 0)
+        npts = objectDesc.getIntProperty("nPts", 100)
+        self.updateTimerMs = objectDesc.getIntProperty("updateTimerMs", 0)
         self.gridColorInfo = self.findColor( "gridColor", palette=(QPalette.Text,))
         self.gridColorInfo.setColor()
 
-        plotMode = object.getStringProperty("plotMode", "plotNPtsAndStop")   # plotNPtsAndStop, plotLastNPts (0, 1)
-        xAxisTimeFormat = object.getStringProperty("xAxisTimeFormat", None) # 'seconds', 'dateTime'
-        plotTitle = object.getStringProperty("graphTitle", "")
-        self.axisInfo("x", object)
-        self.axisInfo("y", object)
-        self.axisInfo("y2", object)
+        plotMode = objectDesc.getStringProperty("plotMode", "plotNPtsAndStop")   # plotNPtsAndStop, plotLastNPts (0, 1)
+        xAxisTimeFormat = objectDesc.getStringProperty("xAxisTimeFormat", None) # 'seconds', 'dateTime'
+        plotTitle = objectDesc.getStringProperty("graphTitle", "")
+        self.axisInfo("x", objectDesc)
+        self.axisInfo("y", objectDesc)
+        self.axisInfo("y2", objectDesc)
         
         # Grid - change this to be based on file settings
         # grid = qwt.plot.QwtPlotGrid()
@@ -165,20 +165,20 @@ class xyGraphClass(pgraph.PlotWidget, edmWidget):
         # title
         self.setTitle( plotTitle )
 
-        self.numCurves = self.object.getIntProperty("numTraces", 0)
+        self.numCurves = self.objectDesc.getIntProperty("numTraces", 0)
 
-        xPv      = self.object.decode("xPv", self.numCurves)                    # optional list of X-axis PV's
-        yPv      = self.object.decode("yPv", self.numCurves)                    # optional(?) list of Y-axis PV's
-        plotStyle= self.object.decode("plotStyle", self.numCurves)              # enumerated list - line, point needle, 'single point'
-        plotUpdateMode= self.object.decode("plotUpdateMode", self.numCurves)    # xAndY, xOrY, x, y, trigger
-        plotSymbolType= self.object.decode("plotSymbolType", self.numCurves)    # none, circle, square, diamond
-        opMode   = self.object.decode("opMode", self.numCurves)                 # scope, plot
-        useY2Axis= self.object.decode("useY2Axis", self.numCurves)              #
-        xSigned  = self.object.decode("xSigned", self.numCurves)                #
-        ySigned  = self.object.decode("ySigned", self.numCurves)                #
-        plotColor= self.object.decode("plotColor", self.numCurves)              # 'index' and number
-        lineThickness = self.object.decode("lineThickness", self.numCurves, 0)  # integers
-        lineStyle= self.object.decode("lineStyle", self.numCurves, "solid")     # solid, dash
+        xPv      = self.objectDesc.decode("xPv", self.numCurves)                    # optional list of X-axis PV's
+        yPv      = self.objectDesc.decode("yPv", self.numCurves)                    # optional(?) list of Y-axis PV's
+        plotStyle= self.objectDesc.decode("plotStyle", self.numCurves)              # enumerated list - line, point needle, 'single point'
+        plotUpdateMode= self.objectDesc.decode("plotUpdateMode", self.numCurves)    # xAndY, xOrY, x, y, trigger
+        plotSymbolType= self.objectDesc.decode("plotSymbolType", self.numCurves)    # none, circle, square, diamond
+        opMode   = self.objectDesc.decode("opMode", self.numCurves)                 # scope, plot
+        useY2Axis= self.objectDesc.decode("useY2Axis", self.numCurves)              #
+        xSigned  = self.objectDesc.decode("xSigned", self.numCurves)                #
+        ySigned  = self.objectDesc.decode("ySigned", self.numCurves)                #
+        plotColor= self.objectDesc.decode("plotColor", self.numCurves)              # 'index' and number
+        lineThickness = self.objectDesc.decode("lineThickness", self.numCurves, 0)  # integers
+        lineStyle= self.objectDesc.decode("lineStyle", self.numCurves, "solid")     # solid, dash
         #
         # Build the curves that will be used
         self.curves = []
@@ -247,27 +247,27 @@ class xyGraphClass(pgraph.PlotWidget, edmWidget):
         edmWidget.findBgColor(self, *args, **kw)
         self.setBackground(self.bgColorInfo.setColor() )
 
-    def axisInfo(self, prefix, object):
+    def axisInfo(self, prefix, objectDesc):
         '''read axis configuration information'''
         try:
             show = { 'x':'showXAxis', 'y':'showYAxis', 'y2':'showY2Axis' }[prefix]
         except:
             print("axisInfo: Bad prefix", prefix)
             return
-        setattr(self, show, object.getIntProperty(show, 0))
-        setattr(self, prefix+"AxisStyle", object.getStringProperty(prefix+"AxisStyle", "linear"))  # "linear", "log10", "time", "log10(time)"
-        setattr(self, prefix+"AxisSrc",  object.getStringProperty(prefix+"AxisSrc", None))     # AutoScale, fromUser and fromPv
-        setattr(self, prefix+"AxisFormat",  object.getStringProperty(prefix+"AxisFormat", None))        # AutoScale, fromUser and fromPv
-        setattr(self, prefix+"AxisPrecision",  object.getStringProperty(prefix+"AxisPrecision", None))  # AutoScale, fromUser and fromPv
-        setattr(self, prefix+"Min", object.getDoubleProperty(prefix+"Min", 0))
-        setattr(self, prefix+"Max", object.getDoubleProperty(prefix+"Max", 0))
-        setattr(self, prefix+"Label", object.getStringProperty(prefix+"Label", None))
-        setattr(self, prefix+"LabelIntervals", object.getIntProperty(prefix+"LabelIntervals", None))
-        setattr(self, prefix+"MajorsPerLabel", object.getIntProperty(prefix+"MajorsPerLabel", None))
-        setattr(self, prefix+"MinorsPerMajor", object.getIntProperty(prefix+"MinorsPerMajor", None))
-        setattr(self, prefix+"ShowLabelGrid", object.getIntProperty(prefix+"ShowLabelGrid", None))
-        setattr(self, prefix+"ShowMajorGrid", object.getIntProperty(prefix+"ShowMajorGrid", None))
-        setattr(self, prefix+"ShowMinorGrid", object.getIntProperty(prefix+"ShowMinorGrid", None))
+        setattr(self, show, objectDesc.getIntProperty(show, 0))
+        setattr(self, prefix+"AxisStyle", objectDesc.getStringProperty(prefix+"AxisStyle", "linear"))  # "linear", "log10", "time", "log10(time)"
+        setattr(self, prefix+"AxisSrc",  objectDesc.getStringProperty(prefix+"AxisSrc", None))     # AutoScale, fromUser and fromPv
+        setattr(self, prefix+"AxisFormat",  objectDesc.getStringProperty(prefix+"AxisFormat", None))        # AutoScale, fromUser and fromPv
+        setattr(self, prefix+"AxisPrecision",  objectDesc.getStringProperty(prefix+"AxisPrecision", None))  # AutoScale, fromUser and fromPv
+        setattr(self, prefix+"Min", objectDesc.getDoubleProperty(prefix+"Min", 0))
+        setattr(self, prefix+"Max", objectDesc.getDoubleProperty(prefix+"Max", 0))
+        setattr(self, prefix+"Label", objectDesc.getStringProperty(prefix+"Label", None))
+        setattr(self, prefix+"LabelIntervals", objectDesc.getIntProperty(prefix+"LabelIntervals", None))
+        setattr(self, prefix+"MajorsPerLabel", objectDesc.getIntProperty(prefix+"MajorsPerLabel", None))
+        setattr(self, prefix+"MinorsPerMajor", objectDesc.getIntProperty(prefix+"MinorsPerMajor", None))
+        setattr(self, prefix+"ShowLabelGrid", objectDesc.getIntProperty(prefix+"ShowLabelGrid", None))
+        setattr(self, prefix+"ShowMajorGrid", objectDesc.getIntProperty(prefix+"ShowMajorGrid", None))
+        setattr(self, prefix+"ShowMinorGrid", objectDesc.getIntProperty(prefix+"ShowMinorGrid", None))
 
     # NOTE: none of these callbacks, with the exception of 'redisplay' should
     # do anything that would cause the screen to redraw. Instead, the call

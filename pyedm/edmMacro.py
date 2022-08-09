@@ -1,10 +1,9 @@
 from __future__ import print_function
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
-from builtins import object
 from pyedm.edmApp import edmApp
 import re
 
-class macroDictionary(object):
+class macroDictionary:
     idno = 0
     def __init__(self, parent=None):
         self.macroTable = {}

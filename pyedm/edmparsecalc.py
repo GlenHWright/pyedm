@@ -10,14 +10,13 @@ from __future__ import print_function
 #
 
 from builtins import range
-from builtins import object
 from pyedm.edmparsetable import *
 import re
 import math
 
 opchars = "(!=|#|%|&&|&|\)|\*|\*\*|\+|,|-|/|:|:=|;|<<|<=|<|==|=|>=|>>|>|\?|\^|\|\||\||\()"
 
-class Postfix(object):
+class Postfix:
     def __init__(self, expr=None):
         self.DebugFlag = False
         if expr != None:

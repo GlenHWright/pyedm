@@ -8,7 +8,6 @@
 #     Use up/down or just up (selected by continuous)
 
 from builtins import range
-from builtins import object
 import pyedm.edmDisplay as edmDisplay
 from pyedm.edmApp import redisplay
 from pyedm.edmWidget import edmWidget
@@ -20,7 +19,7 @@ from PyQt5.QtWidgets import QWidget, QFrame, QScrollArea
 from PyQt5.QtGui import QPalette, QPainter
 
 # Placeholder for widget list.
-class symbolState(object):
+class symbolState:
     def __init__(self, stateno):
         self.stateNo = stateno
 
@@ -37,18 +36,18 @@ class activeDynSymbolClass(AbstractSymbolClass):
         self.pvItem["gateDownPv"] = ["gateDownName", "gateDownPV", 0, self.onGateDown, self, self.onGateDownConnect, None]
         self.useGate = False
 
-    def buildFromObject(self, object):
-        AbstractSymbolClass.buildFromObject(self,object)
-        self.file = object.getStringProperty("file", None)
-        self.useGate = object.getIntProperty("useGate",0)
-        self.gateUpValue = object.getDoubleProperty("gateUpValue", 0.0)
-        self.gateDownValue = object.getDoubleProperty("gateDownValue", 1.0)
-        self.continuous = object.getIntProperty("continuous", False)
-        self.rate = object.getDoubleProperty("rate", 0.0)
-        self.numStates = object.getIntProperty("numStates", None)
-        self.initialIndex = object.getIntProperty("initialIndex", None)
-        self.showOOBState = object.getIntProperty("showOOBState", None)
-        self.gateOnMouseOver = object.getIntProperty("gateOnMouseOver", None)
+    def buildFromObject(self, objectDesc):
+        AbstractSymbolClass.buildFromObject(self,objectDesc)
+        self.file = objectDesc.getStringProperty("file", None)
+        self.useGate = objectDesc.getIntProperty("useGate",0)
+        self.gateUpValue = objectDesc.getDoubleProperty("gateUpValue", 0.0)
+        self.gateDownValue = objectDesc.getDoubleProperty("gateDownValue", 1.0)
+        self.continuous = objectDesc.getIntProperty("continuous", False)
+        self.rate = objectDesc.getDoubleProperty("rate", 0.0)
+        self.numStates = objectDesc.getIntProperty("numStates", None)
+        self.initialIndex = objectDesc.getIntProperty("initialIndex", None)
+        self.showOOBState = objectDesc.getIntProperty("showOOBState", None)
+        self.gateOnMouseOver = objectDesc.getIntProperty("gateOnMouseOver", None)
 
         self.statelist = [ symbolState(idx) for idx in range(0,self.numStates) ]
         self.buildStateObjects(self.file)

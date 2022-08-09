@@ -26,14 +26,14 @@ class activeBarClass(QProgressBar,edmWidget):
         self.setTextVisible(0)
 
     def showScale(self):    # this method should be over-ridden.
-        return self.object.getIntProperty("showScale", 0)
+        return self.objectDesc.getIntProperty("showScale", 0)
 
-    def buildFromObject(self, object):
-        edmWidget.buildFromObject(self,object)
-        self.orientation = self.object.getStringProperty("orientation", "horizontal")
-        self.displayLimits = self.object.getIntProperty("limitsFromDb", 0)
-        self.objMin = self.object.getDoubleProperty(self.minField, None)
-        self.objMax = self.object.getDoubleProperty(self.maxField, None)
+    def buildFromObject(self, objectDesc):
+        edmWidget.buildFromObject(self,objectDesc)
+        self.orientation = self.objectDesc.getStringProperty("orientation", "horizontal")
+        self.displayLimits = self.objectDesc.getIntProperty("limitsFromDb", 0)
+        self.objMin = self.objectDesc.getDoubleProperty(self.minField, None)
+        self.objMax = self.objectDesc.getDoubleProperty(self.maxField, None)
         if self.orientation == "vertical" or self.orientation == "0":
             self.setOrientation(QtCore.Qt.Vertical)
         if self.showScale():

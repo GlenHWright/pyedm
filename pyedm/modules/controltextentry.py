@@ -28,8 +28,8 @@ class TextentryClass(TextupdateClass):
     def findFgColor(self):
         edmWidget.findFgColor( self, palette=(QPalette.Text,))
 
-    def buildFromObject(self, object):
-        TextupdateClass.buildFromObject(self, object)
+    def buildFromObject(self, objectDesc):
+        TextupdateClass.buildFromObject(self, objectDesc)
         self.setReadOnly(0) # override the  "display only" settings
         self.setFocusPolicy(Qt.StrongFocus)
         self.setFrame(1)    # override the  "display only" settings

@@ -20,13 +20,13 @@ class abstractShape(QFrame, edmWidget):
         try: self.fillColorInfo.cleanup()
         except: pass
 
-    def buildFromObject(self, object):
-        edmWidget.buildFromObject(self, object)
-        self.linewidth = object.getIntProperty("lineWidth", 1)
+    def buildFromObject(self, objectDesc):
+        edmWidget.buildFromObject(self, objectDesc)
+        self.linewidth = objectDesc.getIntProperty("lineWidth", 1)
 
     def findFgColor(self):
         self.lineColorInfo = self.findColor("lineColor", (), "alarmPV", "lineAlarm")
-        if self.object.getIntProperty("fill", 0) == 0:
+        if self.objectDesc.getIntProperty("fill", 0) == 0:
             self.fillColorInfo = None
         else:
             self.fillColorInfo = self.findColor("fillColor", (), "fillAlarm", "fillAlarm")

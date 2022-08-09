@@ -26,25 +26,25 @@ class relatedDisplayClass(QPushButton,edmWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-    def buildFromObject(self, object):
-        edmWidget.buildFromObject(self,object)
+    def buildFromObject(self, objectDesc):
+        edmWidget.buildFromObject(self,objectDesc)
         self.update()
-        name = self.object.getStringProperty("buttonLabel", None)
+        name = self.objectDesc.getStringProperty("buttonLabel", None)
         if name != None:
             self.setText(self.macroExpand(name))
-        if self.object.getIntProperty("invisible",0) == 1:
+        if self.objectDesc.getIntProperty("invisible",0) == 1:
             self.transparent = 1
             self.setFlat(1)
                                             
-        numDsps = self.object.getIntProperty("numDsps", "0")
+        numDsps = self.objectDesc.getIntProperty("numDsps", "0")
         
         if numDsps == 0:
             print("relatedDisplayClass: no files to display")
             return
-        self.filelist = self.object.decode("displayFileName",count=numDsps)
-        self.poslist = self.object.decode("setPosition",count=numDsps)
-        self.menulist = self.object.decode("menuLabel",count=numDsps)
-        self.symbollist = self.object.decode("symbols",count=numDsps)
+        self.filelist = self.objectDesc.decode("displayFileName",count=numDsps)
+        self.poslist = self.objectDesc.decode("setPosition",count=numDsps)
+        self.menulist = self.objectDesc.decode("menuLabel",count=numDsps)
+        self.symbollist = self.objectDesc.decode("symbols",count=numDsps)
 
         self.filename = [ self.macroExpand(filename) for filename in self.filelist]
         self.generated = [ None for idx in range(0, len(self.filename))]

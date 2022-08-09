@@ -62,13 +62,13 @@ class activePipClass(QScrollArea,edmWidget):
         edmWidget.cleanup(scrollable)
         edmWidget.cleanup(self)
 
-    def buildFromObject(self, object):
-        object.tagValue["bgColor"] = "builtin:transparent"  # edm PIP uses parent's background color.
-        edmWidget.buildFromObject(self, object,attr=None)
+    def buildFromObject(self, objectDesc):
+        objectDesc.tagValue["bgColor"] = "builtin:transparent"  # edm PIP uses parent's background color.
+        edmWidget.buildFromObject(self, objectDesc,attr=None)
 
         self.scrollable = scrolledWidget(self)
-        self.displaySource = object.getStringProperty("displaySource", "stringPV")
-        self.numDsps = object.getIntProperty("numDsps", 0)
+        self.displaySource = objectDesc.getStringProperty("displaySource", "stringPV")
+        self.numDsps = objectDesc.getIntProperty("numDsps", 0)
         if self.displaySource in buildPipList:
             getattr(self,buildPipList[self.displaySource])()
 
@@ -101,14 +101,14 @@ class activePipClass(QScrollArea,edmWidget):
         self.scrollable.update()
 
     def buildPipFile(self):
-        self.setupScreen( self.macroExpand(self.object.getStringProperty("file")), self.findMacroTable())
+        self.setupScreen( self.macroExpand(self.objectDesc.getStringProperty("file")), self.findMacroTable())
 
     def buildPipMenu(self):
         '''build screens based on a menu selection'''
-        self.filenames = self.object.decode("displayFileName",self.numDsps, "")
+        self.filenames = self.objectDesc.decode("displayFileName",self.numDsps, "")
         if self.filenames == None:
             return
-        self.symbollist = self.object.decode("symbols",self.numDsps, "")
+        self.symbollist = self.objectDesc.decode("symbols",self.numDsps, "")
         basemt = self.findMacroTable()
         self.filenames = [ basemt.expand(fn) for fn in self.filenames]
         if self.symbollist == None:

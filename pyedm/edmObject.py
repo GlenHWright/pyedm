@@ -1,6 +1,5 @@
 from __future__ import print_function
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
-from builtins import object
 from pyedm.edmApp import edmApp
 import pyedm.edmColors as edmColors
 import pyedm.edmFont as edmFont
@@ -10,7 +9,7 @@ import pyedm.edmFont as edmFont
 # All properties from the data file are stored in the dictionary 'self.tagValue'
 # self.tagType can be used for special cases (edm does this, I'm not sure
 # python needs it
-class edmObject(object):
+class edmObject:
     def __init__(self, parent=None):
         self.tagValue = {}
         self.tagType = {}

@@ -19,12 +19,12 @@ class activeGroupClass(edmWindowWidget, edmWidget):
         self.buttonInterest = []
         edmWidget.cleanup(self)
 
-    def buildFromObject(self, object):
-        edmWidget.buildFromObject(self, object)
-        self.parentx = object.getIntProperty("x")
-        self.parenty = object.getIntProperty("y")
+    def buildFromObject(self, objectDesc):
+        edmWidget.buildFromObject(self, objectDesc)
+        self.parentx = objectDesc.getIntProperty("x")
+        self.parenty = objectDesc.getIntProperty("y")
         self.macroTable = getattr(self.edmParent, "macroTable", None)
-        edmDisplay.generateWidget(self.object, self)
+        edmDisplay.generateWidget(self.objectDesc, self)
         # Unknown level of nesting, so the assumption is made that
         # this widget could contain something that would like
         # a mouse message

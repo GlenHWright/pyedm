@@ -20,9 +20,9 @@ class messageBoxClass(QWidget,edmWidget):
         super().__init__(parent)
         self.pvItem["indicatorPv"] = [ "PVname", "pv", 1, None, None ]
 
-    def buildFromObject(self, object):
-        self.object = object
-        edmWidget.buildFromObject(self, object)
+    def buildFromObject(self, objectDesc):
+        self.objectDesc = objectDesc
+        edmWidget.buildFromObject(self, objectDesc)
         self.clearButton = QPushButton("Clear", self)
         self.line = QTextEdit(self)
         #self.clearButton.connect(self.clearButton, SIGNAL("clicked()"), self.clear)

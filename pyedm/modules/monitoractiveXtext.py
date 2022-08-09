@@ -24,18 +24,18 @@ class activeXTextDspClass_noedit(QLineEdit,edmWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-    def buildFromObject(self, object):
-        edmWidget.buildFromObject(self,object)
+    def buildFromObject(self, objectDesc):
+        edmWidget.buildFromObject(self,objectDesc)
         self.setReadOnly(1)
         self.setFocusPolicy(Qt.NoFocus)
         self.setFrame(0)
-        if object.getIntProperty("major") == 2:
-            self.formatType = [ "default", "float", "exponential", "decimal", "hex", "string" ] [ object.getIntProperty("format", 0) ]
+        if objectDesc.getIntProperty("major") == 2:
+            self.formatType = [ "default", "float", "exponential", "decimal", "hex", "string" ] [ objectDesc.getIntProperty("format", 0) ]
         else:
-            self.formatType = object.getStringProperty("format", "default")
-        self.precision = object.getEfIntProperty("precision", 3)
-        self.showUnits = object.getIntProperty("showUnits", 0)
-        self.limitsFromDb = object.getIntProperty("limitsFromDb", 0)
+            self.formatType = objectDesc.getStringProperty("format", "default")
+        self.precision = objectDesc.getEfIntProperty("precision", 3)
+        self.showUnits = objectDesc.getIntProperty("showUnits", 0)
+        self.limitsFromDb = objectDesc.getIntProperty("limitsFromDb", 0)
 
     def findFgColor(self):
         edmWidget.findFgColor( self, palette=(QPalette.Text,))

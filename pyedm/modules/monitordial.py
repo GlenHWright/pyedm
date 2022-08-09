@@ -24,11 +24,11 @@ class activeMeterClass(QAbstractSlider,edmWidget):
         self.pvItem["readPv"] = [ "PVname", "pv", 1 ]
         self.readV = 0.0
 
-    def buildFromObject(self, object):
-        edmWidget.buildFromObject(self,object)
-        self.scaleFont = self.object.getFontProperty("scaleFontTag", "helvetica-18")
-        self.useDbLimits = self.object.checkProperty("scaleLimitsFromDb")
-        self.showScale  = self.object.checkProperty("showScale")
+    def buildFromObject(self, objectDesc):
+        edmWidget.buildFromObject(self,objectDesc)
+        self.scaleFont = self.objectDesc.getFontProperty("scaleFontTag", "helvetica-18")
+        self.useDbLimits = self.objectDesc.checkProperty("scaleLimitsFromDb")
+        self.showScale  = self.objectDesc.checkProperty("showScale")
 
     def getMinMax(self):
         # if useDbLimits is True, then get Db scale limits and return that.
@@ -38,8 +38,8 @@ class activeMeterClass(QAbstractSlider,edmWidget):
                 return mymin, mymax
             except: pass
 
-        mymin = self.object.getDoubleProperty("scaleMin", 0.0)
-        mymax = self.object.getDoubleProperty("scaleMax", 0.0)
+        mymin = self.objectDesc.getDoubleProperty("scaleMin", 0.0)
+        mymax = self.objectDesc.getDoubleProperty("scaleMax", 0.0)
         if mymin == mymax:
             return ( 0.0, 1.0)
         return (mymin, mymax)
@@ -64,7 +64,7 @@ class activeMeterClass(QAbstractSlider,edmWidget):
         painter.setPen(QtCore.Qt.black )
         painter.drawRect( 0, 0, self.width()-1, self.height()-1)
         #
-        mta = math.radians(self.object.getDoubleProperty("meterAngle", 180.0) )
+        mta = math.radians(self.objectDesc.getDoubleProperty("meterAngle", 180.0) )
         fm = painter.fontMetrics()
         caseWidth = 5   # number of pixels width of rectangular border around dial
         #faceX = self.x() + caseWidth
@@ -73,13 +73,13 @@ class activeMeterClass(QAbstractSlider,edmWidget):
         faceY = caseWidth
         faceW = self.width() - 2*caseWidth
         faceH = self.height() - 2*caseWidth
-        if "label" in self.object.tagValue:
+        if "label" in self.objectDesc.tagValue:
             faceH = faceH + caseWidth - 4 - fm.ascent()
-        scalePrecision = self.object.getIntProperty("scalePrecision", 0)
+        scalePrecision = self.objectDesc.getIntProperty("scalePrecision", 0)
         if scalePrecision > 10 or scalePrecision < 0 :
             scalePrecision = 1
         
-        scaleFormat = self.object.getStringProperty("scaleFormat", "Float")
+        scaleFormat = self.objectDesc.getStringProperty("scaleFormat", "Float")
         if scaleFormat == "GFloat":
             fmt = "g"
         elif scaleFormat == "Exponential":
@@ -96,7 +96,7 @@ class activeMeterClass(QAbstractSlider,edmWidget):
 
 
         # calculate the biggest scale width needed
-        interval = self.object.getDoubleProperty("labelIntervals", 1.0)
+        interval = self.objectDesc.getDoubleProperty("labelIntervals", 1.0)
         incr = max( (maxval-minval)/interval, 1.0)
         scaleWidth = self.checkWidth(fm, scaleMinStr, 0)
         scaleWidth = self.checkWidth(fm, scaleMaxStr, scaleWidth)
@@ -126,7 +126,7 @@ class activeMeterClass(QAbstractSlider,edmWidget):
 
         # erase the dial area
         # draw a label
-        label = self.object.getStringProperty("label")
+        label = self.objectDesc.getStringProperty("label")
         if label != None:
             painter.drawText( faceX+2, faceY + faceH + fm.ascent()-2, label)
         # painter.setPen(background color)
@@ -136,7 +136,7 @@ class activeMeterClass(QAbstractSlider,edmWidget):
         line = self.getPoints(center, min( max(beginAngle + mta *(1.0
             -((self.readV-minval)/(maxval-minval))), beginAngle), endAngle),
             0.98*insideArc, 0.0)
-        if self.object.getIntProperty("complexNeedle", 0) == 0:
+        if self.objectDesc.getIntProperty("complexNeedle", 0) == 0:
             painter.drawLine(line[0], line[1] )
         else:
             poly = QPolygon()
@@ -149,15 +149,15 @@ class activeMeterClass(QAbstractSlider,edmWidget):
             painter.drawPolygon(poly)
 
         # if showScale not set, don't draw any more
-        if self.object.getIntProperty("showScale",1) == 0:
+        if self.objectDesc.getIntProperty("showScale",1) == 0:
             return
 
         # label the major tick marks,
         # draw the tick marks
         if interval > 0.0:
             lai = mta/interval # label angle increment
-            mjai = lai/ max(0.1, self.object.getDoubleProperty("majorIntervals", 5.0) )    # major angle increment
-            miai = mjai/ max(0.1, self.object.getDoubleProperty("minorIntervals", 2.0) )   # minor angle increment
+            mjai = lai/ max(0.1, self.objectDesc.getDoubleProperty("majorIntervals", 5.0) )    # major angle increment
+            miai = mjai/ max(0.1, self.objectDesc.getDoubleProperty("minorIntervals", 2.0) )   # minor angle increment
             labelVal = maxval
             la = beginAngle
             while la <= endAngle:

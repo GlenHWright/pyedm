@@ -20,8 +20,8 @@ class activeRadioButtonClass(QWidget,edmWidget):
         self.group = QButtonGroup(self)
         self.pvItem["controlPv"] = [ "controlName", "controlPV", 1, None, None, onConnect, (self, "controlPv") ]
 
-    def buildFromObject(self, object):
-        edmWidget.buildFromObject(self,object)
+    def buildFromObject(self, objectDesc):
+        edmWidget.buildFromObject(self,objectDesc)
         self.group.buttonClicked.connect(self.gotNewValue)
 
         self.buttonInterest = []

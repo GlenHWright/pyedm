@@ -27,24 +27,24 @@ class activeXTextClass(QWidget,edmWidget):
     def findBgColor(self):
         edmWidget.findBgColor(self, palette=(QPalette.Base,) )
 
-    def buildFromObject(self, object):
-        edmWidget.buildFromObject(self,object)
+    def buildFromObject(self, objectDesc):
+        edmWidget.buildFromObject(self,objectDesc)
 
-        if self.object.checkProperty("value") == False:
+        if self.objectDesc.checkProperty("value") == False:
             value = [ "" ]
-        elif self.object.getIntProperty("major", 0) < 4:
+        elif self.objectDesc.getIntProperty("major", 0) < 4:
             # EDM V3 format has a single string with embedded newlines encoded as '\n'
-            value = [ self.macroExpand(val) for val in self.object.getStringProperty("value").split('\\n') ]
+            value = [ self.macroExpand(val) for val in self.objectDesc.getStringProperty("value").split('\\n') ]
         else:
             # EDM V4 has multiple strings, 1 per line.
-            value = [ self.macroExpand(val) for val in self.object.decode("value",isString=True)]
+            value = [ self.macroExpand(val) for val in self.objectDesc.decode("value",isString=True)]
 
-        self.qtlayout = QTextLayout( '\n'.join(value), self.object.getFontProperty("font") )
+        self.qtlayout = QTextLayout( '\n'.join(value), self.objectDesc.getFontProperty("font") )
         fm = QFontMetrics(self.qtlayout.font())
-        border = self.object.getIntProperty("border", 0)
-        autoSize = self.object.getIntProperty("autoSize", 0) 
-        lineWidth = self.object.getIntProperty("lineWidth", 0) 
-        align = self.object.getStringProperty("fontAlign", "None")
+        border = self.objectDesc.getIntProperty("border", 0)
+        autoSize = self.objectDesc.getIntProperty("autoSize", 0) 
+        lineWidth = self.objectDesc.getIntProperty("lineWidth", 0) 
+        align = self.objectDesc.getStringProperty("fontAlign", "None")
         # Find new box size.
         if autoSize:
             max = -1

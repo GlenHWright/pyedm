@@ -21,17 +21,17 @@ class TextupdateClass(QLineEdit,edmWidget):
         super().__init__(parent)
         self.haveFocus = 0
 
-    def buildFromObject(self, object):
-        edmWidget.buildFromObject(self, object)
+    def buildFromObject(self, objectDesc):
+        edmWidget.buildFromObject(self, objectDesc)
         self.setReadOnly(1)
         self.setFrame(0)
         self.setFocusPolicy(Qt.NoFocus)
-        self.precision = self.object.getEfIntProperty("precision", 0)
-        if self.object.getIntProperty("major") == 7:    # V3 data
-            dm = self.object.getIntProperty("displayMode", 0)
+        self.precision = self.objectDesc.getEfIntProperty("precision", 0)
+        if self.objectDesc.getIntProperty("major") == 7:    # V3 data
+            dm = self.objectDesc.getIntProperty("displayMode", 0)
             self.displayMode = [ "default", "decimal", "hex", "engineer", "exp"] [dm]
         else:
-            self.displayMode = self.object.getStringProperty("displayMode", "default")
+            self.displayMode = self.objectDesc.getStringProperty("displayMode", "default")
 
     # unfortunately, TextupdateClass has its own configuration for
     # determining background color (use parent the default, unless

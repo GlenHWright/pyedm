@@ -24,13 +24,13 @@ class activeSliderClass(QSlider, edmWidget):
         self.pvItem["controlPv"] = [ "controlName", "controlPV", 0]
         self.minField, self.maxField = "scaleMin", "scaleMax"
 
-    def buildFromObject(self, object):
-        edmWidget.buildFromObject(self,object,attr=None)
+    def buildFromObject(self, objectDesc):
+        edmWidget.buildFromObject(self,objectDesc,attr=None)
         self.findReadonly()
-        self.orientation = self.object.getStringProperty("orientation", "horizontal")
-        self.displayLimits = self.object.getIntProperty("limitsFromDb", 0)
-        self.objMin = self.object.getDoubleProperty(self.minField, None)
-        self.objMax = self.object.getDoubleProperty(self.maxField, None)
+        self.orientation = self.objectDesc.getStringProperty("orientation", "horizontal")
+        self.displayLimits = self.objectDesc.getIntProperty("limitsFromDb", 0)
+        self.objMin = self.objectDesc.getDoubleProperty(self.minField, None)
+        self.objMax = self.objectDesc.getDoubleProperty(self.maxField, None)
         if self.orientation == "vertical":
             self.setOrientation(Qt.Vertical)
         else:
@@ -51,7 +51,7 @@ class activeSliderClass(QSlider, edmWidget):
         self.valueChanged.connect(self.gotNewValue)
         # if we have a controlPv, but no indicatorPv in the tags list, try and
         # make the indicatorPv (from activeBarClass) the same as the controlPv
-        if hasattr(self, "controlPV") and "indicatorPv" not in self.object.tagValue:
+        if hasattr(self, "controlPV") and "indicatorPv" not in self.objectDesc.tagValue:
             self.pvSet( self.controlName, "indicatorPv")
             self.indicatorPV.add_callback(self.setDisplayLimits, None)
         self.edmParent.buttonInterest.append(self)

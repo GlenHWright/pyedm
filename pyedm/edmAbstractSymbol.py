@@ -31,9 +31,6 @@ class AbstractSymbolClass(QFrame,edmWidget):
         self.buttonInterest = []
         self.edmParent.buttonInterest.append(self)
 
-    def buildFromObject(self, object):
-        edmWidget.buildFromObject(self, object)
-
     def buildStateObjects(self, filename, macroTable=None):
         self.edmScreen = edmScreen(filename, macroTable, self.findDataPaths() )
         # build a list of items from the file

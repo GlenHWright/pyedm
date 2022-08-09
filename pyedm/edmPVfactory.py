@@ -5,10 +5,9 @@ from __future__ import print_function
 #
 from builtins import str
 from builtins import range
-from builtins import object
 import traceback
 
-class edmPVbase(object):
+class edmPVbase:
     typeNames = [ "unknown", "int", "float", "string", "enum" ]
     typeUnknown, typeInt, typeFloat, typeString, typeEnum = list(range(0,5))
     def __init__(self, name=None, connectCallback=None, connectCallbackArg=None, *args, **kw):

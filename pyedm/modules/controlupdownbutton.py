@@ -26,16 +26,16 @@ class updownButtonClass(QWidget, edmWidget):
         self.edmParent.buttonInterest.append(self)
         self.pvItem["savedValuePv"] = [ "savedValueName", "savedValuePV", 0 ]
 
-    def buildFromObject(self, object):
-        edmWidget.buildFromObject(self,object)
-        self.invisible = object.getIntProperty("invisible", 0)
-        self.label = self.macroExpand( object.getStringProperty("label", ""))
-        self.coarseValue = object.getDoubleProperty("coarseValue", 0.0 )
-        self.fineValue = object.getDoubleProperty("fineValue", 0.0 )
-        self.rate = object.getDoubleProperty("rate", 0.0)
-        self.dbLimits = object.getIntProperty("limitsFromDb", 0)
-        self.scaleMin = object.getDoubleProperty("scaleMin", 0.0)
-        self.scaleMax = object.getDoubleProperty("scaleMax", 0.0)
+    def buildFromObject(self, objectDesc):
+        edmWidget.buildFromObject(self,objectDesc)
+        self.invisible = objectDesc.getIntProperty("invisible", 0)
+        self.label = self.macroExpand( objectDesc.getStringProperty("label", ""))
+        self.coarseValue = objectDesc.getDoubleProperty("coarseValue", 0.0 )
+        self.fineValue = objectDesc.getDoubleProperty("fineValue", 0.0 )
+        self.rate = objectDesc.getDoubleProperty("rate", 0.0)
+        self.dbLimits = objectDesc.getIntProperty("limitsFromDb", 0)
+        self.scaleMin = objectDesc.getDoubleProperty("scaleMin", 0.0)
+        self.scaleMax = objectDesc.getDoubleProperty("scaleMax", 0.0)
         self.waitRepeat = 0
         self.incr = 0.0
         self.timerID = None
