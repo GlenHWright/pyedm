@@ -9,8 +9,6 @@ from PyQt5.QtCore import Qt
 
 class abstractShape(QFrame, edmWidget):
     def __init__(self, parent=None, **kwargs):
-	# cannot use super() here - QFrame is called first with optional positional arguments.
-	# The amount of work to justify super() isn't realistic
         super().__init__(parent, **kwargs)
 
     def cleanup(self):
