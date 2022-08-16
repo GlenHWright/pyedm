@@ -116,6 +116,7 @@ class activeMeterClass(QAbstractSlider,edmWidget):
             needlePlusScale = vertNeedlePlusScale
         else:
             needlePlusScale = horizNeedlePlusScale
+            visibleFraction = 1 # find out what this really should be
             ve = visibleFraction * needlePlusScale + fm.ascent() + 12
             if 1.1*ve < faceH:
                 faceH = int(ve)

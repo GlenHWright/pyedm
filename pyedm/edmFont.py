@@ -6,7 +6,7 @@
 # convert this for use with QFontDatabase lookup
 
 from builtins import str
-from PyQt5.QtGui import QFontDatabase,QFont
+from PyQt5.QtGui import QFontDatabase,QFont,QFontInfo
 #from PyQt5.QtCore import str
 
 mapPointSize = [ 0,  1,  2,  3,  4,  5,  6,  6,  7,  8,
@@ -33,6 +33,9 @@ def GenericGetFont(fontName):
     # font.setWordSpacing(-1)
     if pointsize > 11:
         font.setLetterSpacing(QFont.PercentageSpacing, 90.0)
+
+    fi = QFontInfo(font)
+    print(f"request {fontName}, use {fi.family()} {fi.pointSize()} {fi.weight()} {fi.bold()}")
 
     edmFontTable[fontName] = font
     return font

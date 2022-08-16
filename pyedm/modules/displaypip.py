@@ -74,6 +74,7 @@ class activePipClass(QScrollArea,edmWidget):
 
     def setupScreen(self, filename, mt):
         '''setupScreen is called each time a file is selected for display'''
+        print(f"pip opening {filename}")
         self.scr = edmScreen( filename, mt, self.findDataPaths() )
         if len(self.scr.objectList) == 0:
             return

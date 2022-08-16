@@ -46,8 +46,10 @@ class oneRule:
         
 class colorRule:
     invisible = QColor(0,0,0,0)
-    def __init__(self):
+    def __init__(self, name="", numeric=-1):
         self.ruleList = []
+        self.name = name
+        self.numeric = numeric
 
     # add a rule for this color name
     def addRule(self, value=0.0, op=oneRule.NO_OP, color = None, blinkColor=None, left=None, right=None):
@@ -59,15 +61,15 @@ class colorRule:
         try:
             value = float(value)
         except:
-            print("unable to convert", value, "to float")
+            print(f"unable to convert {value} to float for {self.numeric} aka {self.name}")
             return defColor
         for rule in self.ruleList:
             if rule.truthTest(value):
                 if rule.color == None:
-                    print("...using default color (none set). value=", value)
+                    print(f"...using default color (none set). value={value} color name={self.name} index={self.numeric}")
                     return defColor
                 return rule.color
-        print("...using default color (no match), value=", value)
+        print(f"...using default color (no match), value={value} color name={self.name} index={self.numeric}")
         return defColor
 
 class edmColor:
@@ -105,7 +107,7 @@ class edmColor:
         self.addBuiltin( "builtin:transparent", 0, 0, 0, 0)
 
     def addBuiltin(self, name, r, g, b, a=255):
-        self.builtin[name] = colorRule()
+        self.builtin[name] = colorRule(name=name)
         self.builtin[name].addRule( 0.0, oneRule.DEFAULT, QColor( r, g, b, a) )
 
     def buildRule(self, buildList, rule, start):
@@ -277,7 +279,7 @@ class edmColor:
             return None
         if numeric == None:     # want to create, but no numeric value given
             return None
-        cr = colorRule()
+        cr = colorRule(name=name,numeric=numeric)
         self.colorNames[name] = cr
         self.colorIndex[numeric] = name
         return cr

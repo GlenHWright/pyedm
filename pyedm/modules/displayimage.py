@@ -6,6 +6,7 @@ from __future__ import print_function
 
 import pyedm.edmDisplay as edmDisplay
 import os
+from pathlib import Path
 from pyedm.edmApp import edmApp
 from pyedm.edmWidget import edmWidget
 from pyedm.edmAbstractShape import abstractShape
@@ -32,12 +33,12 @@ class activeImageClass(abstractShape):
                 if fn.startswith(remap[0]):
                     fn = fn.replace(remap[0], remap[1], 1)
 
-            try:
-                os.stat(fn)
-                self.image = QImage(fn)
+            for suffix in [ "", ".png", ".gif" ] :
+                if Path(fn + suffix).is_file():
+                    self.image = QImage(fn)
+                    break
+            if self.image != None:
                 break
-            except OSError:
-                pass
 
         if self.image == None:
             print("file not found", self.filename, "in", edmApp.dataPaths, "last tried:", fn)
