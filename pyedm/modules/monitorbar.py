@@ -36,6 +36,10 @@ class activeBarClass(QProgressBar,edmWidget):
         self.objMax = self.objectDesc.getDoubleProperty(self.maxField, None)
         if self.orientation == "vertical" or self.orientation == "0":
             self.setOrientation(QtCore.Qt.Vertical)
+            self.pixelCount = self.objectDesc.getIntProperty("h")
+        else:
+            self.pixelCount = self.objectDesc.getIntProperty("w")
+
         if self.showScale():
             pass
         self.fixRange(0.0, 100.0)
@@ -56,16 +60,17 @@ class activeBarClass(QProgressBar,edmWidget):
         if limits[0] < limits[1]:
             self.fixRange( limits[0], limits[1] )
 
-    def fixRange(self, min, max):
-        self.rmin = min
-        self.rmax = max
-        self.rscale = 100.0/(max-min)
+    def fixRange(self, minval, maxval):
+        self.rmin = minval
+        self.rmax = maxval
+        self.rscale = self.pixelCount/(maxval-minval)
+        self.setRange(minval*self.rscale, maxval*self.rscale)
+        print(f"fixRange rmin:{self.rmin} rmax:{self.rmax} rscale:{self.rscale}")
 
     def redisplay(self, *kw):
         self.checkVisible()
-        newval = int( (self.indicatorPV.value-self.rmin) * self.rscale)
-        if self.DebugFlag > 0:  print("activeBarClass  newval:", newval, "min:", self.rmin, "max:", self.rmax, "scale:", self.rscale)
-        if self.value() != newval:
-            self.setValue( newval)
+        newval = int( (self.indicatorPV.value) * self.rscale)
+        if True or self.DebugFlag > 0:  print("activeBarClass  newval:", newval, "min:", self.rmin, "max:", self.rmax, "scale:", self.rscale)
+        self.setValue( newval)
 
 edmDisplay.edmClasses["activeBarClass"] = activeBarClass
