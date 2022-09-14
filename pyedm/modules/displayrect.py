@@ -24,6 +24,14 @@ class activeRectangleClass(abstractShape):
     def __init__(self, parent=None):
         super().__init__(parent)
 
+    def buildFromObject(self, objectDesc):
+        abstractShape.buildFromObject(self, objectDesc)
+        if self.fillColorInfo == None:
+            w2 = self.linewidth
+            w = int(self.linewidth//2)
+            self.setGeometry(self.x()-w, self.y()-w,
+                self.width()+w2, self.height()+w2)
+            
     def paintEvent(self, event=None):
         painter = QPainter(self)
         w,h = self.width(), self.height()
@@ -34,14 +42,15 @@ class activeRectangleClass(abstractShape):
         pen.setColor( self.lineColorInfo.setColor())
         pen.setWidth(self.linewidth)
         painter.setPen(pen)
+        if self.DebugFlag > 0 : print("paintRect ", x, y, w, h, self.linewidth, self.fillColorInfo != None)
         if self.fillColorInfo != None:
             painter.setBrush( self.fillColorInfo.setColor() )
+            painter.drawRect( x, y, w, h)
         else:
-            x,y = x+self.linewidth, y+self.linewidth
-            w,h = w-self.linewidth*4, h-self.linewidth*4
-            
-        if self.DebugFlag > 0 : print("paintRect ", x, y, w, h, self.linewidth, self.fillColorInfo != None)
-        painter.drawRect( x, y, w, h)
+            #w,h = w-self.linewidth, h-self.linewidth
+            lw = self.linewidth
+            hlw = int(lw//2)
+            painter.drawRect( x+hlw, y+hlw, w-lw, h-lw)
         
 edmDisplay.edmClasses["activeRectangleClass"] = activeRectangleClass
 

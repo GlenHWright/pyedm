@@ -177,12 +177,23 @@ class edmWidget(edmWidgetSupport):
             if hasattr(self, pvname):
                 delattr(self, pvname)
 
-    # Generic object creation
+    # Generic object creation.
+    # Note that this is almost always over-ridden, and almost always the right
+    # thing to do first. Most inheriting classes will over-ride, and then
+    # make an immediate call to 'edmWidget.buildFromObject()' (or super()).
     def buildFromObject(self, objectDesc, attr=Qt.WA_TransparentForMouseEvents):
         if self.DebugFlag > 0: print("buildFromObject", objectDesc)
-        self.setGeometry(objectDesc.getIntProperty("x")-1-self.edmParent.parentx,
-        objectDesc.getIntProperty("y")-1-self.edmParent.parenty,
-        objectDesc.getIntProperty("w")+2, objectDesc.getIntProperty("h")+2)
+        # C++ EDM often draws borders and such outside the specified widget geometries.
+        # items often need some adjustment. Although this was an attempt to have a
+        # generic resize that worked for all widgets, it works equally bad for all
+        # widgets. It should be removed from here and never spoken of again.
+        #adjxy = 1
+        #adjwh = 2
+        adjxy = 0
+        adjwh = 0
+        self.setGeometry(objectDesc.getIntProperty("x")-adjxy-self.edmParent.parentx,
+            objectDesc.getIntProperty("y")-adjxy-self.edmParent.parenty,
+            objectDesc.getIntProperty("w")+adjwh, objectDesc.getIntProperty("h")+adjwh)
         self.objectDesc = objectDesc
         if attr != None:
             self.setAttribute(attr)

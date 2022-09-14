@@ -16,6 +16,14 @@ class activeCircleClass(abstractShape):
     def __init__(self, parent=None):
         super().__init__(parent)
 
+    def buildFromObject(self, objectDesc):
+        abstractShape.buildFromObject(self, objectDesc)
+        w2 = self.linewidth
+        w = int(self.linewidth//2)
+
+        self.setGeometry(self.x(), self.y(),
+            self.width()+w2, self.height()+w2)
+
     def paintEvent(self, event=None):
         painter = QPainter(self)
         pen = painter.pen()
@@ -26,7 +34,9 @@ class activeCircleClass(abstractShape):
             painter.eraseRect(0, 0, self.width(), self.height() )
         if self.fillColorInfo != None:
             painter.setBrush( self.fillColorInfo.setColor() )
-        painter.drawEllipse( 0, 0, self.width()-2, self.height()-2 )
+        lw2 = self.linewidth
+        lw = int(lw2//2)
+        painter.drawEllipse( lw, lw, self.width()-lw2, self.height()-lw2 )
         
 edmDisplay.edmClasses["activeCircleClass"] = activeCircleClass
 

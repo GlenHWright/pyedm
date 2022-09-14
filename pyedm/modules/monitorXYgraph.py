@@ -11,7 +11,7 @@ from pyedm.edmApp import redisplay
 from pyedm.edmWidget import edmWidget
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPen, QPalette, QFontMetrics
+from PyQt5.QtGui import QPen, QPalette, QFontMetrics, QFontInfo, QPainter
 import pyqtgraph as pgraph
 # from Exceptions import AttributeError
 
@@ -136,34 +136,10 @@ class xyGraphClass(pgraph.PlotWidget, edmWidget):
         plotMode = objectDesc.getStringProperty("plotMode", "plotNPtsAndStop")   # plotNPtsAndStop, plotLastNPts (0, 1)
         xAxisTimeFormat = objectDesc.getStringProperty("xAxisTimeFormat", None) # 'seconds', 'dateTime'
         plotTitle = objectDesc.getStringProperty("graphTitle", "")
+        self.border = objectDesc.checkProperty("border")
         self.axisInfo("x", objectDesc)
         self.axisInfo("y", objectDesc)
         self.axisInfo("y2", objectDesc)
-        
-        # Grid - change this to be based on file settings
-        # grid = qwt.plot.QwtPlotGrid()
-        # grid.attach(self)
-        # grid.setPen(Qt.QPen(Qt.black, 0, Qt.DotLine))
-
-        # X-axis
-        self.showAxis("bottom")
-        if self.xLabel:
-            self.setLabel( "bottom", self.xLabel )
-
-        if self.xAxisSrc == "fromUser":
-            # print 'xAxisSrc=', self.xMin, self.xMax
-            self.setXRange(  self.xMin, self.xMax )
-
-        # Y-axis
-        self.showAxis( "left")
-        if self.yLabel:
-            self.setLabel( "left", self.yLabel )
-
-        if self.yAxisSrc == "fromUser":
-            self.setYRange( self.yMin, self.yMax )
-
-        # title
-        self.setTitle( plotTitle )
 
         self.numCurves = self.objectDesc.getIntProperty("numTraces", 0)
 
@@ -179,12 +155,77 @@ class xyGraphClass(pgraph.PlotWidget, edmWidget):
         plotColor= self.objectDesc.decode("plotColor", self.numCurves)              # 'index' and number
         lineThickness = self.objectDesc.decode("lineThickness", self.numCurves, 0)  # integers
         lineStyle= self.objectDesc.decode("lineStyle", self.numCurves, "solid")     # solid, dash
+
+        # Grid - change this to be based on file settings
+        # grid = qwt.plot.QwtPlotGrid()
+        # grid.attach(self)
+        # grid.setPen(Qt.QPen(Qt.black, 0, Qt.DotLine))
+
+        # X-axis
+        if self.showXAxis:
+            self.showAxis("bottom")
+            axis = self.getAxis("bottom")
+            axis.setPen(self.fgColorInfo.setColor())
+            axis.setTextPen(self.fgColorInfo.setColor())
+            #axis.setTickPen(self.gridColorInfo.setColor())
+            axis.setStyle( tickFont=self.edmFont, tickLength=10)
+
+            if self.xLabel:
+                self.setLabel( "bottom", self.xLabel )
+
+            if self.xAxisSrc == "fromUser":
+                # print 'xAxisSrc=', self.xMin, self.xMax
+                self.setXRange(  self.xMin, self.xMax, padding=0.0 )
+
+            if self.xShowLabelGrid:
+                self.showGrid(x=True)
+
+        # Y-axis
+        if self.showYAxis:
+            self.showAxis( "left")
+            axis = self.getAxis("left")
+            axis.setPen(self.fgColorInfo.setColor())
+            axis.setTextPen(self.fgColorInfo.setColor())
+            #axis.setTickPen( self.gridColorInfo.setColor())
+            axis.setStyle( tickFont=self.edmFont, tickLength=10)
+
+            if self.yLabel:
+                self.setLabel( "left", self.yLabel )
+
+            if self.yAxisSrc == "fromUser":
+                self.setYRange( self.yMin, self.yMax, padding=0.0 )
+
+            if self.yShowLabelGrid:
+                self.showGrid(y=True)
+
+        # Y2-axis
+        if self.showY2Axis:
+            # code copied from https://stackoverflow.com/questions/23679159/two-y-scales-in-pyqtgraph-twinx-like
+            y2 = pgraph.ViewBox()
+            self.scene().addItem(y2)
+            self.showAxis("right")
+            axis = self.getAxis("right")
+            axis.linkToView(y2)
+            axis.setPen(self.fgColorInfo.setColor())
+            axis.setTextPen(self.fgColorInfo.setColor())
+            axis.setStyle( tickFont=self.edmFont, tickLength=10)
+            axis.setGrid(False)     # both y2 and y grid makes a messy display
+            y2.setXLink(self.getViewBox())
+            if self.y2AxisSrc == "fromUser":
+                y2.setYRange( self.y2Min, self.y2Max, padding=0.0 )
+            self.y2 = y2
+
+        # title
+        self.setFont(self.edmFont)
+        fm = QFontInfo(self.edmFont)
+        args = { "color" : f"{self.fgColorInfo.setColor().name()}", "size" : f"{fm.pointSize()}", "bold" : fm.bold(), "italic" : fm.italic() }
+        self.setTitle( plotTitle, **args)
         #
         # Build the curves that will be used
         self.curves = []
         for idx in range(0, self.numCurves):
             if self.DebugFlag > 0 : print("Generating curve", idx)
-            curve =  self.plot(name=str(idx)+yPv[idx])
+            curve =  pgraph.PlotCurveItem(name=str(idx)+yPv[idx])
             self.curves.append( curve)
             # curve.attach(self)
             curve.yPvName = yPv[idx]
@@ -200,6 +241,10 @@ class xyGraphClass(pgraph.PlotWidget, edmWidget):
             curve.nPts = npts
             curve.edmXdata = collections.deque(maxlen=npts )
             curve.edmYdata = collections.deque( maxlen=npts )
+            if useY2Axis and useY2Axis[idx]:
+                y2.addItem(curve)
+            else:
+                self.addItem(curve)
             if self.DebugFlag > 0: print('xyPlotData build curve', curve.xPv, curve.yPv, curve.updateMode)
 
         self.xaxisInstance.setTickLabelMode(mode=self.xAxisStyle)
@@ -212,7 +257,6 @@ class xyGraphClass(pgraph.PlotWidget, edmWidget):
                 # self.axisScaleEngine( qwt.plot.QwtPlot.xBottom ).setAttribute( Qwt.QwtScaleEngine.Inverted )
                 # self.setAxisScaleDraw(qwt.plot.QwtPlot.xBottom, TimeScaleDraw(time.time()))
 
-        print(self.xLabelIntervals)
 
         '''
         THIS IS UNUSED CODE
@@ -240,9 +284,6 @@ class xyGraphClass(pgraph.PlotWidget, edmWidget):
         pv.add_callback( callback, self, callbackArgs)
         return pv
 
-#    def findFgColor(self):
-#        edmWidget.findFgColor(self, fgcolor="gridColor", palette=(QPalette.Text,))
-#
     def findBgColor(self, *args, **kw):
         edmWidget.findBgColor(self, *args, **kw)
         self.setBackground(self.bgColorInfo.setColor() )
@@ -340,9 +381,8 @@ class xyGraphClass(pgraph.PlotWidget, edmWidget):
             else:
                 if curve.edmYdata == [] :
                     curve.edmYdata = list(range(1, len(curve.edmXdata)+1))
-            #curve.setData(curve.edmXdata, curve.edmYdata )
-        
             curve.setData(x=list(curve.edmXdata), y=list(curve.edmYdata))
+
         redisplay(self)
 
     def resetCallback(self, widget, **args):
@@ -357,7 +397,23 @@ class xyGraphClass(pgraph.PlotWidget, edmWidget):
     def redisplay(self, **kw):
         if self.DebugFlag > 0 : print('xyPlotData redisplay', kw)
         self.checkVisible()
+        if hasattr(self, "y2"):
+            # not all plots use y2
+            self.y2.setGeometry(self.getViewBox().sceneBoundingRect())
+            self.y2.linkedViewChanged(self.getViewBox(), self.y2.XAxis)
+
         self.replot()
+
+    def drawBorder(self):
+        if self.border == False:
+            return
+        painter = QPainter(self)
+        w,h = self.width(), self.height()
+        x,y = 0,0
+        pen = painter.pen()
+        pen.setColor( self.fgColorInfo.setColor())
+        painter.setPen(pen)
+        painter.drawRect( x, y, w, h)
 
     def timerEvent(self, e):
         if self.DebugFlag > 0 : print('timerEvent')
@@ -386,6 +442,5 @@ class xyGraphClass(pgraph.PlotWidget, edmWidget):
             curve.edmXdata = [ xn * self.updateTimerMs / 1000    for xn in range(0, len(curve.edmYdata)) ]
 
             curve.setData(list(curve.edmXdata), list(reversedYdata))
-            self.replot()
 
 edmDisplay.edmClasses["xyGraphClass"] = xyGraphClass

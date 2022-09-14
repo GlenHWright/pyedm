@@ -14,8 +14,10 @@ def convDefault(value, charValue=None, pv=None, precision=-1, units=None, showUn
     except: return str(value)+addUnits(units,showUnits)
 
 def convDecimal(value, charValue=None, pv=None, precision=-1, units=None, showUnits=1):
+    if type(value) == int:
+        return "%d%s"%(value, addUnits(units,showUnits))
     try: return "%.*f%s" %(precision, float(value),addUnits(units,showUnits))
-    except:
+    except ValueError:
         pass
     try: return "%*d%s"%(precision, int(value),addUnits(units,showUnits))
     except: return str(value)

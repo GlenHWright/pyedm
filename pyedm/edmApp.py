@@ -33,7 +33,10 @@ class edmAppClass:
         try: dfp = os.environ["EDMDATAFILES"]
         except:
             dfp = "."
-        self.dataPaths = dfp.split(";")
+        if ';' in dfp: # workaround for Windows drive paths
+            self.dataPaths = dfp.split(";")
+        else:
+            self.dataPaths = dfp.split(':')
 
     def addBlink(self, widget):
         if widget not in self.blinkList:

@@ -88,38 +88,38 @@ class edmObject:
         idx = -1
         for val in self.tagValue[tag]:
             if val[0] == "\"":
-                str = val
+                strVal = val
                 idx = idx + 1
             else:
-                str = val.split(" ", 1)
-                if len(str) == 1:
-                    str = val
+                strVal = val.split(" ", 1)
+                if len(strVal) == 1:
+                    strVal = val
                     idx = idx + 1
                 else:
                     try:
-                        idx = int(str[0])
-                        str = str[1]
+                        idx = int(strVal[0])
+                        strVal = strVal[1]
                     except ValueError:
-                        str = val
+                        strVal = val
                         idx = idx + 1
 
             if idx < 0 or idx >= count:
                 print(f"decode: index out of range: {idx} of {count}, string:{val}")
                 continue
             # decide if we're decoding a color, a string, an int, or a double
-            if str.startswith("index "):
-                rval[idx] = edmColors.findColorRule(str)
-            elif str[0] == "\"":
-                rval[idx] = str.strip("\"")
+            if strVal.startswith("index "):
+                rval[idx] = edmColors.findColorRule(strVal)
+            elif strVal[0] == "\"":
+                rval[idx] = strVal.strip("\"")
             elif isString:
-                rval[idx] = str
+                rval[idx] = strVal
             else:
                 try:
-                    v = float(str)
+                    v = float(strVal)
                     if v == float(int(v)):
                         rval[idx] =  int(v)
                     else:
                         rval[idx] = v
                 except:
-                    rval[idx] = str
+                    rval[idx] = strVal
         return rval

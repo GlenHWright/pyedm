@@ -33,7 +33,7 @@ class activeXTextDspClass_noedit(QLineEdit,edmWidget):
             self.formatType = [ "default", "float", "exponential", "decimal", "hex", "string" ] [ objectDesc.getIntProperty("format", 0) ]
         else:
             self.formatType = objectDesc.getStringProperty("format", "default")
-        self.precision = objectDesc.getEfIntProperty("precision", 3)
+        self.precision = objectDesc.getEfIntProperty("precision", 2)
         self.showUnits = objectDesc.getIntProperty("showUnits", 0)
         self.limitsFromDb = objectDesc.getIntProperty("limitsFromDb", 0)
 
@@ -52,8 +52,8 @@ class activeXTextDspClass_noedit(QLineEdit,edmWidget):
         if self.controlPV.pvType == edmPVbase.typeEnum:
             self.setText(self.controlPV.char_value)
             return
+        precision = self.precision
         try:
-            precision = self.precision
             if self.limitsFromDb and hasattr(self.controlPV, "precision"):
                 precision = self.controlPV.precision
             txt = self.displayModeList[self.formatType] (self.controlPV.value, charValue=self.controlPV.char_value, precision=precision, units=self.controlPV.units, showUnits=self.showUnits)

@@ -20,7 +20,6 @@ class byteClass(QWidget,edmWidget):
          }
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.pvItem["controlPv"] = [ "PVname", "pv", 1 ]
 
     def cleanup(self):
         edmWidget.cleanup(self)
@@ -52,8 +51,17 @@ class byteClass(QWidget,edmWidget):
         if self.noBits <= 0:
             return
         xoffset = 0
-        width = self.width() // self.noBits
-        height = self.height()
+        yoffset = 0
+        if self.width() > self.height():
+            width = self.width() / self.noBits
+            height = self.height()
+            yincr = 0
+            xincr = width
+        else:
+            width = self.width()
+            height = self.height() / self.noBits
+            yincr = height
+            xincr = 0
         painter = QPainter(self)
         if event == None:
             painter.eraseRect(0, 0, self.width(), self.height())
@@ -61,12 +69,15 @@ class byteClass(QWidget,edmWidget):
         painter.setPen(li.colorRule.getColor(li.colorValue))
         for idx in range(0, self.noBits):
             painter.setBrush( self.chooseColor(idx) )
-            painter.drawRect( xoffset, 0, width-1, height-1)
-            xoffset = xoffset + width-1
+            w = int(xoffset+width) - int(xoffset)
+            h = int(yoffset+height) - int(yoffset)
+            painter.drawRect( xoffset, yoffset, w-1, h-1)
+            xoffset += xincr
+            yoffset += yincr
 
     def redisplay(self, *kw):
         self.setVisible(self.visible)
-        self.value = self.pv.value >> self.shiftBits
+        self.value = int(self.controlPV.value) >> self.shiftBits
         self.update()
 
 edmDisplay.edmClasses["ByteClass"] = byteClass
