@@ -1,14 +1,17 @@
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # This module draw an ellipse
 
-import pyedm.edmDisplay as edmDisplay
-from pyedm.edmWidget import edmWidget
-from pyedm.edmAbstractShape import abstractShape
+from .edmApp import edmApp
+from .edmWidget import edmWidget
+from .edmAbstractShape import abstractShape
 
 from PyQt5.QtWidgets import QFrame
 from PyQt5.QtGui import QPainter
 
 class activeCircleClass(abstractShape):
+    menuGroup = ["display", "Draw Circle"]
+    edmFieldList = abstractShape.edmBaseFields + abstractShape.edmShapeFields + abstractShape.edmVisFields
+
     V3propTable = {
         "2-0" : [ "lineColor", "lineAlarm", "fill", "fillColor", "fillAlarm", "controlPv", "visPv", "visInvert", "visMin", "visMax", "lineWidth", "lineStyle" ],
         "2-1" : [ "INDEX", "lineColor", "lineAlarm", "fill", "INDEX", "fillColor", "fillAlarm", "controlPv", "visPv", "visInvert", "visMin", "visMax", "lineWidth", "lineStyle" ]
@@ -16,8 +19,9 @@ class activeCircleClass(abstractShape):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-    def buildFromObject(self, objectDesc):
-        abstractShape.buildFromObject(self, objectDesc)
+    def buildFromObject(self, objectDesc, **kw):
+        super().buildFromObject( objectDesc, **kw)
+        self.linewidth = objectDesc.getProperty("lineWidth")
         w2 = self.linewidth
         w = int(self.linewidth//2)
 
@@ -38,5 +42,5 @@ class activeCircleClass(abstractShape):
         lw = int(lw2//2)
         painter.drawEllipse( lw, lw, self.width()-lw2, self.height()-lw2 )
         
-edmDisplay.edmClasses["activeCircleClass"] = activeCircleClass
+edmApp.edmClasses["activeCircleClass"] = activeCircleClass
 

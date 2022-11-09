@@ -1,7 +1,9 @@
-from __future__ import division
-from __future__ import print_function
-# Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
+# Copyright 2022 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 #
+# MODULE LEVEL: low
+# This is a low level module
+# Used by edmPVcalc to evaluate expressions
+
 # Majority of the code taken from EPICS libCom/calc/calcPerform.c,
 # libCom/calc/postfix.c, and libCom/calc/postfix.h
 # Those files are Copyright 2002 The University of Chicago and The Regents of the University of California
@@ -9,8 +11,7 @@ from __future__ import print_function
 # Strings are turned into an intermediate tree, and evaluated on request.
 #
 
-from builtins import range
-from pyedm.edmparsetable import *
+from .edmparsetable import elementTypeEnum as ete, opCodeEnum as oce, operators, operands
 import re
 import math
 
@@ -22,8 +23,13 @@ class Postfix:
         if expr != None:
             self.parseExpression(expr)
 
-    def __get_element__(self, need_operand, symbol):
-        if self.DebugFlag : print("__get_element__", need_operand, symbol)
+    def __get_element(self, need_operand, symbol):
+        '''
+          __get_element - return the enum matching the symbol, using
+          the 'need_operand' flag to determine whether to look at
+          the operators or operands table
+          '''
+        if self.DebugFlag : print("__get_element", need_operand, symbol)
         symbol = symbol.strip()
         if need_operand == False:
             if symbol in operators:
@@ -37,21 +43,21 @@ class Postfix:
         except:
             return None
 
-    def __parseWords__(self, words, idx=0):
+    def __parseWords(self, words, idx=0):
         need_operand = True
         self.cond_count = 0
         depth = 0
         stack = []
         postfix = []
         while idx < len(words):
-            elem = self.__get_element__(need_operand, words[idx])
+            elem = self.__get_element(need_operand, words[idx])
             if elem == None:
-                print("Unexpected: '%s'" % (words[idx], ))
+                print(f"Unexpected: '{words[idx]}'")
                 return None
             if elem.stack_effect > 0:       # OPERAND
                 postfix.append(elem.opcode)
                 depth = depth+elem.stack_effect
-                if elem.opcode == LITERAL_DOUBLE:
+                if elem.opcode == oce.LITERAL_DOUBLE:
                     try:
                         lit_d = float(words[idx])
                     except:
@@ -59,25 +65,25 @@ class Postfix:
                         return None
                     lit_i = int(lit_d)
                     if float(lit_i) == lit_d:
-                        postfix[-1] = LITERAL_INT
+                        postfix[-1] = oce.LITERAL_INT
                         postfix.append(lit_i)
                     else:
                         postfix.append(lit_d)
                 need_operand = False
 
-            elif elem.type == OPEN_PAREN or elem.type == UNARY_OPERATOR or elem.type == BINARY_OPERATOR or elem.type == VARARG_OPERATOR:
+            elif elem.e_type in [ ete.OPEN_PAREN, ete.UNARY_OPERATOR, ete.BINARY_OPERATOR, ete.VARARG_OPERATOR]:
                 while len(stack) > 0 and stack[-1].stack_pri >= elem.input_pri:
                     e = stack.pop()
                     depth = depth + e.stack_effect
                     postfix.append(e.opcode)
-                    if e.type == VARARG_OPERATOR:
+                    if e.e_type == ete.VARARG_OPERATOR:
                         postfix.append(1 - e.stack_effect)
                 stack.append(elem)
-                if elem.type == BINARY_OPERATOR:
+                if elem.e_type == ete.BINARY_OPERATOR:
                     need_operand = True
 
-            elif elem.type == SEPERATOR:
-                while stack[-1].type != OPEN_PAREN:
+            elif elem.e_type == ete.SEPERATOR:
+                while stack[-1].e_type != ete.OPEN_PAREN:
                     if len(stack) <= 1:
                         print("Bad comma placement")
                         return None
@@ -87,8 +93,8 @@ class Postfix:
                 need_operand = True
                 stack[-1].stack_effect -= 1
 
-            elif elem.type == CLOSE_PAREN:
-                while stack[-1].type != OPEN_PAREN:
+            elif elem.e_type == ete.CLOSE_PAREN:
+                while stack[-1].e_type != ete.OPEN_PAREN:
                     if len(stack) <= 1:
                         print("Parenthesis error")
                         return None
@@ -97,27 +103,27 @@ class Postfix:
                     depth = depth + e.stack_effect
                 stack.pop()
 
-            elif elem.type == CONDITIONAL:
+            elif elem.e_type == ete.CONDITIONAL:
                 while len(stack) > 0 and stack[-1].stack_pri > elem.input_pri:
                     e = stack.pop()
                     depth = depth + e.stack_effect
                     postfix.append(e.opcode)
                 postfix.append(elem.opcode)
-                if elem.opcode == COND_ELSE:
+                if elem.opcode == oce.COND_ELSE:
                     self.cond_count = self.cond_count-1
-                    stack.append(self.__get_element__(False, "cond-end"))
+                    stack.append(self.__get_element(False, "cond-end"))
                 else:
                     self.cond_count = self.cond_count+1
                 need_operand = True
 
-            elif elem.type == EXPR_TERMINATOR:
+            elif elem.e_type == ete.EXPR_TERMINATOR:
                 while len(stack) > 0:
                     e = stack.pop()
-                    if e.type == OPEN_PAREN:
+                    if e.e_type == ete.OPEN_PAREN:
                         print("Missing closing parenthesis")
                         return None
                     postfix.append(e.opcode)
-                    if e.type == VARARG_OPERATOR:
+                    if e.e_type == ete.VARARG_OPERATOR:
                         postfix.append(1 - e.stack_effect)
                     depth = depth + e.stack_effect
 
@@ -128,7 +134,7 @@ class Postfix:
                     print("Too many results returned")
                 need_operand = True
 
-            elif elem.type == STORE_OPERATOR:
+            elif elem.e_type == ete.STORE_OPERATOR:
                 pass
 
             else:
@@ -142,7 +148,7 @@ class Postfix:
             postfix.append(e.opcode)
             depth = depth + e.stack_effect
 
-        postfix.append(END_EXPRESSION)
+        postfix.append(oce.END_EXPRESSION)
 
         if self.cond_count != 0:
             pass
@@ -153,153 +159,153 @@ class Postfix:
     def parseExpression(self, expression):
         ex = re.split( opchars, expression)
         ex = [ item for item in ex if item != '' ]
-        self.postfix =  self.__parseWords__(ex)
+        self.postfix =  self.__parseWords(ex)
 
     def calculate(self, variables=None):
         stack = []
         idx = 0
         while idx < len(self.postfix):
             op = self.postfix[idx]
-            if op == LITERAL_INT or op == LITERAL_DOUBLE:
+            if op == oce.LITERAL_INT or op == oce.LITERAL_DOUBLE:
                 idx = idx+1
                 stack.append(self.postfix[idx])
-            elif op >= FETCH_A and op <= FETCH_L:
-                v_idx = op-FETCH_A
+            elif op.value >= oce.FETCH_A.value and op.value <= oce.FETCH_L.value:
+                v_idx = op.value-oce.FETCH_A.value
                 stack.append(variables[v_idx])
-            elif op == CONST_PI:
+            elif op == oce.CONST_PI:
                 stack.append(math.pi)
-            elif op == CONST_D2R:
+            elif op == oce.CONST_D2R:
                 stack.append(math.pi/180.0)
-            elif op == CONST_R2D:
+            elif op == oce.CONST_R2D:
                 stack.append(180.0/math.pi)
-            elif op == UNARY_NEG:
+            elif op == oce.UNARY_NEG:
                 stack[-1] = -stack[-1]
-            elif op == ADD:
+            elif op == oce.ADD:
                 top = stack.pop()
                 stack[-1] = stack[-1] + top
-            elif op == SUB:
+            elif op == oce.SUB:
                 top = stack.pop()
                 stack[-1] = stack[-1] - top
-            elif op == MULT:
+            elif op == oce.MULT:
                 top = stack.pop()
                 stack[-1] = stack[-1] * top
-            elif op == DIV:
+            elif op == oce.DIV:
                 top = stack.pop()
                 stack[-1] = stack[-1]/ top
-            elif op == MODULO:
+            elif op == oce.MODULO:
                 top = stack.pop()
                 stack[-1] = math.fmod(stack[-1] , top)
-            elif op == POWER:
+            elif op == oce.POWER:
                 top = stack.pop()
                 stack[-1] = math.pow(stack[-1], top)
-            elif op == ABS_VAL:
+            elif op == oce.ABS_VAL:
                 if stack[-1] < 0.0:
                     stack[-1] = - stack[-1]
-            elif op == EXP:
+            elif op == oce.EXP:
                 stack[-1] = math.exp(stack[-1])
-            elif op == LOG_10:
+            elif op == oce.LOG_10:
                 stack[-1] = math.log10(stack[-1])
-            elif op == LOG_E:
+            elif op == oce.LOG_E:
                 stack[-1] = math.log(stack[-1])
-            elif op == MAX:
+            elif op == oce.MAX:
                 top = stack.pop()
                 if stack[-1] < top or math.isnan(top):
                     stack[-1] = top
-            elif op == MIN:
+            elif op == oce.MIN:
                 top = stack.pop()
                 if stack[-1] > top or math.isnan(top):
                     stack[-1] = top
-            elif op == SQU_RT:
+            elif op == oce.SQU_RT:
                 stack[-1] = math.sqrt(stack[-1])
-            elif op == ACOS:
+            elif op == oce.ACOS:
                 stack[-1] = math.acos(stack[-1])
-            elif op == ASIN:
+            elif op == oce.ASIN:
                 stack[-1] = math.asin(stack[-1])
-            elif op == ATAN:
+            elif op == oce.ATAN:
                 stack[-1] = math.atan(stack[-1])
-            elif op == ATAN2:
+            elif op == oce.ATAN2:
                 top = stack.pop()
                 stack[-1] = math.atan2(top, stack[-1])
-            elif op == COS:
+            elif op == oce.COS:
                 stack[-1] = math.cos(stack[-1])
-            elif op == SIN:
+            elif op == oce.SIN:
                 stack[-1] = math.sin(stack[-1])
-            elif op == TAN:
+            elif op == oce.TAN:
                 stack[-1] = math.tan(stack[-1])
-            elif op == COSH:
+            elif op == oce.COSH:
                 stack[-1] = math.cosh(stack[-1])
-            elif op == SINH:
+            elif op == oce.SINH:
                 stack[-1] = math.sinh(stack[-1])
-            elif op == TANH:
+            elif op == oce.TANH:
                 stack[-1] = math.tanh(stack[-1])
-            elif op == CEIL:
+            elif op == oce.CEIL:
                 stack[-1] = math.ceil(stack[-1])
-            elif op == FLOOR:
+            elif op == oce.FLOOR:
                 stack[-1] = math.floor(stack[-1])
-            elif op == FINITE:
+            elif op == oce.FINITE:
                 stack[-1] = not math.isinf(stack[-1]) and not math.isnan(stack[-1])
-            elif op == ISINF:
+            elif op == oce.ISINF:
                 stack[-1] = math.isinf(stack[-1])
-            elif op == ISNAN:
+            elif op == oce.ISNAN:
                 stack[-1] = math.isnan(stack[-1])
-            elif op == NINT:
+            elif op == oce.NINT:
                 top = stack[-1]
                 top = top+0.5 if top >= 0 else top-0.5
                 stack[-1] = float(int(top))
-            elif op == RANDOM:
+            elif op == oce.RANDOM:
                 stack.append(random.random())
-            elif op == REL_OR:
+            elif op == oce.REL_OR:
                 top = stack.pop()
                 stack[-1] = stack[-1] or top
-            elif op == REL_AND:
+            elif op == oce.REL_AND:
                 top = stack.pop()
                 stack[-1] = stack[-1] and top
-            elif op == REL_NOT:
+            elif op == oce.REL_NOT:
                 stack[-1] = not stack[-1]
-            elif op == BIT_OR:
+            elif op == oce.BIT_OR:
                 top = int(stack.pop())
                 stack[-1] = int(stack[-1]) | top
-            elif op == BIT_AND:
+            elif op == oce.BIT_AND:
                 top = int(stack.pop())
                 stack[-1] = int(stack[-1]) & top
-            elif op == BIT_EXCL_OR:
+            elif op == oce.BIT_EXCL_OR:
                 top = int(stack.pop())
                 stack[-1] = int(stack[-1]) ^ top
-            elif op == BIT_NOT:
+            elif op == oce.BIT_NOT:
                 stack[-1] = -1 ^ int(stack[-1])
-            elif op == RIGHT_SHIFT:
+            elif op == oce.RIGHT_SHIFT:
                 top = int(stack.pop())
                 stack[-1] = int(stack[-1]) >> top
-            elif op == LEFT_SHIFT:
+            elif op == oce.LEFT_SHIFT:
                 top = int(stack.pop())
                 stack[-1] = int(stack[-1]) << top
-            elif op == NOT_EQ:
+            elif op == oce.NOT_EQ:
                 top = stack.pop()
                 stack[-1] = (stack[-1] != top)
-            elif op == LESS_THAN:
+            elif op == oce.LESS_THAN:
                 top = stack.pop()
                 stack[-1] = (stack[-1] < top)
-            elif op == LESS_OR_EQ:
+            elif op == oce.LESS_OR_EQ:
                 top = stack.pop()
                 stack[-1] = (stack[-1] <= top)
-            elif op == EQUAL:
+            elif op == oce.EQUAL:
                 top = stack.pop()
                 stack[-1] = (stack[-1] == top)
-            elif op == GR_OR_EQ:
+            elif op == oce.GR_OR_EQ:
                 top = stack.pop()
                 stack[-1] = (stack[-1] >= top)
-            elif op == GR_THAN: 
+            elif op == oce.GR_THAN: 
                 top = stack.pop()
                 stack[-1] = (stack[-1] > top)
-            elif op == COND_IF:
+            elif op == oce.COND_IF:
                 val = stack.pop()
                 if val == 0:
-                    idx = self.cond_search( idx, COND_ELSE)
-            elif op == COND_ELSE:
-                idx = self.cond_search(idx, COND_END)
-            elif op == COND_END:
+                    idx = self.cond_search( idx, oce.COND_ELSE)
+            elif op == oce.COND_ELSE:
+                idx = self.cond_search(idx, oce.COND_END)
+            elif op == oce.COND_END:
                 pass
-            elif op == END_EXPRESSION:
+            elif op == oce.END_EXPRESSION:
                 pass
             else:
                 print("Bad opcode:", op)
@@ -315,9 +321,9 @@ class Postfix:
         for i in range(idx+1, len(self.postfix)):
             if self.postfix[i] == match and nest == 0:
                 return i
-            if self.postfix[i] == COND_IF:
+            if self.postfix[i] == oce.COND_IF:
                 nest = nest+1
-            elif self.postfix[i] == COND_END:
+            elif self.postfix[i] == oce.COND_END:
                 nest = nest-1
         return idx
         

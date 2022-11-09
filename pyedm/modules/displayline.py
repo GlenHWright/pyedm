@@ -1,21 +1,36 @@
-from __future__ import division
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # Module for generating a widget for a line display class
 
-from builtins import zip
-from builtins import range
-import pyedm.edmDisplay as edmDisplay
-from pyedm.edmWidget import edmWidget
-from pyedm.edmAbstractShape import abstractShape
 from math import acos, sin, cos, pi as Pi
+from enum import Enum
+from .edmApp import edmApp
+from .edmWidget import edmWidget
+from .edmAbstractShape import abstractShape
+from .edmEditWidget import edmEditInt, edmEditString, edmEditEnum, edmEditBool
+from .edmField import edmField
 
 from PyQt5.QtWidgets import QFrame
 from PyQt5.QtGui import QPainter, QPolygonF, QPolygon
 from PyQt5.QtCore import QLineF, QLine, QPointF, QPoint, Qt
 
 class activeLineClass(abstractShape):
+    menuGroup = [ "display", "Line"]
+    arrowEnum = Enum("arrow", "none from to both", start=0)
+    edmEntityFields = [
+            edmField( "numPoints", edmEditInt, 0),
+            edmField( "xPoints", edmEditInt, array=True, defaultValue=0),
+            edmField( "yPoints", edmEditInt, array=True, defaultValue=0),
+            edmField( "closePolygon", edmEditBool, defaultValue=False),
+            edmField( "arrows", edmEditEnum, defaultValue=0, enumList=arrowEnum)
+            ]
+    edmFieldList = abstractShape.edmBaseFields + abstractShape.edmShapeFields + edmEntityFields + abstractShape.edmVisFields
+
     def __init__(self, parent=None):
         super().__init__(parent)
+
+    def buildFromObject(self, objectDesc, **kw):
+        super().buildFromObject(objectDesc, **kw)
+        self.linewidth = objectDesc.getProperty("lineWidth")
 
     def paintEvent(self, event=None):
         if self.npoints <= 1:
@@ -65,16 +80,16 @@ class activeLineClass(abstractShape):
         painter.drawPolygon( QPolygonF( [destp, p0, p1]))
 
 
-    def buildFromObject(self, objectDesc):
-        abstractShape.buildFromObject(self,objectDesc)
-        self.myx = objectDesc.getIntProperty("x")
-        self.myy = objectDesc.getIntProperty("y")
-        self.npoints = self.objectDesc.getIntProperty("numPoints",0)
-        self.closePolygon = self.objectDesc.getIntProperty("closePolygon",0)
-        self.lineStyle = self.objectDesc.getStringProperty("lineStyle", "solid")
-        self.xpoints = self.objectDesc.decode("xPoints", self.npoints,0)
-        self.ypoints = self.objectDesc.decode("yPoints", self.npoints,0)
-        self.arrows = self.objectDesc.getStringProperty("arrows", "none")
+    def buildFromObject(self, objectDesc, **kw):
+        super().buildFromObject(objectDesc, **kw)
+        self.myx = objectDesc.getProperty("x")
+        self.myy = objectDesc.getProperty("y")
+        self.npoints = self.objectDesc.getProperty("numPoints",0)
+        self.closePolygon = self.objectDesc.getProperty("closePolygon",0)
+        self.lineStyle = self.objectDesc.getProperty("lineStyle", "solid")
+        self.xpoints = self.objectDesc.getProperty("xPoints", arrayCount=self.npoints,defValue=0)
+        self.ypoints = self.objectDesc.getProperty("yPoints", arrayCount=self.npoints,defValue=0)
+        self.arrows = self.objectDesc.getProperty("arrows", "none")
         self.arrowSize = 15
         self.arrowAngle = Pi/2.5
         # translate points to 'QT' space
@@ -104,5 +119,5 @@ class activeLineClass(abstractShape):
             tags[name] = values.pop(0)
 
 
-edmDisplay.edmClasses["activeLineClass"] = activeLineClass
+edmApp.edmClasses["activeLineClass"] = activeLineClass
 

@@ -7,14 +7,25 @@ from __future__ import division
 # in X11 and Windows! So, because this works on fixed-format displays
 # rather than auto-adjustable displays, the work needs to be done here.
 import os
-import pyedm.edmDisplay as edmDisplay
-from pyedm.edmWidget import edmWidget
+from .edmApp import edmApp
+from .edmWidget import edmWidget
+from .edmField import edmField
+from .edmEditWidget import edmEdit
 
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtGui import QTextLayout, QTextOption, QPalette, QFontMetrics, QPainter
 from PyQt5.QtCore import QPoint, QPointF
 
 class activeXTextClass(QWidget,edmWidget):
+    menuGroup = [ "monitor", "Text Box" ]
+
+    edmEntityFields = [
+        edmField("value", edmEdit.String, array=True),
+        edmField("autoSize", edmEdit.Bool, False),
+        edmField("border", edmEdit.Bool, False),
+        edmField("lineWidth", edmEdit.Int, 1),
+        edmField("ID", edmEdit.String, None),
+            ] + edmWidget.edmFontFields
     V3propTable = {
         "2-0" : [ "fgColor", "colorMode", "useDisplayBg", "bgColor", "bgColorMode", "alarmPv", "visPv", "visInvert", "visMin", "visMax", "value",
                     "font", "fontAlign", "autoSize", "ID" ] ,
@@ -27,24 +38,24 @@ class activeXTextClass(QWidget,edmWidget):
     def findBgColor(self):
         edmWidget.findBgColor(self, palette=(QPalette.Base,) )
 
-    def buildFromObject(self, objectDesc):
-        edmWidget.buildFromObject(self,objectDesc)
+    def buildFromObject(self, objectDesc, **kw):
+        super().buildFromObject(objectDesc, **kw)
 
         if self.objectDesc.checkProperty("value") == False:
             value = [ "" ]
-        elif self.objectDesc.getIntProperty("major", 0) < 4:
+        elif self.objectDesc.getProperty("major", 0) < 4:
             # EDM V3 format has a single string with embedded newlines encoded as '\n'
-            value = [ self.macroExpand(val) for val in self.objectDesc.getStringProperty("value").split('\\n') ]
+            value = [ self.macroExpand(val) for val in self.objectDesc.getProperty("value",arrayCount=-1).split('\\n') ]
         else:
             # EDM V4 has multiple strings, 1 per line.
-            value = [ self.macroExpand(val) for val in self.objectDesc.decode("value",isString=True)]
+            value = [ self.macroExpand(val) for val in self.objectDesc.getProperty("value",arrayCount=-1)]
 
-        self.qtlayout = QTextLayout( '\n'.join(value), self.objectDesc.getFontProperty("font") )
+        self.qtlayout = QTextLayout( '\n'.join(value), self.objectDesc.getProperty("font") )
         fm = QFontMetrics(self.qtlayout.font())
-        border = self.objectDesc.getIntProperty("border", 0)
-        autoSize = self.objectDesc.getIntProperty("autoSize", 0) 
-        lineWidth = self.objectDesc.getIntProperty("lineWidth", 0) 
-        align = self.objectDesc.getStringProperty("fontAlign", "None")
+        border = self.objectDesc.getProperty("border", 0)
+        autoSize = self.objectDesc.getProperty("autoSize", 0) 
+        lineWidth = self.objectDesc.getProperty("lineWidth", 0) 
+        align = self.objectDesc.getProperty("fontAlign", 0)
         # Find new box size.
         if autoSize:
             max = -1
@@ -97,5 +108,5 @@ class activeXTextClass(QWidget,edmWidget):
         self.qtlayout.draw( painter, QPointF(0,self.offset))
         # print "activeXTextClass: lines:", self.layout.lineCount(), self.layout.text()
 
-edmDisplay.edmClasses["activeXTextClass"] = activeXTextClass
+edmApp.edmClasses["activeXTextClass"] = activeXTextClass
 

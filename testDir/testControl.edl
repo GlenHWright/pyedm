@@ -1,10 +1,10 @@
-4 0 0
+4 0 1
 beginScreenProperties
 major 4
 minor 0
-release 0
-x 938
-y 247
+release 1
+x 816
+y 114
 w 721
 h 771
 font "helvetica-medium-r-18.0"
@@ -25,7 +25,7 @@ endScreenProperties
 object activeXTextDspClass
 beginObjectProperties
 major 4
-minor 0
+minor 7
 release 0
 x 31
 y 26
@@ -43,7 +43,9 @@ nullPv "$(P)NullPV"
 nullColor index 0
 colorPv "$(P)colorPV"
 useHexPrefix
+newPos
 objType "controls"
+noExecuteClipMask
 endObjectProperties
 
 # (Slider)
@@ -79,7 +81,7 @@ endObjectProperties
 object activeMotifSliderClass
 beginObjectProperties
 major 4
-minor 0
+minor 2
 release 0
 x 41
 y 206
@@ -101,15 +103,15 @@ endObjectProperties
 object activeButtonClass
 beginObjectProperties
 major 4
-minor 0
+minor 1
 release 0
-x 44
-y 315
-w 221
+x 42
+y 319
+w 111
 h 73
 fgColor index 14
-onColor index 0
-offColor index 0
+onColor index 2
+offColor index 10
 inconsistentColor index 14
 topShadowColor index 0
 botShadowColor index 14
@@ -117,7 +119,6 @@ controlPv "$(P)boPV"
 indicatorPv "$(P)biPV"
 onLabel "on label"
 offLabel "off label"
-labelType "pvState"
 3d
 font "helvetica-medium-r-18.0"
 objType "controls"
@@ -158,9 +159,9 @@ major 4
 minor 0
 release 0
 x 57
-y 675
+y 651
 w 216
-h 75
+h 99
 fgColor index 14
 bgColor index 0
 buttonColor index 14
@@ -175,7 +176,7 @@ endObjectProperties
 object activeMessageButtonClass
 beginObjectProperties
 major 4
-minor 0
+minor 1
 release 0
 x 287
 y 14
@@ -247,7 +248,7 @@ endObjectProperties
 object menuMuxClass
 beginObjectProperties
 major 4
-minor 0
+minor 1
 release 0
 x 404
 y 272
@@ -259,26 +260,41 @@ topShadowColor index 0
 botShadowColor index 14
 controlPv "$(P)menuPV"
 font "helvetica-medium-r-18.0"
-numItems 2
+numItems 3
 symbolTag {
   0 "?"
   1 "second"
+  2 "again!"
 }
 symbol0 {
-  0 "symbol1_1"
-  1 "symbol2-1"
+  0 "MuxSymbol1"
+  1 "MuxSymbol1"
+  2 "MuxSymbol1"
 }
 value0 {
   0 "xx1-1"
   1 "yy2-1"
+  2 "three 1-1"
 }
 symbol1 {
-  0 "symbol1_2"
-  1 "symbol2-2"
+  0 "MuxSymbol2"
+  1 "MuxSymbol2"
+  2 "MuxSymbol2"
 }
 value1 {
   0 "xx1-2"
   1 "yy2-2"
+  2 "three 1-2"
+}
+symbol2 {
+  0 "P"
+  1 "P"
+  2 "P"
+}
+value2 {
+  0 "gw"
+  1 "gw"
+  2 "gw"
 }
 endObjectProperties
 
@@ -286,7 +302,7 @@ endObjectProperties
 object relatedDisplayClass
 beginObjectProperties
 major 4
-minor 0
+minor 4
 release 0
 x 405
 y 345
@@ -324,7 +340,7 @@ endObjectProperties
 object shellCmdClass
 beginObjectProperties
 major 4
-minor 0
+minor 3
 release 0
 x 408
 y 408
@@ -341,7 +357,7 @@ commandLabel {
   0 "mylabel"
 }
 command {
-  0 "CommandToRun"
+  0 "./CommandToRun"
 }
 endObjectProperties
 
@@ -365,7 +381,7 @@ controlPv "$(P)menuPV"
 font "helvetica-medium-r-18.0"
 endObjectProperties
 
-# (Textentry)
+# (Text Entry)
 object TextentryClass
 beginObjectProperties
 major 10
@@ -387,11 +403,11 @@ endObjectProperties
 object activeButtonClass
 beginObjectProperties
 major 4
-minor 0
+minor 1
 release 0
-x 43
-y 406
-w 221
+x 173
+y 318
+w 113
 h 73
 fgColor index 14
 onColor index 0
@@ -403,7 +419,6 @@ controlPv "$(P)boPV"
 indicatorPv "$(P)biPV"
 onLabel "on label"
 offLabel "off label"
-labelType "pvState"
 buttonType "push"
 3d
 font "helvetica-medium-r-18.0"
@@ -418,7 +433,7 @@ endObjectProperties
 object activeMessageButtonClass
 beginObjectProperties
 major 4
-minor 0
+minor 1
 release 0
 x 487
 y 12
@@ -449,8 +464,8 @@ beginObjectProperties
 major 4
 minor 0
 release 0
-x 45
-y 496
+x 48
+y 520
 w 607
 h 35
 fgColor index 14
@@ -462,5 +477,51 @@ botShadowColor index 14
 controlPv "$(P)menuPV"
 font "helvetica-medium-r-18.0"
 orientation "horizontal"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 589
+y 270
+w 131
+h 42
+font "helvetica-medium-r-18.0"
+fgColor index 14
+bgColor index 0
+useDisplayBg
+value {
+  "$(MuxSymbol1)"
+  "$(MuxSymbol2)"
+}
+autoSize
+endObjectProperties
+
+# (Slider)
+object activeSliderClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 34
+y 388
+w 200
+h 108
+fgColor index 14
+bgColor index 0
+2ndBgColor index 14
+controlColor index 14
+indicatorColor index 0
+font "helvetica-medium-r-18.0"
+controlPv "$(P)colorPV"
+controlLabel "Control Color"
+readLabel "Readback Color"
+incMultiplier 1
+scaleMin 0
+scaleMax 10
+displayFormat "FFloat"
 endObjectProperties
 

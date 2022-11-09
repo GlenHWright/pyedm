@@ -3,16 +3,48 @@ from __future__ import division
 # This module displays a meter of the value of a PV.
 # Tries to build a display that matches the EDM meter.
 
-import pyedm.edmDisplay as edmDisplay
 import math
-from pyedm.edmWidget import edmWidget
+from enum import Enum
+
+from .edmApp import edmApp
+from .edmWidget import edmWidget, pvItemClass
+from .edmField import edmField
+from .edmEditWidget import edmEdit
 
 from PyQt5.QtWidgets import QAbstractSlider
 from PyQt5.QtGui import QPainter, QFontMetrics, QPolygon
-from PyQt5 import QtCore
+from PyQt5 import QtCore, Qt
 from PyQt5.QtCore import QPoint
 
 class activeMeterClass(QAbstractSlider,edmWidget):
+    menuGroup = [ "monitor", "Meter" ]
+    labelTypeEnum = Enum("labelType", [ "pvName", "pvLabel", "literal" ], start=0)
+    scaleFormatEnum = Enum("scaleFormat", "FFloat GFloat Exponential", start=0)
+    edmEntityFields = [
+            edmField("readPv", edmEdit.PV),
+            edmField("labelType", edmEdit.Enum, enumList=labelTypeEnum, defaultValue=0),
+            edmField("label", edmEdit.String),
+            edmField("labelColor", edmEdit.Color),
+            edmField("meterAngle", edmEdit.Real, defaultValue=180.0),
+            edmField("trackDelta", edmEdit.Bool, defaultValue=False),
+            edmField("showScale", edmEdit.Bool, defaultValue=False),
+            edmField("scaleFormat", edmEdit.Enum, enumList=scaleFormatEnum, defaultValue="FFloat"),
+            edmField("scalePrecision", edmEdit.Int, defaultValue=0),
+            edmField("scaleLimitsFromDb", edmEdit.Bool, defaultValue=False),
+            edmField("scaleMin", edmEdit.Real, defaultValue=0.0),
+            edmField("scaleMax", edmEdit.Real, defaultValue=0.0),
+            edmField("scaleColor", edmEdit.Color),
+            edmField("scaleAlarm", edmEdit.Bool),
+            edmField("labelIntervals", edmEdit.Real, defaultValue=1.0),
+            edmField("majorIntervals", edmEdit.Real, defaultValue=5.0),   # major angle increment
+            edmField("minorIntervals", edmEdit.Real, defaultValue=2.0),   # minor angle increment
+            edmField("complexNeedle", edmEdit.Bool, defaultValue=False),
+            edmField("needleColor", edmEdit.Color),
+            edmField("caseColor", edmEdit.Color),
+            edmField("scaleFontTag", edmEdit.FontInfo),
+            edmField("labelFontTag", edmEdit.FontInfo)
+
+            ]
     V3propTable = {
         "2-1" : [ "INDEX", "meterColor", "meterAlarm", "INDEX", "scaleColor", "scaleAlarm", "INDEX", "labelColor", "INDEX", "fgColor", "fgAlarm",
             "INDEX", "bgColor", "INDEX", "tsColor", "INDEX", "bsColor", "controlPv", "readPv", "labelType", "showScale", "scaleFormat",
@@ -21,12 +53,12 @@ class activeMeterClass(QAbstractSlider,edmWidget):
             }
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.pvItem["readPv"] = [ "PVname", "pv", 1 ]
+        self.pvItem["readPv"] = pvItemClass( "PVname", "pv", redisplay=True)
         self.readV = 0.0
 
-    def buildFromObject(self, objectDesc):
-        edmWidget.buildFromObject(self,objectDesc)
-        self.scaleFont = self.objectDesc.getFontProperty("scaleFontTag", "helvetica-18")
+    def buildFromObject(self, objectDesc, **kw):
+        super().buildFromObject(objectDesc, **kw)
+        self.scaleFont = self.objectDesc.getProperty("scaleFontTag", "helvetica-18")
         self.useDbLimits = self.objectDesc.checkProperty("scaleLimitsFromDb")
         self.showScale  = self.objectDesc.checkProperty("showScale")
 
@@ -38,8 +70,8 @@ class activeMeterClass(QAbstractSlider,edmWidget):
                 return mymin, mymax
             except: pass
 
-        mymin = self.objectDesc.getDoubleProperty("scaleMin", 0.0)
-        mymax = self.objectDesc.getDoubleProperty("scaleMax", 0.0)
+        mymin = self.objectDesc.getProperty("scaleMin", 0.0)
+        mymax = self.objectDesc.getProperty("scaleMax", 0.0)
         if mymin == mymax:
             return ( 0.0, 1.0)
         return (mymin, mymax)
@@ -58,28 +90,33 @@ class activeMeterClass(QAbstractSlider,edmWidget):
     # Attempt to merge EDM dial code and QT dial code
     def paintEvent(self, event=None):
         painter = QPainter(self)
-        painter.setFont(self.scaleFont)
+        painter.setBackground(self.getProperty("bgColor").getColor())
+        painter.setBackgroundMode( QtCore.Qt.BGMode.OpaqueMode)
         if event == None:
             painter.eraseRect(0, 0, self.width(), self.height())
-        painter.setPen(QtCore.Qt.black )
+        painter.setPen(self.getProperty("caseColor").getColor())
         painter.drawRect( 0, 0, self.width()-1, self.height()-1)
         #
-        mta = math.radians(self.objectDesc.getDoubleProperty("meterAngle", 180.0) )
+        mta = math.radians(self.objectDesc.getProperty("meterAngle") )
         fm = painter.fontMetrics()
         caseWidth = 5   # number of pixels width of rectangular border around dial
-        #faceX = self.x() + caseWidth
-        #faceY = self.y() + caseWidth
         faceX = caseWidth
         faceY = caseWidth
         faceW = self.width() - 2*caseWidth
         faceH = self.height() - 2*caseWidth
-        if "label" in self.objectDesc.tagValue:
+        if self.objectDesc.checkProperty("label"):
             faceH = faceH + caseWidth - 4 - fm.ascent()
-        scalePrecision = self.objectDesc.getIntProperty("scalePrecision", 0)
+            label = self.objectDesc.getProperty("label")
+            painter.setPen( self.objectDesc.getProperty("labelColor").getColor())
+            painter.setFont( self.objectDesc.getProperty("labelFontTag"))
+            painter.drawText( faceX+2, faceY + faceH + fm.ascent()-2, label)
+
+        painter.setFont(self.scaleFont)
+        scalePrecision = self.objectDesc.getProperty("scalePrecision")
         if scalePrecision > 10 or scalePrecision < 0 :
             scalePrecision = 1
         
-        scaleFormat = self.objectDesc.getStringProperty("scaleFormat", "Float")
+        scaleFormat = self.objectDesc.getProperty("scaleFormat")
         if scaleFormat == "GFloat":
             fmt = "g"
         elif scaleFormat == "Exponential":
@@ -93,10 +130,8 @@ class activeMeterClass(QAbstractSlider,edmWidget):
         scaleMinStr = ("%%.%d%s"% (scalePrecision, fmt))%minval
         scaleMaxStr = ("%%.%d%s"% (scalePrecision, fmt))%maxval
 
-
-
         # calculate the biggest scale width needed
-        interval = self.objectDesc.getDoubleProperty("labelIntervals", 1.0)
+        interval = self.objectDesc.getProperty("labelIntervals")
         incr = max( (maxval-minval)/interval, 1.0)
         scaleWidth = self.checkWidth(fm, scaleMinStr, 0)
         scaleWidth = self.checkWidth(fm, scaleMaxStr, scaleWidth)
@@ -125,19 +160,14 @@ class activeMeterClass(QAbstractSlider,edmWidget):
         beginAngle = descent
         endAngle = beginAngle + mta
 
-        # erase the dial area
-        # draw a label
-        label = self.objectDesc.getStringProperty("label")
-        if label != None:
-            painter.drawText( faceX+2, faceY + faceH + fm.ascent()-2, label)
-        # painter.setPen(background color)
         # draw a needle
+        painter.setPen(self.getProperty("needleColor").getColor())
         labelTickSize = min(15.0, fm.ascent()*0.8)
         insideArc = needlePlusScale - labelTickSize
         line = self.getPoints(center, min( max(beginAngle + mta *(1.0
             -((self.readV-minval)/(maxval-minval))), beginAngle), endAngle),
             0.98*insideArc, 0.0)
-        if self.objectDesc.getIntProperty("complexNeedle", 0) == 0:
+        if self.objectDesc.getProperty("complexNeedle", 0) == 0:
             painter.drawLine(line[0], line[1] )
         else:
             poly = QPolygon()
@@ -150,17 +180,18 @@ class activeMeterClass(QAbstractSlider,edmWidget):
             painter.drawPolygon(poly)
 
         # if showScale not set, don't draw any more
-        if self.objectDesc.getIntProperty("showScale",1) == 0:
+        if self.objectDesc.getProperty("showScale") == False:
             return
 
         # label the major tick marks,
         # draw the tick marks
         if interval > 0.0:
             lai = mta/interval # label angle increment
-            mjai = lai/ max(0.1, self.objectDesc.getDoubleProperty("majorIntervals", 5.0) )    # major angle increment
-            miai = mjai/ max(0.1, self.objectDesc.getDoubleProperty("minorIntervals", 2.0) )   # minor angle increment
+            mjai = lai/ max(0.1, self.objectDesc.getProperty("majorIntervals", 5.0) )    # major angle increment
+            miai = mjai/ max(0.1, self.objectDesc.getProperty("minorIntervals", 2.0) )   # minor angle increment
             labelVal = maxval
             la = beginAngle
+            painter.setPen(self.getProperty("scaleColor").getColor())
             while la <= endAngle:
                 # tick mark for label
                 line = self.getPoints( center, la, insideArc, insideArc+labelTickSize)
@@ -206,4 +237,4 @@ class activeMeterClass(QAbstractSlider,edmWidget):
         self.readV = self.pv.get()
         self.update()
 
-edmDisplay.edmClasses["activeMeterClass"] = activeMeterClass
+edmApp.edmClasses["activeMeterClass"] = activeMeterClass

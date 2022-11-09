@@ -62,14 +62,12 @@ y2AxisSrc "AutoScale"
 y2Min 1
 y2Max 2
 # Trace Properties
-numTraces 2
-xPv {
-  0 "TRG2400:cycles"
-  1 "TRG2400:cycles"
-}
+numTraces 4
 yPv {
   0 "$(P)ReadbackPV"
   1 "$(P)ReadbackPV2"
+  2 "$(P)calcPV1"
+  3 "$(P)calcPV2"
 }
 plotStyle {
   1 "point"
@@ -81,8 +79,10 @@ lineStyle {
   1 "dash"
 }
 plotUpdateMode {
-  0 "x"
-  1 "x"
+  0 "y"
+  1 "y"
+  2 "y"
+  3 "y"
 }
 plotSymbolType {
   1 "circle"
@@ -93,6 +93,8 @@ useY2Axis {
 plotColor {
   0 index 21
   1 index 26
+  2 index 31
+  3 index 36
 }
 endObjectProperties
 

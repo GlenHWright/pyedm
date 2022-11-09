@@ -4,25 +4,34 @@
 # support a scrollable area message box.
 #
 
-import pyedm.edmDisplay as edmDisplay
-from pyedm.edmWidget import edmWidget
+from .edmApp import edmApp
+from .edmWidget import edmWidget, pvItemClass
+from .edmField import edmField
+from .edmEditWidget import edmEdit
 
-from PyQt5.QtCore import Qt#, SIGNAL
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPalette
 from PyQt5.QtWidgets import QWidget,  QPushButton, QTextEdit, QVBoxLayout
 
 class messageBoxClass(QWidget,edmWidget):
+    menuGroup = ["monitor", "Message Box"]
+    edmEntityFields = [
+            edmField("fill", edmEdit.Bool, defaultValue=False),
+            edmField("indicatorPv", edmEdit.PV)
+            ]
+    edmFieldList = \
+     edmWidget.edmBaseFields + edmWidget.edmColorFields  + \
+        edmEntityFields + edmWidget.edmFontFields + edmWidget.edmVisFields
     V3propTable = {
         "2-2" : [ "INDEX", "fgColor", "INDEX", "bgColor", "INDEX", "2ndBgColor", "INDEX", "topShadowColor", "INDEX", "botShadowColor",
             "indicatorPv", "font", "bufferSize", "fileSize", "flushTimerValue", "logFileName", "ReadOnly" ]
             }
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.pvItem["indicatorPv"] = [ "PVname", "pv", 1, None, None ]
+        self.pvItem["indicatorPv"] = pvItemClass( "PVname", "pv", redisplay=True)
 
-    def buildFromObject(self, objectDesc):
-        self.objectDesc = objectDesc
-        edmWidget.buildFromObject(self, objectDesc)
+    def buildFromObject(self, objectDesc, **kw):
+        super().buildFromObject( objectDesc, **kw)
         self.clearButton = QPushButton("Clear", self)
         self.line = QTextEdit(self)
         #self.clearButton.connect(self.clearButton, SIGNAL("clicked()"), self.clear)
@@ -49,4 +58,4 @@ class messageBoxClass(QWidget,edmWidget):
     def clear(self):
         self.line.clear()
 
-edmDisplay.edmClasses["activeMessageBoxClass"] = messageBoxClass
+edmApp.edmClasses["activeMessageBoxClass"] = messageBoxClass

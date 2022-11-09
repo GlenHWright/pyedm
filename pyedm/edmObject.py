@@ -1,125 +1,119 @@
-from __future__ import print_function
-# Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
-from pyedm.edmApp import edmApp
-import pyedm.edmColors as edmColors
-import pyedm.edmFont as edmFont
+# Copyright 2022 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
+#
+# MODULE LEVEL: low
+# This is a low level module, and must only import base level modules
+
+from enum import Enum
+
+from PyQt5.QtGui import QFont
+
+from .edmApp import edmApp
+from .edmProperty import converter, toEnum, decode
+from . import edmColors
+from . import edmFont
+from .edmField import edmTag
 
 #
 # A class that defines a generic EDM object. (A single widget)
-# All properties from the data file are stored in the dictionary 'self.tagValue'
-# self.tagType can be used for special cases (edm does this, I'm not sure
-# python needs it
+# tags{} - dictionary indexed by tag name - see edmField.edmTag
 class edmObject:
+    ''' edmObject - manages the properties that define an edmWidget
+    '''
     def __init__(self, parent=None):
-        self.tagValue = {}
-        self.tagType = {}
-        self.debugFlag = edmApp.DebugFlag
+        self.tags = {}
+        self.edmFields = None
+        self.debug(setDebug=edmApp.DebugFlag)
         self.edmParent = parent
-        parent.objectList.append(self)
+        if parent != None:
+            parent.objectList.append(self)
 
+    def edmCleanup(self):
+        self.tags = None
+        self.edmFields = None
+        self.edmParent = None
+
+    def debug(self, level=1, *, mesg=None, setDebug=None):
+        if setDebug != None:
+            self.DebugLevel = setDebug
+        try:
+            flag = self.DebugLevel >= level
+        except AttributeError:
+            flag = edmApp.DebugLevel >= level
+        if flag and (mesg != None):
+            print(mesg)
+        return flag
+
+    def addTag(self, field, value):
+        self.tags[field] = edmTag(field, value)
 
     # Return properties of a converted type. There must be a more pythonesque
     # way of doing this.
-    def getIntProperty(self, field, defValue=None):
-        if field in self.tagValue:
-            return int(self.tagValue[field])
-        return  defValue
+    def getProperty(self, field, defValue=None, arrayCount=None):
+        '''
+        return a property entry (aka field tag), attempting to convert to the correct type.
+        if edmFields not configured, return tag value or default value (no conversion)
+        if edmFields and tags and tags.field != None, convert the selected entry
+        according to the conversion table.
+        '''
+        # if there wasn't a supplied value for this tag, return a default value. 
+        if field not in self.tags:
+            fieldRef = self.findField(field)
+            # print(f"field {field} fieldRef {fieldRef} defValue {defValue} arrayCount {arrayCount}")
+            # attempt to return a generic default value
+            if fieldRef == None:
+                if defValue != None:
+                    return defValue
+                print(f"no tag, no edmField for {field}!")
+                print([v.tag for v in self.edmFields])
+            else:
+                defValue = fieldRef.defaultValue
+                # test for Enum
+                if fieldRef.enumList != None:
+                    defValue = toEnum(fieldRef, defValue)
+                else:
+                    fakeTag = edmTag(field, defValue, fieldRef)
+                    defValue = converter( fakeTag, fieldRef, defValue)
+            if arrayCount == None:
+                return defValue
+            return [defValue] * arrayCount
 
-    def getEfIntProperty(self, field, defValue=None):
-        if field in self.tagValue:
-            w = self.tagValue[field].split(" ")
-            if len(w) == 1 or (len(w) > 1 and w[1] == "0"):
-                return int(w[0])
-        return defValue
+        tagRef = self.tags[field]
+        if tagRef.field == None:
+            tagRef.field = self.findField(tagRef.tag)
+            if tagRef.field == None:
+                print(f"missing fieldRef for {field} {tagRef.tag}")
+                if arrayCount == None:
+                    return tagRef.value
+                return decode( tagRef, None, arrayCount, defValue)
 
-    def getDoubleProperty(self, field, defValue=None):
-        try:
-            w = self.tagValue[field].split(" ")
-            if len(w) == 1 or (len(w) > 1 and w[1] == "0"):
-                return float(w[0])
-        except:
-            pass
+        # at this point - we have valid tagRef and tagRef.field.
+        # check whether creating an array or a single value
+        if arrayCount == None:
+            val = converter( tagRef, tagRef.field, defValue)
+        else:
+            val = decode( tagRef, tagRef.field, arrayCount, defValue)
+        return val
 
-        return defValue
-
-    def getStringProperty(self, field, defValue=None):
-        if field in self.tagValue:
-            return self.tagValue[field]
-        return defValue
-
-    def getColorProperty(self, field, defValue=None):
-        if field not in self.tagValue:
-            return defValue
-        return edmColors.findColorRule(self.tagValue[field])
-
-    def getFontProperty(self, field, defValue=None):
-        if field not in self.tagValue:
-            return defValue
-        return edmFont.getFont(self.tagValue[field])
-
-    def getEnumProperty( self, field, enum, defValue=None):
-        if field not in self.tagValue:
-            return defValue
-        return enum.index(self.tagValue[field])
+    def findField(self, field):
+        ''' find a field entry with a tag matching 'field'
+        '''
+        for fieldEntry in self.edmFields:
+            if fieldEntry.tag == field:
+                return fieldEntry
+            for subfield in fieldEntry.group:
+                if subfield.tag == field:
+                    return subfield
+        print(f"Can't find entry for field {field} Class {self.tags['Class'].value}")
+        return None
 
     def checkProperty(self, field):
-        return field in self.tagValue
+        ''' simple test to see if 'field' is listed in the list of tags entered '''
+        return field in self.tags
 
     def show(self):
-        if self.debugFlag > 0:
+        if self.debug():
             if hasattr(self, "edmParent"):
-                print("edmParent", self.edmParent.tagValue["Class"])
-            for idx, val in self.tagValue.items():
-                print("Key:", idx, " Value:", val)
+                print("edmParent", self.edmParent.tags["Class"].value)
+            for idx, val in self.tags.items():
+                print(f"Key:{idx}  Value:{val.value} type:{val.field}")
             print("- - - - - - - - -")
-
-    # Decode a { ... } sequence, stripping the numeric 1st column and returning a
-    # list of second columns
-    # Now, what should be the action when missing?
-    def decode(self, tag,count=-1,defValue=None, isString=False):
-        ''' decode single or double column of values
-            if isString is true, always interpret the value column as a string
-            '''
-        if tag not in self.tagValue:
-            return None
-        if count <= 0:
-            count = len(self.tagValue[tag])
-        rval = [defValue]*count
-        idx = -1
-        for val in self.tagValue[tag]:
-            if val[0] == "\"":
-                strVal = val
-                idx = idx + 1
-            else:
-                strVal = val.split(" ", 1)
-                if len(strVal) == 1:
-                    strVal = val
-                    idx = idx + 1
-                else:
-                    try:
-                        idx = int(strVal[0])
-                        strVal = strVal[1]
-                    except ValueError:
-                        strVal = val
-                        idx = idx + 1
-
-            if idx < 0 or idx >= count:
-                print(f"decode: index out of range: {idx} of {count}, string:{val}")
-                continue
-            # decide if we're decoding a color, a string, an int, or a double
-            if strVal.startswith("index "):
-                rval[idx] = edmColors.findColorRule(strVal)
-            elif strVal[0] == "\"":
-                rval[idx] = strVal.strip("\"")
-            elif isString:
-                rval[idx] = strVal
-            else:
-                try:
-                    v = float(strVal)
-                    if v == float(int(v)):
-                        rval[idx] =  int(v)
-                    else:
-                        rval[idx] = v
-                except:
-                    rval[idx] = strVal
-        return rval

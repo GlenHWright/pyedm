@@ -1,19 +1,37 @@
-from __future__ import print_function
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # Module for generating a widget for a text monitor class
 
-import pyedm.edmDisplay as edmDisplay
-from pyedm.edmWidget import edmWidget
-from pyedm.edmTextFormat import convDefault, convDecimal, convHex, convEngineer, convExp
-from pyedm.edmPVfactory import edmPVbase
+from enum import Enum
+
+from .edmApp import edmApp
+from .edmWidget import edmWidget
+from .edmTextFormat import convDefault, convDecimal, convHex, convEngineer, convExp
+from .edmPVfactory import edmPVbase
+from .edmField import edmField
+from .edmEditWidget import edmEdit
 
 from PyQt5.QtWidgets import QLineEdit
 from PyQt5.QtGui import QPalette
 from PyQt5.QtCore import Qt
 
 class activeXTextDspClass_noedit(QLineEdit,edmWidget):
-    displayModeList = { "default" : convDefault, "float" :convDefault, "exponential": convExp, "decimal":convDecimal, "hex":convHex, "string":convDefault }
+    menuGroup = [ "monitor", "Active Text" ]
     typeList = [ "unknown", "graphics", "monitors", "controls" ]
+    formatEnum = Enum("format",  "default float exponential decimal hex string" , start=0)
+    displayModeList = { formatEnum(0) : convDefault,
+                        formatEnum(1) : convDefault,
+                        formatEnum(2) : convExp,
+                        formatEnum(3) : convDecimal,
+                        formatEnum(4) : convHex,
+                        formatEnum(5) : convDefault
+                      }
+    edmEntityFields = [
+            edmField("controlPv", edmEdit.PV, defaultValue=None),
+            edmField("format", edmEdit.Enum, defaultValue=0, enumList=formatEnum),
+            edmField("precision", edmEdit.Int, defaultValue=2),
+            edmField("showUnits", edmEdit.Bool, defaultValue=False),
+            edmField("limitsFromDb", edmEdit.Bool, defaultValue=False)
+            ] + edmWidget.edmFontFields
     V3propTable = {
         "2-12" : [ "controlPv", "font", "useDisplayBg", "fontAlign", "INDEX", "fgColor", "INDEX", "bgColor", "format", "bgAlarm", "editable", "autoHeight", "isWidget",
                 "limitsFromDb", "precision", "ID", "changeCallbackFlag", "activateCallback", "deactivateCallbackFlag", "pvExprStr", "SvalColor", "nullAlarm", "fgPvExpStr", "smartRefresh", "useKp", 
@@ -24,18 +42,16 @@ class activeXTextDspClass_noedit(QLineEdit,edmWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-    def buildFromObject(self, objectDesc):
-        edmWidget.buildFromObject(self,objectDesc)
+    def buildFromObject(self, objectDesc, **kw):
+        super().buildFromObject(objectDesc, **kw)
         self.setReadOnly(1)
         self.setFocusPolicy(Qt.NoFocus)
         self.setFrame(0)
-        if objectDesc.getIntProperty("major") == 2:
-            self.formatType = [ "default", "float", "exponential", "decimal", "hex", "string" ] [ objectDesc.getIntProperty("format", 0) ]
-        else:
-            self.formatType = objectDesc.getStringProperty("format", "default")
-        self.precision = objectDesc.getEfIntProperty("precision", 2)
-        self.showUnits = objectDesc.getIntProperty("showUnits", 0)
-        self.limitsFromDb = objectDesc.getIntProperty("limitsFromDb", 0)
+        # removed a strange piece of code that seemed redundant. This may break older uses of "format"
+        self.formatType = objectDesc.getProperty("format", "default")
+        self.precision = objectDesc.getProperty("precision", 2)
+        self.showUnits = objectDesc.getProperty("showUnits", 0)
+        self.limitsFromDb = objectDesc.getProperty("limitsFromDb", 0)
 
     def findFgColor(self):
         edmWidget.findFgColor( self, palette=(QPalette.Text,))
@@ -44,7 +60,8 @@ class activeXTextDspClass_noedit(QLineEdit,edmWidget):
         edmWidget.findBgColor( self, palette=(QPalette.Base,))
 
     def redisplay(self, **kw):
-        if self.controlPV == None:  # Where does this come from?
+        
+        if getattr(self, "controlPV", None) == None:  # Where does this come from?
             return
         self.checkVisible()
         self.fgColorInfo.setColor()
@@ -62,4 +79,4 @@ class activeXTextDspClass_noedit(QLineEdit,edmWidget):
         except: print("activeXTextDspClass:noedit : conversion failure")
         self.setText(self.controlPV.char_value)
 
-edmDisplay.edmClasses["activeXTextDspClass:noedit"] = activeXTextDspClass_noedit
+edmApp.edmClasses["activeXTextDspClass:noedit"] = activeXTextDspClass_noedit

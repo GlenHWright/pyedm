@@ -5,9 +5,11 @@ from __future__ import print_function
 # to decrement, Right button presses cause the value to increment. This isn't a Qt Button,
 # it just has a passing display relationship to one.
 
-import pyedm.edmDisplay as edmDisplay
-import pyedm.edmPopupEntry as edmPopupEntry
-from pyedm.edmWidget import edmWidget
+from . import edmPopupEntry
+from .edmApp import edmApp
+from .edmWidget import edmWidget, pvItemClass
+from .edmField import edmField
+from .edmEditWidget import edmEdit
 
 from PyQt5.QtWidgets import QWidget, QMenu
 from PyQt5.QtGui import QPalette, QFontMetrics, QPainter
@@ -15,6 +17,23 @@ from PyQt5 import QtCore
 from PyQt5.QtCore import QSize, QPoint
 
 class updownButtonClass(QWidget, edmWidget):
+    menuGroup = ["control", "up/down button"]
+    edmEntityFields =  [
+        edmField("controlPv", edmEdit.PV),
+        edmField("savedValuePv", edmEdit.PV),
+        edmField("invisible", edmEdit.Bool, defaultValue=False),
+        edmField( "label", edmEdit.String),
+        edmField("coarseValue", edmEdit.Real ),
+        edmField("fineValue", edmEdit.Real ),
+        edmField("rate", edmEdit.Real ),
+        edmField("limitsFromDb", edmEdit.Bool, defaultValue=False),
+        edmField("scaleMin", edmEdit.Real),
+        edmField("scaleMax", edmEdit.Real)
+        ]
+    edmFieldList = \
+     edmWidget.edmBaseFields + edmWidget.edmColorFields  + \
+     edmEntityFields + edmWidget.edmFontFields + edmWidget.edmVisFields
+
     V3propTable = {
         "1-5" :  [ "INDEX", "fgColor", "INDEX", "bgColor", "INDEX", "topShadowColor", "INDEX", "botShadowColor",
             "controlPv", "fineValue", "coarseValue", "label", "3D", "invisible", "rate", "font", "savePv", "scaleMin", "scaleMax",
@@ -24,25 +43,27 @@ class updownButtonClass(QWidget, edmWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.edmParent.buttonInterest.append(self)
-        self.pvItem["savedValuePv"] = [ "savedValueName", "savedValuePV", 0 ]
+        self.pvItem["savedValuePv"] = pvItemClass( "savedValueName", "savedValuePV")
 
-    def buildFromObject(self, objectDesc):
-        edmWidget.buildFromObject(self,objectDesc)
-        self.invisible = objectDesc.getIntProperty("invisible", 0)
-        self.label = self.macroExpand( objectDesc.getStringProperty("label", ""))
-        self.coarseValue = objectDesc.getDoubleProperty("coarseValue", 0.0 )
-        self.fineValue = objectDesc.getDoubleProperty("fineValue", 0.0 )
-        self.rate = objectDesc.getDoubleProperty("rate", 0.0)
-        self.dbLimits = objectDesc.getIntProperty("limitsFromDb", 0)
-        self.scaleMin = objectDesc.getDoubleProperty("scaleMin", 0.0)
-        self.scaleMax = objectDesc.getDoubleProperty("scaleMax", 0.0)
+    def buildFromObject(self, objectDesc, **kw):
+        super().buildFromObject(objectDesc, **kw)
+        rebuild = kw.get('rebuild', False)
+        self.invisible = objectDesc.getProperty("invisible")
+        self.label = self.macroExpand( objectDesc.getProperty("label"))
+        self.coarseValue = objectDesc.getProperty("coarseValue")
+        self.fineValue = objectDesc.getProperty("fineValue")
+        self.rate = objectDesc.getProperty("rate")
+        self.dbLimits = objectDesc.getProperty("limitsFromDb")
+        self.scaleMin = objectDesc.getProperty("scaleMin")
+        self.scaleMax = objectDesc.getProperty("scaleMax")
         self.waitRepeat = 0
         self.incr = 0.0
-        self.timerID = None
-        self.timerActive = False
-        self.menu = QMenu(self)
-        self.actions = [ self.menu.addAction(menu, lambda arg=menu:self.onMenu(arg)) for menu in self.menuLabels ]
-        self.popup = None
+        if not rebuild:
+            self.timerID = None
+            self.timerActive = False
+            self.menu = QMenu(self)
+            self.actions = [ self.menu.addAction(menu, lambda arg=menu:self.onMenu(arg)) for menu in self.menuLabels ]
+            self.popup = None
 
     def paintEvent(self, event=None):
         painter = QPainter(self)
@@ -72,8 +93,8 @@ class updownButtonClass(QWidget, edmWidget):
                 return
             self.menu.exec_(self.mapToGlobal(pos) )
             return
-        if hasattr(self,"controlPV") == 0 or self.controlPV.isValid == 0:
-            if self.DebugFlag > 0 : print("Ignoring - no", hasattr(self, "controlPV"))
+        if not hasattr(self,"controlPV") or self.controlPV.isValid == 0:
+            if self.debug(): print("Ignoring - no", hasattr(self, "controlPV"))
             return
         if event.button() == QtCore.Qt.RightButton:
             # increase the value
@@ -100,7 +121,7 @@ class updownButtonClass(QWidget, edmWidget):
         self.timerActive = False
 
     def onMenu(self, arg):
-        if self.DebugFlag > 0 : print("onMenu", arg)
+        if self.debug(): print("onMenu", arg)
         activity = self.menuLabels.index(arg)
         if activity < 0:
             return
@@ -132,4 +153,4 @@ class updownButtonClass(QWidget, edmWidget):
             elif hasattr(self,"controlPV") and self.controlPV.isValid:
                 self.controlPV.put(val)
 
-edmDisplay.edmClasses["activeUpdownButtonClass"] = updownButtonClass
+edmApp.edmClasses["activeUpdownButtonClass"] = updownButtonClass

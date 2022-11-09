@@ -1,6 +1,9 @@
-from __future__ import division
-from __future__ import print_function
-# Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
+# Copyright 2022 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
+#
+# MODULE LEVEL: low
+#
+# Note - this should be provided a font, rather than doing the edmFont convert
+#
 # create a popup window which allows data entry as either text entry (keyboard) or
 # calculator entry (keyboard or mouse)
 # Note that Popup fails if called directly: makeKeypad and makeButtons are methods
@@ -10,6 +13,7 @@ from builtins import str
 from PyQt5 import QtGui, Qt, QtCore
 from PyQt5.QtWidgets import QWidget, QGridLayout, QVBoxLayout, QHBoxLayout, QButtonGroup, QPushButton, QLineEdit
 from PyQt5.QtCore import QSize
+
 import pyedm.edmFont as edmFont
 
 class Popup(QWidget):
@@ -61,11 +65,11 @@ class PopupNumeric(Popup):
         keypad = QWidget(self)
         layout = QGridLayout()
         self.group = QButtonGroup(self)
-        #self.group.connect(self.group, SIGNAL("buttonClicked(int)"), self.onKeypad)
         self.group.buttonClicked.connect(self.onKeypad)
         for ri,rv in enumerate(self.keys):
             for ci, cv in enumerate(rv):
                 b = QPushButton(cv)
+                b.keypadValue = (ri,ci)
                 b.setMinimumSize(self.buttonSize)
                 b.resize(self.buttonSize)
                 layout.addWidget(b, ri, ci)
@@ -73,11 +77,23 @@ class PopupNumeric(Popup):
         keypad.setLayout(layout)
         return keypad
 
-    def onKeypad(self, idx):
-        if idx <= 11:
-            ri = idx//3
-            ci = idx%3
-            self.textWidget.setText( self.textWidget.text() + self.keys[ri][ci])
+    def onKeypad(self, button):
+        ri, ci = button.keypadValue
+        v = self.keys[ri][ci]
+        text = self.textWidget.text()
+        if v in "0123456789":
+            self.textWidget.setText( text + self.keys[ri][ci])
+        elif v == ".":
+            if "." not in text:
+                self.textWidget.setText(text + ".")
+        elif v == "+/-":
+            try:
+                val = float(text)
+            except:
+                print(f"Unable to change sign of '{text}'")
+                return
+            val = -val
+            self.textWidget.setText(str(val))
 
     def makeButtons(self):
         buttons = QWidget(self)
@@ -95,9 +111,9 @@ class PopupNumeric(Popup):
         layout.addWidget(bs)
         layout.addWidget(ok)
         buttons.setLayout(layout)
-        ok.connect(ok, SIGNAL("clicked(bool)"), self.onAccept)
-        cancel.connect(cancel, SIGNAL("clicked(bool)"), self.onCancel)
-        bs.connect(bs, SIGNAL("clicked(bool)"), self.backspace)
+        ok.clicked.connect(self.onAccept)
+        cancel.clicked.connect(self.onCancel)
+        bs.clicked.connect(self.backspace)
 
         return buttons
 

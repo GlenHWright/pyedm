@@ -1,11 +1,18 @@
-from __future__ import print_function
-# Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
-from builtins import str
-from pyedm.edmPVfactory import pvClassDict, edmPVbase, convText
+# Copyright 2022 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
+#
+# MODULE LEVEL: low
+#
+# Note that this is the only module that intefaces directly with pyedm.
+# This module is dynamically loaded by __init__, and can be over-ridden
+# 
 
 from epics import ca, __version__ as epicsVersion
 ca.PREEMPTIVE_CALLBACK = False
+import sys
+
 from PyQt5.QtCore import QTimer
+
+from pyedm.edmPVfactory import pvClassDict, edmPVbase, convText
 from pyedm.edmApp import edmApp
 
 import traceback
@@ -81,13 +88,16 @@ class channel:
         self.connectorList = []
         self.isValid = False
         self.pvType = edmPVbase.typeUnknown
-        self.lastSeverity = 99
+        self.severity = 99
         if pvName != None:
             self.setPVname(pvName)
 
+    def __repr__(self):
+        return f"<edmchannel {self.name} severity {self.severity}>"
+
     def setPVname(self, name):
         self.name = name
-        if edmApp.DebugFlag > 0 : print("call create_channel", name)
+        if edmApp.debug(): print("call create_channel", name)
         # Ugly race condition: ca.create_channel(), in pyepics, may call "poll()"
         # which can cause "createCallback to be called early and unexpectedly.
         # To make the unexpected expected, a dictionary based on pv names that
@@ -95,16 +105,19 @@ class channel:
             self.chid = ca.create_channel(name, False, callback=createCallback)
         else:
             self.chid = ca.create_channel(name, False, createCallback)
+        if self.chid == None:
+            print(f"ca.create_channel failure for {name}!")
+            sys.exit(1)
         chidStr = self.chidStr()
-        if edmApp.DebugFlag > 0 : print("setPVname CHID=", chidStr)
+        if edmApp.debug(): print("setPVname CHID=", chidStr)
         if chidStr in pvDictionary:
             print("Duplicate CHID!", chidStr)
         else:
-            if edmApp.DebugFlag > 0 :print("Adding CHID", chidStr, "for", self)
+            if edmApp.debug():print("Adding CHID", chidStr, "for", self)
         pvDictionary[chidStr] = self
         if chidStr in unknownCHID:
             handleConnectionState(self.chid, chidStr, unknownCHID[chidStr][2])
-        if edmApp.DebugFlag > 0 :print("done setPVname")
+        if edmApp.debug():print("done setPVname")
 
     def chidStr(self, chid=None):
         if chid == None:
@@ -112,11 +125,17 @@ class channel:
         return makeChidStr(chid)
 
     def setField(self, kw, field, emptytest):
+        '''
+            setField - update a field from keywords if incoming isn't "empty"
+            return either new non-empty value or old value, and
+            emptytest if nothing else defined.
+        '''
         try:
             if kw[field] != emptytest:
                 setattr(self,field,kw[field])
-                if edmApp.DebugFlag > 0: print("set ", field, " to ", kw[field])
-        except: pass
+                if edmApp.debug(): print("set ", field, " to ", kw[field])
+        except KeyError:
+            pass
 
         return getattr(self, field, emptytest)
 
@@ -137,7 +156,7 @@ class channel:
             if self.enums == None:
                 return []
 
-        if edmApp.DebugFlag > 0:
+        if edmApp.debug():
             print("convert enums?", self.enums, self.enum_strs)
         if len(self.enums) > 0 and type(self.enums[0]) == bytes:
             self.enums = [ str(en, "utf-8") for en in self.enums ]
@@ -165,11 +184,14 @@ def addChannel(pvName, connector):
     return ch
 
 def delChannel(ch, connector):
-    ch.connectorList = [ idx for idx in ch.connectorList if idx != connector ]
+    try:
+        ch.connectorList.remove(connector)
+    except KeyError:
+        print(f"PV {connector} not in channel list {ch}")
 
 # Called when the channel connection status changes.
 def createCallback(pvname=None,chid=None,conn=None):
-    if edmApp.DebugFlag > 0 : print('createCallback', pvname, chid)
+    if edmApp.debug(): print('createCallback', pvname, chid)
     chidStr = makeChidStr(chid)
 
     if chidStr not in pvDictionary:
@@ -191,12 +213,12 @@ def handleConnectionState(chid, chidStr, conn):
         watcher.unlock(1)
     else:
         print("Unknown connection state:", conn, chidStr)
-    if edmApp.DebugFlag > 0 : print('Done createCallback', chidStr)
+    if edmApp.debug(): print('Done createCallback', chidStr)
 
 # Called when a value changes for a PV
 def subscriptionCallback(value, **kw):
     chid = str(kw['chid'])
-    if edmApp.DebugFlag > 0 : print("subscription CHID", chid, kw)
+    if edmApp.debug(): print("subscription CHID", chid, kw)
     if chid not in pvDictionary: return
 
     epicsChan = pvDictionary[chid]
@@ -205,17 +227,18 @@ def subscriptionCallback(value, **kw):
     precision = epicsChan.setField(kw, 'precision', 0)
     epicsChan.setField(kw, "lower_disp_limit", 0.0)
     epicsChan.setField(kw, "upper_disp_limit", 0.0)
-    if kw['count'] > 1:
+    if epicsChan.setField(kw, "count", None) != 1:
         epicsChan.char_value = ""
     else:
         try:
             enums = epicsChan.setField(kw, 'enum_strs', () )
             epicsChan.char_value = convText(epicsChan.value, epicsChan.pvType, Precision=precision, Enums=epicsChan.getEnumStrings())
-        except:
+        except BaseException as exc:
             # do a conversion of float or double
+            print(f"text convert failure {epicsChan.value} {exc}")
             epicsChan.char_value = convText(epicsChan.value, epicsChan.pvType, Precision=precision)
 
-    if edmApp.DebugFlag > 0 : print("Value callback", epicsChan.name, "Value", epicsChan.value, epicsChan.char_value, "for CHID", chid, kw)
+    if edmApp.debug(): print("Value callback", epicsChan.name, "Value", epicsChan.value, epicsChan.char_value, "for CHID", chid, kw)
 
     units = epicsChan.setField(kw, 'units', "")
     for ePV in epicsChan.connectorList:
@@ -227,7 +250,7 @@ def subscriptionCallback(value, **kw):
         ePV.units = units
         for fn in ePV.callbackList:
             fn[0](fn[1], pvname=epicsChan.name,
-            chid=chid,pv=ePV,value=value,count=kw['count'],units=units,severity=epicsChan.severity,userArgs=fn[2])
+            chid=chid,pv=ePV,value=value,count=epicsChan.count,units=units,severity=epicsChan.severity,userArgs=fn[2])
 
 #
 # the epicsPV class is returned when a build is done
@@ -235,16 +258,29 @@ def subscriptionCallback(value, **kw):
 class epicsPV(edmPVbase):
 
     def __init__(self, **kw):
+        self.chan = None
         super().__init__(**kw)
         self.prefix = "EPICS\\"
 
-    def __del__(self):
-        if edmApp.DebugFlag > 0: print("epicsPV deleting", self.name)
-        edmPVbase.__del__(self)
+    def __repr__(self):
+        return f"<epicsPV {self.name} valid:{self.isValid}>"
+
+    def edmCleanup(self):
+        if edmApp.debug(): print("epicsPV cleanup", self.name)
         if hasattr(self, "chan"):
             delChannel(self.chan, self)
+        super().edmCleanup()
         
     def setPVname(self, pvName):
+        ''' set the PV name.
+            if already connected, disconnect from the existing channel.
+        '''
+        if pvName == getattr(self,"name", None): # if name hasn't changed, the connection hasn't changed.
+            return
+        # if we're already connected, drop the channel.
+        if self.chan != None:
+            delChannel(self.chan, self)
+
         edmPVbase.setPVname(self, pvName)
         self.chan = addChannel(pvName, self)
         # try and avoid race condition: a channel can be "valid", but not have read
@@ -281,7 +317,7 @@ class epicsPV(edmPVbase):
         min = getattr(self.chan, "lower_disp_limit", 0.0)
         max = getattr(self.chan, "upper_disp_limit", 0.0)
         if max == min:
-            raise ValueError
+            raise ValueError( "Requested PV display limits are identical")
         return (min, max)
         
     def getEnumStrings(self):

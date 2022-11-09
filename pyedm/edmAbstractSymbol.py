@@ -1,16 +1,16 @@
-# Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
+# Copyright 2022 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # Abstract symbolClass to use portions of an edl file based
 # on the top level groups within the file
+#
+# MODULE LEVEL: high
 #
 # Any class inheriting 'AbstractSymbolClass' must have a field of 'statelist'
 # of the length of the number of supported states.
 #
-from builtins import zip
-from builtins import str
-import pyedm.edmDisplay as edmDisplay
-from pyedm.edmApp import redisplay
-from pyedm.edmScreen import edmScreen
-from pyedm.edmWidget import edmWidget
+from .edmWindowWidget import generateWidget
+from .edmApp import redisplay
+from .edmScreen import edmScreen
+from .edmWidget import edmWidget
 
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtWidgets import QWidget, QFrame, QScrollArea
@@ -32,11 +32,14 @@ class AbstractSymbolClass(QFrame,edmWidget):
         self.edmParent.buttonInterest.append(self)
 
     def buildStateObjects(self, filename, macroTable=None):
+        '''
+           load the named file, and search out all objects that define groups.
+        '''
         self.edmScreen = edmScreen(filename, macroTable, self.findDataPaths() )
         # build a list of items from the file
         self.stateObjects = []
         for item in self.edmScreen.objectList:
-            if item.tagValue["Class"] == "activeGroupClass":
+            if item.tags["Class"].value == "activeGroupClass":
                 self.stateObjects.append(item)
 
         # Opportunity For Confusion:
@@ -44,27 +47,27 @@ class AbstractSymbolClass(QFrame,edmWidget):
         # the screen they're on.
         # So, the group widget needs to be changed to '0,0'. All children widgets
         # must have their x,y adjusted by the group offset.
-        # Because the widgets haven't been built yet, the object tagValues will be
-        # updated.
+        # Because the widgets haven't been built yet, the object tags will be
+        # updated. code is ugly because we're skipping a step
         self.macroTable = getattr(self.edmParent, "macroTable", None)
-        for item in zip(self.stateObjects,self.statelist):
-            groupx = item[0].getIntProperty("x", 0)
-            groupy = item[0].getIntProperty("y", 0)
-            self.moveItem(item[0], groupx, groupy)
-            item[1].widgets = symbolWidget(self)
-            item[1].widgets.parentx = 0
-            item[1].widgets.parenty = 0
-            edmDisplay.generateWidget(item[0], item[1].widgets)
-            self.buttonInterest.append(item[1].widgets)
-            item[1].widgets.hide()
+        for s_obj, s_item in zip(self.stateObjects,self.statelist):
+            groupx = int(s_obj.tags["x"].value)
+            groupy = int(s_obj.tags["y"].value)
+            self.moveItem(s_obj, groupx, groupy)
+            s_item.widgets = symbolWidget(self)
+            s_item.widgets.parentx = 0
+            s_item.widgets.parenty = 0
+            generateWidget(s_obj, s_item.widgets)
+            self.buttonInterest.append(s_item.widgets)
+            s_item.widgets.hide()
         self.lastState = None
         self.curState = self.statelist[0]
 
     def moveItem(self, item, offx, offy):
-        myx = item.getIntProperty("x", 0)
-        myy = item.getIntProperty("y", 0)
-        item.tagValue["x"] = str(myx-offx)
-        item.tagValue["y"] = str(myy-offy)
+        myx = int(item.tags["x"].value)
+        myy = int(item.tags["y"].value)
+        item.tags["x"].value =  str(myx-offx)
+        item.tags["y"].value =  str(myy-offy)
         if hasattr(item, "objectList"):
             for subItem in item.objectList:
                 self.moveItem(subItem, offx, offy)

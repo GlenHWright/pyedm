@@ -1,19 +1,30 @@
-from __future__ import division
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # This module displays a set of boxes for the bit values of a PV
 
-from builtins import range
-import pyedm.edmDisplay as edmDisplay
-from pyedm.edmWidget import edmWidget
+from .edmApp import edmApp
+from .edmWidget import edmWidget
+from .edmField import edmField
+from .edmEditWidget import edmEdit
 
 from PyQt5.QtGui import QPainter
 from PyQt5.QtWidgets import QWidget
 
-
 # Display class for bars: can be inherited by controllable widgets
 #
 class byteClass(QWidget,edmWidget):
+    menuGroup = [ "monitor", "Byte" ]
 
+    edmEntityFields = [
+        edmField("controlPv", edmEdit.PV),
+        edmField("numBits", edmEdit.Int, defaultValue=16),
+        edmField("shifting", edmEdit.Int, defaultValue=0),
+        edmField("lineColor", edmEdit.Color),
+        edmField("onColor", edmEdit.Color),
+        edmField("offColor", edmEdit.Color)
+            ]
+    edmEditFields = \
+     edmWidget.edmBaseFields + edmWidget.edmColorFields  + \
+     edmEntityFields + edmWidget.edmFontFields + edmWidget.edmVisFields
     V3propTable = {
          "1-1" : [ "INDEX", "lineColor", "INDEX", "onColor", "INDEX", "offColor", 
          "controlPv", "lineWidth", "lineStyle", "direction", "numBits", "shifting" ]
@@ -21,16 +32,16 @@ class byteClass(QWidget,edmWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-    def cleanup(self):
-        edmWidget.cleanup(self)
-        self.lineColorInfo.cleanup()
-        self.onColorInfo.cleanup()
-        self.offColorInfo.cleanup()
+    def edmCleanup(self):
+        super().edmCleanup()
+        self.lineColorInfo.edmCleanup()
+        self.onColorInfo.edmCleanup()
+        self.offColorInfo.edmCleanup()
 
-    def buildFromObject(self, objectDesc):
-        edmWidget.buildFromObject(self,objectDesc)
-        self.noBits = objectDesc.getIntProperty("numBits", 16)
-        self.shiftBits = objectDesc.getIntProperty("shifting", 0)
+    def buildFromObject(self, objectDesc, **kw):
+        super().buildFromObject(objectDesc, **kw)
+        self.noBits = objectDesc.getProperty("numBits")
+        self.shiftBits = objectDesc.getProperty("shifting")
         self.lineColorInfo = self.findColor("lineColor", ())
         self.value = 0
 
@@ -80,5 +91,5 @@ class byteClass(QWidget,edmWidget):
         self.value = int(self.controlPV.value) >> self.shiftBits
         self.update()
 
-edmDisplay.edmClasses["ByteClass"] = byteClass
+edmApp.edmClasses["ByteClass"] = byteClass
 

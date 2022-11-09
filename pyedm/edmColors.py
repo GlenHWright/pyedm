@@ -1,13 +1,15 @@
-from __future__ import print_function
-# Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
+# Copyright 2022 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # Support reading of an edm Colors file for defining widget colors.
+# provides colorRule which will contain and interpret a color rule.
+#
+# MODULE LEVEL: base
+# This is a base-level file for importing, it must not include any other pyedm modules either directly or indirectly
 #
 # Recommended way to use this file:
 # from edmColors import findColorRule, colorRule
 # widget.someColor = findColorRule(my_Name_Or_Index)
 # something_that_needs_a_QColor( widget.someColor.getColor( ColorPV value, default Color))
 
-from builtins import range
 from os import getenv
 import re
 from PyQt5.QtCore import Qt
@@ -50,6 +52,9 @@ class colorRule:
         self.ruleList = []
         self.name = name
         self.numeric = numeric
+
+    def __str__(self):
+        return f"{self.numeric}: {self.name}"
 
     # add a rule for this color name
     def addRule(self, value=0.0, op=oneRule.NO_OP, color = None, blinkColor=None, left=None, right=None):
@@ -94,6 +99,8 @@ class edmColor:
     aliasList = {}
     # builtin Rules
     builtin = {}
+    # alarm colors
+    alarms = {}
 
     def __init__(self):
         self.wordlist = []
@@ -164,7 +171,7 @@ class edmColor:
                     #
                     # print "Build static color ", words, blockList, int(words[1])
                     self.myRule = self.findRule( words[2],
-                    numeric=int(words[1]), create=1)
+                            numeric=int(words[1]), create=1)
                     blinkColor = None
                     if words[2] == "invisible":  # EDM Magic Value
                         color = QColor(0,0,0,0)
@@ -177,7 +184,10 @@ class edmColor:
                     continue
 
                 # build the alarm colors
-                if words[0] == "alarm" and len(words) > 2:
+                if words[0] == "alarm":
+                    for w in range(0,len(blockList), 3):
+                        if blockList[w+2] != '*':
+                            edmColor.alarms[blockList[w]] = self.findRule(blockList[w+2])
                     words = []
                     continue
 
@@ -215,6 +225,7 @@ class edmColor:
                     continue
 
                 # hit the end of a block without knowing what's going on
+                print(f"Ignoring {words} {blockList}")
                 words = []
                 continue
 
@@ -247,10 +258,12 @@ class edmColor:
         pass
 
     def findRule(self, index, numeric=None, create=0):
+        if isinstance(index, colorRule):
+            return index
         if index in self.builtin:
             return self.builtin[index]
         idx = None
-        if type(index) == 'int':
+        if type(index) == int:
             name = self.colorIndex[index]
         else:
             try:
@@ -309,31 +322,30 @@ class edmColor:
         if self.debug > 0 : print("Read Line:", line)
         return line
 
-# Wrappers for 'edmColors'
+# Wrappers for 'edmColor'
+# colorName is a numeric color
 def loadColorFile(filename):
     colorTable.loadColor(filename)
 
 def findColorRule(colorName):
-    if colorName.startswith("index "):
-        cn = colorName.split(" ")
-        try:
-            return colorTable.findRule( int(cn[1]))
-        except:
-            pass
+    try:
+        if colorName.startswith("index "):
+            colorName = colorName.split(" ")[1]
+    except AttributeError:
+        pass
     return colorTable.findRule(colorName)
 
 # Stub - return generic colors. This should use the alarm colors defined in the
 # file.
 def getAlarmColor(status,valid):
-
     if valid == 0:
-        return Qt.white
+        return edmColor.alarms["disconnected"].getColor()
     if status == 1:
-        return Qt.yellow
+        return edmColor.alarms["minor"].getColor()
     if status == 2:
-        return Qt.red
+        return edmColor.alarms["major"].getColor()
     if status == 3:
-        return Qt.white
+        return edmColor.alarms["invalid"].getColor()
     return Qt.black
 
 # Load the color table

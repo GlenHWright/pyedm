@@ -1,4 +1,3 @@
-from __future__ import print_function
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # Module for generating a widget for a related display
 
@@ -7,13 +6,12 @@ from __future__ import print_function
 # is the management of the macros, so that macro expansion occurs using
 # the correct macro set.
 #
-from builtins import zip
-from builtins import range
 import os
-import pyedm.edmDisplay as edmDisplay
-from pyedm.edmScreen import edmScreen
-from pyedm.edmWidget import edmWidget
-from pyedm.edmDisplay import generateWindow
+from .edmApp import edmApp
+from .edmScreen import edmScreen
+from .edmWidget import edmWidget
+from .edmField import edmField
+from .edmEditWidget import edmEdit
 
 from PyQt5.QtWidgets import QPushButton, QMenu
 from PyQt5.QtGui import QPalette
@@ -23,28 +21,37 @@ class popUpMenu(QMenu):
         super().__init__(parent)
 
 class relatedDisplayClass(QPushButton,edmWidget):
+    menuGroup = ["display", "Related Display"]
+    edmEntityFields = [
+            edmField("buttonLabel", edmEdit.String),
+            edmField("invisible", edmEdit.Bool),
+            edmField("numDsps", edmEdit.Int, hidden=True),
+            edmField("displayFileName", edmEdit.String, array=True),
+            edmField("setPosition", edmEdit.Bool, array=True),
+            edmField("menuLabel", edmEdit.String, array=True),
+            edmField("symbols", edmEdit.String, array=True)
+            ] + edmWidget.edmFontFields
     def __init__(self, parent=None):
         super().__init__(parent)
 
-    def buildFromObject(self, objectDesc):
-        edmWidget.buildFromObject(self,objectDesc)
-        self.update()
-        name = self.objectDesc.getStringProperty("buttonLabel", None)
+    def buildFromObject(self, objectDesc, **kw):
+        super().buildFromObject(objectDesc, **kw)
+        name = self.objectDesc.getProperty("buttonLabel", None)
         if name != None:
             self.setText(self.macroExpand(name))
-        if self.objectDesc.getIntProperty("invisible",0) == 1:
+        if self.objectDesc.getProperty("invisible",0) == 1:
             self.transparent = 1
             self.setFlat(1)
                                             
-        numDsps = self.objectDesc.getIntProperty("numDsps", "0")
+        numDsps = self.objectDesc.getProperty("numDsps", "0")
         
         if numDsps == 0:
             print("relatedDisplayClass: no files to display")
             return
-        self.filelist = self.objectDesc.decode("displayFileName",count=numDsps)
-        self.poslist = self.objectDesc.decode("setPosition",count=numDsps)
-        self.menulist = self.objectDesc.decode("menuLabel",count=numDsps)
-        self.symbollist = self.objectDesc.decode("symbols",count=numDsps)
+        self.filelist = self.objectDesc.getProperty("displayFileName",arrayCount=numDsps)
+        self.poslist = self.objectDesc.getProperty("setPosition",arrayCount=numDsps)
+        self.menulist = self.objectDesc.getProperty("menuLabel",arrayCount=numDsps)
+        self.symbollist = self.objectDesc.getProperty("symbols",arrayCount=numDsps)
 
         self.filename = [ self.macroExpand(filename) for filename in self.filelist]
         self.generated = [ None for idx in range(0, len(self.filename))]
@@ -111,7 +118,7 @@ class relatedDisplayClass(QPushButton,edmWidget):
                 tags['button3Popup'] = values.pop(0)
 
     def findFgColor(self):
-        self.fgColorInfo = self.findColor("fgColor", (QPalette.ButtonText,), "FGalarm", "fgAlarm")
+        self.fgColorInfo = self.findColor("fgColor", (QPalette.ButtonText,), alarmPV="FGalarm", alarmName="fgAlarm")
         self.fgColorInfo.setColor()
     
     def findBgColor(self):
@@ -146,5 +153,5 @@ class relatedDisplayClass(QPushButton,edmWidget):
         if childIdx != None:
             self.widgets[childIdx] = None
         
-edmDisplay.edmClasses["relatedDisplayClass"] = relatedDisplayClass
+edmApp.edmClasses["relatedDisplayClass"] = relatedDisplayClass
 

@@ -1,18 +1,24 @@
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # This module displays a widget that allows text entry.
 
-from builtins import str
-import pyedm.edmDisplay as edmDisplay
-from pyedm.edmWidget import edmWidget
+from . import edmImport
+from .edmApp import edmApp
+from .edmWidget import edmWidget, pvItemClass
+from .edmEditWidget import edmEdit
+from .edmField import edmField
 
 from PyQt5.QtWidgets import QLineEdit
 from PyQt5.QtGui import QPalette
 from PyQt5.QtCore import Qt
-monitortext = __import__("monitortext", globals(), locals(), 1)
+monitortext = edmImport("monitortext")
 TextupdateClass = monitortext.TextupdateClass
 
 
 class TextentryClass(TextupdateClass):
+    menuGroup = [ "control", "Text Entry" ]
+
+    edmEntityFields = [
+            ] + TextupdateClass.edmEntityFields
 
     V3propTable = {
         "7-0" : [ "controlPv", "displayMode", "precision", "INDEX", "fgColor", "fgAlarm", "INDEX", "fillColor", "filled", "colorPv",
@@ -28,8 +34,8 @@ class TextentryClass(TextupdateClass):
     def findFgColor(self):
         edmWidget.findFgColor( self, palette=(QPalette.Text,))
 
-    def buildFromObject(self, objectDesc):
-        TextupdateClass.buildFromObject(self, objectDesc)
+    def buildFromObject(self, objectDesc, **kw):
+        super().buildFromObject(objectDesc, **kw)
         self.setReadOnly(0) # override the  "display only" settings
         self.setFocusPolicy(Qt.StrongFocus)
         self.setFrame(1)    # override the  "display only" settings
@@ -58,4 +64,7 @@ class TextentryClass(TextupdateClass):
         self.haveFocus = 0
         self.redisplay()
 
-edmDisplay.edmClasses["TextentryClass"] = TextentryClass
+
+TextentryClass.buildFieldListClass("edmEntityFields", "edmFontFields")
+
+edmApp.edmClasses["TextentryClass"] = TextentryClass

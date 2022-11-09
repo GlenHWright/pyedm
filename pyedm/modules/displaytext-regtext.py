@@ -1,15 +1,26 @@
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # This module manages the display of text with regular expression manipulation
 
-import pyedm.edmDisplay as edmDisplay
+from . import edmImport
+from .edmApp import edmApp
+from .edmField import edmField
+from .edmEditWidget import edmEdit
 
 from PyQt5.QtWidgets import QTextEdit
 from PyQt5 import QtCore
-# from pyedm.displaytext import activeXTextClass
-displaytext = __import__("displaytext", globals(), locals(), 1)
+
+displaytext = edmImport("displaytext")
 activeXTextClass = displaytext.activeXTextClass
 
 class activeXRegTextClass(activeXTextClass):
+    menuGroup = [ "monitor", "active Text" ]
+    edmEntityFields = [
+        edmField("regExpr", edmEdit.String)
+            ]
+    edmFieldList = \
+     activeXTextClass.edmBaseFields + activeXTextClass.edmColorFields  + \
+     activeXTextClass.edmEntityFields + \
+     edmEntityFields + activeXTextClass.edmFontFields + activeXTextClass.edmVisFields
     V3propTable = {
         "2-1" : [ "INDEX", "fgColor", "fgAlarm", "useDisplayBg", "INDEX", "bgColor", "bgAlarm", "alarmPv",
             "visPv", "visInvert", "visMin", "visMax", "value", "font", "fontAlign", "autoSize", "ID" , "regExpr" ]
@@ -20,5 +31,5 @@ class activeXRegTextClass(activeXTextClass):
     def onUpdate(self, **kw):
         self.setText(self.controlPV.char_value)
 
-edmDisplay.edmClasses["activeXRegTextClass"] = activeXRegTextClass
+edmApp.edmClasses["activeXRegTextClass"] = activeXRegTextClass
 

@@ -1,17 +1,38 @@
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # Module for generating a widget for a static text display class
 
-from builtins import str
-import pyedm.edmDisplay as edmDisplay
-from pyedm.edmWidget import edmWidget
-from pyedm.edmApp import redisplay
+from enum import Enum
+from .edmWidget import edmWidget, pvItemClass
+from .edmField import edmField
+from .edmEditWidget import edmEdit
+from .edmApp import redisplay, edmApp
 
 from PyQt5.QtWidgets import QPushButton
 from PyQt5.QtGui import QPalette
 from PyQt5 import QtCore
-#from PyQt5.QtCore import SIGNAL
 
 class activeButtonClass(QPushButton, edmWidget):
+    menuGroup = [ "control", "Button" ]
+    labelTypeEnum = Enum("labelType", "pvState literal", start=0)
+    buttonTypeEnum = Enum("buttonType", "toggle push", start=0)
+    objTypeEnum = Enum("objType", "unknown graphics monitors controls", start=0)
+    edmEntityFields = [
+            edmField("invisible", edmEdit.Bool, defaultValue=False),
+            edmField("onColor", edmEdit.Color),
+            edmField("offColor", edmEdit.Color),
+            edmField("unknownColor", edmEdit.Color),
+            edmField("topShadowColor", edmEdit.Color),
+            edmField("botShadowColor", edmEdit.Color),
+            edmField("indicatorPv", edmEdit.PV),
+            edmField("controlPv", edmEdit.PV),
+            edmField("readPv", edmEdit.PV),
+            edmField("onLabel", edmEdit.String),
+            edmField("offLabel", edmEdit.String),
+            edmField("labelType", edmEdit.Enum, enumList=labelTypeEnum, defaultValue=1),
+            edmField("buttonType", edmEdit.Enum, enumList=buttonTypeEnum, defaultValue=1),
+            edmField("threeD", edmEdit.Bool, defaultValue=False),
+            edmField("objType", edmEdit.Enum, enumList=objTypeEnum, defaultValue=0)
+            ]
     V3propTable = {
         "2-1" : [ "fgColor", "fgAlarm", "onColor", "offColor", "unknownColor", "topShadowColor", "botShadowColor",
         "controlPv", "readPv", "onLabel", "offLabel", "labelType", "buttonType", "threeD", "invisible", "font", "ID", "downCallbackFlag", "upCallbackFlag", "activateCallbackFlag",
@@ -23,40 +44,35 @@ class activeButtonClass(QPushButton, edmWidget):
     def __init__(self, parent=None, **kw):
         super().__init__(parent=parent, **kw)
         # if these aren't over-ridden, then they end up being the labels by default
-        self.onLabel = "1"
-        self.offLabel = "0"
-        self.labeltype = "pvState"
-        self.needLabel = True
-        self.pvItem["indicatorPv"] = [ "indicatorName", "indicatorPV", 1 ]
+        self.pvItem["indicatorPv"] = pvItemClass( "indicatorName", "indicatorPV", redisplay=True)
 
-    def cleanup(self):
-        edmWidget.cleanup(self)
-        self.onColorInfo.cleanup()
-        self.offColorInfo.cleanup()
+    def edmCleanup(self):
+        self.disconnect()
+        self.onColorInfo.edmCleanup()
+        self.offColorInfo.edmCleanup()
+        super().edmCleanup()
 
-    def buildFromObject(self, objectDesc):
-        edmWidget.buildFromObject(self,objectDesc)
-        type = self.getToggleType()
-        self.setCheckable( type )
+    def buildFromObject(self, objectDesc, **kw):
+        super().buildFromObject(objectDesc, **kw)
+        self.toggletype = self.getProperty("buttonType")
+        self.setCheckable( self.toggletype==self.buttonTypeEnum.toggle )
         self.setAutoFillBackground(True)
-        self.labeltype = objectDesc.getStringProperty("labelType", "literal")
-        if self.labeltype == "literal" or self.labeltype == "1":
-            self.onLabel = self.macroExpand(objectDesc.getStringProperty("onLabel", ""))
-            self.offLabel = self.macroExpand(objectDesc.getStringProperty("offLabel", ""))
+        self.labeltype = objectDesc.getProperty("labelType")
+        if self.labeltype == self.labelTypeEnum.literal:
+            self.onLabel = self.macroExpand(objectDesc.getProperty("onLabel"))
+            self.offLabel = self.macroExpand(objectDesc.getProperty("offLabel"))
             self.needLabel = False
-        elif self.labeltype == "pvState" or self.labeltype == "0":
+        elif self.labeltype == self.labelTypeEnum.pvState:
             self.needLabel = True
-        if self.objectDesc.getIntProperty("invisible",0) == 1:
-            self.transparent = 1
+            self.onLabel, self.offLabel = "1", "0"
+        if self.objectDesc.getProperty("invisible") == True:
+            self.transparent = True
             self.setFlat(1)
         self.setText(self.offLabel)
         # if a toggle button, use the 'clicked' signal.
         if self.isCheckable():
-            #self.connect(self, SIGNAL("clicked(bool)"), self.onClicked)
             self.clicked.connect(self.onClicked)
         else:
-            #self.connect(self, SIGNAL("pressed()"), self.onPress)
-            #self.connect(self, SIGNAL("released()"), self.onRelease)
             self.pressed.connect(self.onPress)
             self.released.connect(self.onRelease)
         self.edmParent.buttonInterest.append(self)
@@ -69,13 +85,9 @@ class activeButtonClass(QPushButton, edmWidget):
         self.offColorInfo.setColor()
 
     def findFgColor(self):
-        self.fgColorInfo = self.findColor("fgColor", (QPalette.ButtonText,QPalette.Text), "FGalarm", "fgAlarm")
+        self.fgColorInfo = self.findColor("fgColor", (QPalette.ButtonText,QPalette.Text), alarmName="fgAlarm")
         self.fgColorInfo.setColor()
         
-    def getToggleType(self):
-        type = self.objectDesc.getStringProperty("buttonType")
-        return (type != "push" or type != "1")
-
     # toggle button changed
     def onClicked(self,checked):
         if self.controlPV != None:
@@ -99,6 +111,8 @@ class activeButtonClass(QPushButton, edmWidget):
     # completely over-ride the default redisplay
     def redisplay(self, **kw):
         self.checkVisible()
+        if self.transparent:
+            return
         pos = self.getPositionState()
         if self.needLabel:
             if hasattr(self,"indicatorPV") and self.indicatorPV.isValid :
@@ -128,6 +142,8 @@ class activeButtonClass(QPushButton, edmWidget):
         self.setText( txt)
         self.update()
 
-edmDisplay.edmClasses["activeButtonClass"] = activeButtonClass
+activeButtonClass.buildFieldListClass("edmEntityFields", "edmFontFields")
+
+edmApp.edmClasses["activeButtonClass"] = activeButtonClass
 
 

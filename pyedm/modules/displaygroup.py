@@ -2,36 +2,62 @@
 # Module for generating a widget for a group display class
 #
 
-import pyedm.edmDisplay as edmDisplay
-from pyedm.edmWindowWidget import edmWindowWidget
-from pyedm.edmWidget import edmWidget
+from .edmApp import edmApp
+from .edmWindowWidget import edmWindowWidget, generateWidget, mousePressEvent, mouseReleaseEvent, mouseMoveEvent, editModeEnum
+from .edmWidget import edmWidget
+from .edmParentSupport import edmParentSupport
 
-from PyQt5 import QtCore, QtGui
+from PyQt5 import QtWidgets
 
-class activeGroupClass(edmWindowWidget, edmWidget):
+class activeGroupClass(QtWidgets.QWidget, edmParentSupport, edmWidget):
+    menuGroup = [ "display", "Group" ]
     '''group display widget
         because the data input is handled by the edmScreen module, there isn't much to
         do at this level, and there is no need of alternate file input handling here'''
     def __init__(self, parent=None, **kw):
-        super().__init__(parent, **kw)
+        #super().__init__(parent, **kw)
+        QtWidgets.QWidget.__init__(self, parent)
+        edmWidget.__init__(self, parent)
+        edmParentSupport.__init__(self, parent)
+        print(f"activeGroupClass __init__ {dir(self)}")
 
-    def cleanup(self):
+    def __repr__(self):
+        ch = self.children()
+        if len(ch) == 0:
+            ch = "Empty"
+        else:
+            ch = ch[0]
+        return f"<activeGroup {ch}...>"
+
+    def edmCleanup(self):
         self.buttonInterest = []
-        edmWidget.cleanup(self)
+        super().edmCleanup()
 
-    def buildFromObject(self, objectDesc):
-        edmWidget.buildFromObject(self, objectDesc)
-        self.parentx = objectDesc.getIntProperty("x")
-        self.parenty = objectDesc.getIntProperty("y")
+    def buildFromObject(self, objectDesc, **kw):
+        super().buildFromObject( objectDesc, **kw)
+        self.parentx = objectDesc.getProperty("x")
+        self.parenty = objectDesc.getProperty("y")
         self.macroTable = getattr(self.edmParent, "macroTable", None)
-        edmDisplay.generateWidget(self.objectDesc, self)
+        generateWidget(self.objectDesc, self)
         # Unknown level of nesting, so the assumption is made that
         # this widget could contain something that would like
         # a mouse message
         self.edmParent.buttonInterest.append(self)
 
+    def mousePressEvent(self, *args, **kw):
+        mousePressEvent(self, *args, **kw)
+
+    def mouseReleaseEvent(self, *args, **kw):
+        mouseReleaseEvent(self, *args, **kw)
+
+    def mouseMoveEvent(self, *args, **kw):
+        mouseMoveEvent(self, *args, **kw)
+
     def redisplay(self):
         self.checkVisible()
+
+    def buildNewWindow(self):
+        pass
 
     def findFgColor(self):
         return None
@@ -39,6 +65,4 @@ class activeGroupClass(edmWindowWidget, edmWidget):
     def findBgColor(self):
         return None
 
-edmDisplay.edmClasses["activeGroupClass"] = activeGroupClass
-
-
+edmApp.edmClasses["activeGroupClass"] = activeGroupClass

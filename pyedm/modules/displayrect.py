@@ -8,24 +8,29 @@ from __future__ import division
 # width and height as the center of the box, and the line goes on the outside
 # of this - mostly.
 
-import pyedm.edmDisplay as edmDisplay
-from pyedm.edmAbstractShape import abstractShape
+from .edmApp import edmApp
+from .edmAbstractShape import abstractShape
 
 from PyQt5.QtWidgets import QFrame
 from PyQt5.QtGui import QPainter
 
 class activeRectangleClass(abstractShape):
+    menuGroup = [ "display", "Draw Rectangle"]
     V3propTable = {
         "2-0" : [ "lineColor", "lineAlarm", "fill", "fillColor", "fillAlarm",
                     "alarmPV", "visPV", "visInvert", "visMin", "visMax", "lineWidth", "lineStyle", "invisible" ],
         "2-1" : [ "INDEX", "lineColor", "lineAlarm", "fill", "INDEX", "fillColor", "fillAlarm",
                     "alarmPV", "visPV", "visInvert", "visMin", "visMax", "lineWidth", "lineStyle", "invisible" ]
                     }
+
+    edmFieldList = abstractShape.edmBaseFields + abstractShape.edmShapeFields + abstractShape.edmVisFields
+
     def __init__(self, parent=None):
         super().__init__(parent)
 
-    def buildFromObject(self, objectDesc):
-        abstractShape.buildFromObject(self, objectDesc)
+    def buildFromObject(self, objectDesc, **kw):
+        super().buildFromObject(objectDesc, **kw)
+        self.linewidth = objectDesc.getProperty("lineWidth", 1)
         if self.fillColorInfo == None:
             w2 = self.linewidth
             w = int(self.linewidth//2)
@@ -42,7 +47,7 @@ class activeRectangleClass(abstractShape):
         pen.setColor( self.lineColorInfo.setColor())
         pen.setWidth(self.linewidth)
         painter.setPen(pen)
-        if self.DebugFlag > 0 : print("paintRect ", x, y, w, h, self.linewidth, self.fillColorInfo != None)
+        if self.debug() : print("paintRect ", x, y, w, h, self.linewidth, self.fillColorInfo != None)
         if self.fillColorInfo != None:
             painter.setBrush( self.fillColorInfo.setColor() )
             painter.drawRect( x, y, w, h)
@@ -52,5 +57,5 @@ class activeRectangleClass(abstractShape):
             hlw = int(lw//2)
             painter.drawRect( x+hlw, y+hlw, w-lw, h-lw)
         
-edmDisplay.edmClasses["activeRectangleClass"] = activeRectangleClass
+edmApp.edmClasses["activeRectangleClass"] = activeRectangleClass
 

@@ -1,12 +1,24 @@
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # This module generates a widget to set a PV to a value on press or release
 # from pyedm.controlbutton import activeButtonClass
-controlbutton = __import__("controlbutton", globals(), locals(), 1)
+#
+#
+from pyedm import edmImport
+controlbutton = edmImport("controlbutton")
 activeButtonClass = controlbutton.activeButtonClass
 
-import pyedm.edmDisplay as edmDisplay
+from .edmField import edmField
+from .edmWidget import pvItemClass
+from .edmEditWidget import edmEdit
+from .edmApp import edmApp
 
 class activeMessageButtonClass (activeButtonClass):
+
+    menuGroup = [ "control", "Message Button"]
+    edmEntityFields = [
+            edmField("pressValue", edmEdit.String),
+            edmField("releaseValue", edmEdit.String)
+            ] + activeButtonClass.edmEntityFields
 
     V3propTable = {
         "2-1" : [ "fgColor", "onColor", "offColor", "topShadowColor", "botShadowColor",
@@ -21,10 +33,10 @@ class activeMessageButtonClass (activeButtonClass):
         super().__init__(parent)
         self.PressedState = 0
 
-    def buildFromObject(self, objectDesc):
-        activeButtonClass.buildFromObject(self, objectDesc)
-        self.pushValue = objectDesc.getStringProperty("pressValue")
-        self.releaseValue = objectDesc.getStringProperty("releaseValue")
+    def buildFromObject(self, objectDesc, **kw):
+        super().buildFromObject(objectDesc, **kw)
+        self.pushValue = objectDesc.getProperty("pressValue")
+        self.releaseValue = objectDesc.getProperty("releaseValue")
 
     # toggle type is determined by "toggle" property
     def getToggleType(self):
@@ -64,4 +76,6 @@ class activeMessageButtonClass (activeButtonClass):
         else:
             self.onRelease()
 
-edmDisplay.edmClasses["activeMessageButtonClass"] = activeMessageButtonClass
+activeMessageButtonClass.buildFieldListClass("edmEntityFields", "edmFontFields")
+
+edmApp.edmClasses["activeMessageButtonClass"] = activeMessageButtonClass
