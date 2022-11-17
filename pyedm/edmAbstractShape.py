@@ -30,11 +30,11 @@ class abstractShape(QFrame, edmWidget):
         self.linewidth = 0
 
     def edmCleanup(self):
-        edmWidget.edmCleanup(self)
         try: self.lineColorInfo.edmCleanup()
         except: pass
         try: self.fillColorInfo.edmCleanup()
         except: pass
+        edmWidget.edmCleanup(self)
 
     def findFgColor(self):
         self.lineColorInfo = self.findColor("lineColor", (), alarmName="lineAlarm")

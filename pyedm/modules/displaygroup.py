@@ -19,7 +19,7 @@ class activeGroupClass(QtWidgets.QWidget, edmParentSupport, edmWidget):
         QtWidgets.QWidget.__init__(self, parent)
         edmWidget.__init__(self, parent)
         edmParentSupport.__init__(self, parent)
-        print(f"activeGroupClass __init__ {dir(self)}")
+        if self.debug() : print(f"activeGroupClass __init__ {self}")
 
     def __repr__(self):
         ch = self.children()

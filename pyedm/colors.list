@@ -14,6 +14,7 @@ alias trace6 "COOL title"
 alias trace7 "CRYO title"
 alias trace8 "RF title"
 alias trace9 "UNSS title"
+alias black "black-14"
 
 static 0   "Disconn/Invalid"  { 65535 65535 65535 }    #0 white
 static 1   "grey-1"           { 60652 60652 60652 }    #

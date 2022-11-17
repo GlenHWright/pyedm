@@ -1,4 +1,4 @@
-# Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
+# Copyright 2022 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # Module for generating a widget for a related display
 
 #
@@ -7,14 +7,16 @@
 # the correct macro set.
 #
 import os
+
+from PyQt5.QtWidgets import QPushButton, QMenu
+from PyQt5.QtGui import QPalette
+
 from .edmApp import edmApp
 from .edmScreen import edmScreen
 from .edmWidget import edmWidget
 from .edmField import edmField
 from .edmEditWidget import edmEdit
-
-from PyQt5.QtWidgets import QPushButton, QMenu
-from PyQt5.QtGui import QPalette
+from .edmWindowWidget import generateWindow
 
 class popUpMenu(QMenu):
     def __init__(self, parent=None):

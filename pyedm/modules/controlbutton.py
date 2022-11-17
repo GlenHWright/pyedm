@@ -29,7 +29,7 @@ class activeButtonClass(QPushButton, edmWidget):
             edmField("onLabel", edmEdit.String),
             edmField("offLabel", edmEdit.String),
             edmField("labelType", edmEdit.Enum, enumList=labelTypeEnum, defaultValue=1),
-            edmField("buttonType", edmEdit.Enum, enumList=buttonTypeEnum, defaultValue=1),
+            edmField("buttonType", edmEdit.Bool, enumList=buttonTypeEnum, defaultValue=1),
             edmField("threeD", edmEdit.Bool, defaultValue=False),
             edmField("objType", edmEdit.Enum, enumList=objTypeEnum, defaultValue=0)
             ]
@@ -54,8 +54,7 @@ class activeButtonClass(QPushButton, edmWidget):
 
     def buildFromObject(self, objectDesc, **kw):
         super().buildFromObject(objectDesc, **kw)
-        self.toggletype = self.getProperty("buttonType")
-        self.setCheckable( self.toggletype==self.buttonTypeEnum.toggle )
+        self.setCheckable( self.getToggleType() )
         self.setAutoFillBackground(True)
         self.labeltype = objectDesc.getProperty("labelType")
         if self.labeltype == self.labelTypeEnum.literal:
@@ -88,6 +87,9 @@ class activeButtonClass(QPushButton, edmWidget):
         self.fgColorInfo = self.findColor("fgColor", (QPalette.ButtonText,QPalette.Text), alarmName="fgAlarm")
         self.fgColorInfo.setColor()
         
+    def getToggleType(self):
+        return self.getProperty("buttonType") == self.buttonTypeEnum.toggle
+
     # toggle button changed
     def onClicked(self,checked):
         if self.controlPV != None:

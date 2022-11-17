@@ -1,5 +1,8 @@
-from __future__ import print_function
-# Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
+# Copyright 2022 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
+#
+# MODULE LEVEL: high
+#
+# 
 # Module to display an XY graph
 #
 # Different Plot types:
@@ -27,8 +30,10 @@ from typing import Any
 from .edmPVfactory import buildPV, expandPVname
 from .edmApp import redisplay, edmApp
 from .edmWidget import edmWidget, pvItemClass
-from .edmField import edmField
+from .edmField import edmField, edmTag
+from .edmFont import toHTML
 from .edmEditWidget import edmEditField, edmEdit
+from .edmProperty import converter
 
 from PyQt5.QtCore import Qt
 from PyQt5 import QtWidgets
@@ -51,32 +56,66 @@ class edmEditCurveConfig(edmEdit.SubScreen):
     def __init__(self, *args, **kw):
         super().__init__(*args, **kw)
         self.newtags = {}
+        self.numCurves = self.widget.numCurves
+        self.colvalue = {}
+        for idx, fld in enumerate(self.edmfield.group):
+            self.colvalue[idx] = self.widget.objectDesc.getProperty(fld.tag, arrayCount=self.widget.numCurves).copy()
 
     def buildLayout(self):
         layout = QtWidgets.QGridLayout()
         # add column headers, and create the array of values.
-        self.colvalue = {}
         for idx, fld in enumerate(self.edmfield.group):
             label = QtWidgets.QLabel(fld.tag)
             label.setFrameShape(QtWidgets.QFrame.Panel|QtWidgets.QFrame.Sunken)
             layout.addWidget(label, 0, idx)
-            self.colvalue[idx] = self.widget.objectDesc.getProperty(fld.tag, arrayCount=self.widget.numCurves)
         
-        for row in range(self.widget.numCurves):
+        for row in range(self.numCurves):
             for idx, fld in enumerate(self.edmfield.group):
                 tagw = fld.editClass(fld.tag, fld, self.widget, **fld.editKeywords)
                 w = tagw.showEditWidget(self.colvalue[idx][row]).nolabel()
                 layout.addWidget(w, row+1, idx)
                 self.editlist.append(tagw)
                 tagw.newValue.connect(lambda tag, value, row=row,col=idx: self.onNewValue(tag,value,row,col))
+            remove = QtWidgets.QPushButton("Remove")
+            layout.addWidget(remove, row+1, len(self.edmfield.group))
+            remove.clicked.connect(lambda clicked,curveNum=row: self.removeRow(curveNum))
+        addrow = QtWidgets.QPushButton("Add Row")
+        layout.addWidget(addrow, self.numCurves+1, 0)
+        addrow.clicked.connect(self.addRow)
 
         return layout
+
+    def removeRow(self, curveNum):
+        ''' removeRow - copy the gridlayout to a new gridlayout,
+            ignoring the row to be deleted.
+        '''
+        print(f"edmEditCurveConfig removeRow {curveNum}")
+        for idx in range(len(self.colvalue)):
+            self.colvalue[idx].pop(curveNum)
+        self.numCurves -= 1
+        layout = self.buildLayout()
+        self.changeLayout(layout)
+        self.newtags["numTraces"] = self.numCurves
+
+
+    def addRow(self):
+        print(f"edmEditCurveConfig {self} addRow")
+        self.numCurves += 1
+        for idx, fld in enumerate(self.edmfield.group):
+            self.colvalue[idx].append(converter(edmTag(fld.tag, fld.defaultValue), fld, None))
+            self.onNewValue(fld.tag, self.colvalue[idx][-1], self.numCurves-1, idx)
+        layout = self.buildLayout()
+        self.changeLayout(layout)
+        self.newtags["numTraces"] = self.numCurves
 
     def onNewValue(self, tag, value, row, col):
         print(f"onNewValue {tag} {value} {row} {col}")
         if tag not in self.newtags.keys():
-            self.newtags[tag] = self.colvalue[col].copy()
-        self.newtags[tag][row] = value
+            self.newtags[tag] = self.colvalue[col]
+        try:
+            self.newtags[tag][row] = value
+        except IndexError:
+            self.newtags[tag].append(value)
 
     def onApply(self):
         print(f"onApply {self.newtags}")
@@ -167,6 +206,7 @@ class xyGraphClass(pgraph.PlotWidget, edmWidget):
     plotSymbolEnum = Enum( "symbol", "none circle square diamond", start=0)
     lineStyleEnum = Enum("lineStyle", "solid dash", start=0)
     xAxisTimeEnum = Enum("xAxisTime", "seconds date dateTime", start=0)
+    opModeEnum = Enum("opMode", "scope plot", start=0)
 
     edmEntityFields = [
             edmField("triggerPv", edmEdit.PV, defaultValue=None),
@@ -179,12 +219,12 @@ class xyGraphClass(pgraph.PlotWidget, edmWidget):
                 edmField("plotStyle", edmEdit.Enum, defaultValue=0, enumList=plotStyleEnum, array=True),
                 edmField("plotUpdateMode", edmEdit.Enum, defaultValue="y", array=True, enumList=updateModeEnum),    # xAndY, xOrY, x, y, trigger
                 edmField("plotSymbolType", edmEdit.Enum, defaultValue=None, array=True, enumList=plotSymbolEnum ),
-                edmField("opMode", edmEdit.String, defaultValue=None, array=True),           # scope, plot
+                edmField("opMode", edmEdit.Enum, defaultValue=0, array=True, enumList=plotModeEnum),           # scope, plot
                 edmField("useY2Axis", edmEdit.Bool, defaultValue=False, array=True),         #
                 edmField("xSigned", edmEdit.Bool, defaultValue=False, array=True),           #
                 edmField("ySigned", edmEdit.Bool, defaultValue=False, array=True),           #
                 edmField("plotColor", edmEdit.Color, defaultValue="black", array=True),      # 'index' and number
-                edmField("lineThickness", edmEdit.Int, defaultValue=0, array=True),          # integers
+                edmField("lineThickness", edmEdit.Int, defaultValue=1, array=True),          # integers
                 edmField("lineStyle", edmEdit.Enum, defaultValue="solid", array=True, enumList=lineStyleEnum)     # solid, dash
                 ] ),
             edmField("plotMode", edmEdit.Enum, enumList=plotModeEnum),
@@ -268,12 +308,12 @@ class xyGraphClass(pgraph.PlotWidget, edmWidget):
         raise AttributeError(attr)
 
     def edmCleanup(self):
-        super().edmCleanup()
         for curve in self.curves:
             if curve.xPv:
                 curve.xPv.del_callback(self)
             if curve.yPv:
                 curve.yPv.del_callback(self)
+        super().edmCleanup()
 
     @classmethod
     def setV3PropertyList(classRef, values, tags):
@@ -305,7 +345,7 @@ class xyGraphClass(pgraph.PlotWidget, edmWidget):
 
         # WARNING: edm uses npts as a vague suggestion, pyedm uses as a true limit.
         # This isn't compatible enough.
-        npts = objectDesc.getProperty("nPts", 100)
+        self.npts = objectDesc.getProperty("nPts", 100)
         updateTimerMs = objectDesc.getProperty("updateTimerMs", 0)
         if not rebuild:
             # avoid a race conditin where this isn't set and a callback occurs before the timer start
@@ -323,18 +363,18 @@ class xyGraphClass(pgraph.PlotWidget, edmWidget):
 
         self.numCurves = self.objectDesc.getProperty("numTraces", 0)
 
-        xPv           = self.objectDesc.getProperty("xPv", arrayCount=self.numCurves)                # optional list of X-axis PV's
-        yPv           = self.objectDesc.getProperty("yPv", arrayCount=self.numCurves)                # optional(?) list of Y-axis PV's
-        plotStyle     = self.objectDesc.getProperty("plotStyle", arrayCount=self.numCurves)          # enumerated list - line, point needle, 'single point'
-        plotUpdateMode= self.objectDesc.getProperty("plotUpdateMode", arrayCount=self.numCurves)     # xAndY, xOrY, x, y, trigger
-        plotSymbolType= self.objectDesc.getProperty("plotSymbolType", arrayCount=self.numCurves)     # none, circle, square, diamond
-        opMode        = self.objectDesc.getProperty("opMode", arrayCount=self.numCurves)             # scope, plot
-        useY2Axis     = self.objectDesc.getProperty("useY2Axis", arrayCount=self.numCurves)          #
-        xSigned       = self.objectDesc.getProperty("xSigned", arrayCount=self.numCurves)            #
-        ySigned       = self.objectDesc.getProperty("ySigned", arrayCount=self.numCurves)            #
-        plotColor     = self.objectDesc.getProperty("plotColor", arrayCount=self.numCurves)          # 'index' and number
-        lineThickness = self.objectDesc.getProperty("lineThickness", arrayCount=self.numCurves, defValue=1)       # integers
-        lineStyle     = self.objectDesc.getProperty("lineStyle", arrayCount=self.numCurves, defValue="solid")     # solid, dash
+        self.xPv           = self.objectDesc.getProperty("xPv", arrayCount=self.numCurves)                # optional list of X-axis PV's
+        self.yPv           = self.objectDesc.getProperty("yPv", arrayCount=self.numCurves)                # optional(?) list of Y-axis PV's
+        self.plotStyle     = self.objectDesc.getProperty("plotStyle", arrayCount=self.numCurves)          # line, point needle, 'single point'
+        self.plotUpdateMode= self.objectDesc.getProperty("plotUpdateMode", arrayCount=self.numCurves)     # xAndY, xOrY, x, y, trigger
+        self.plotSymbolType= self.objectDesc.getProperty("plotSymbolType", arrayCount=self.numCurves)     # none, circle, square, diamond
+        self.opMode        = self.objectDesc.getProperty("opMode", arrayCount=self.numCurves)             # scope, plot
+        self.useY2Axis     = self.objectDesc.getProperty("useY2Axis", arrayCount=self.numCurves)          #
+        self.xSigned       = self.objectDesc.getProperty("xSigned", arrayCount=self.numCurves)            #
+        self.ySigned       = self.objectDesc.getProperty("ySigned", arrayCount=self.numCurves)            #
+        self.plotColor     = self.objectDesc.getProperty("plotColor", arrayCount=self.numCurves)          # 'index' and number
+        self.lineThickness = self.objectDesc.getProperty("lineThickness", arrayCount=self.numCurves, defValue=1)       # integers
+        self.lineStyle     = self.objectDesc.getProperty("lineStyle", arrayCount=self.numCurves, defValue="solid")     # solid, dash
 
         # X-axis
         if self.showXAxis:
@@ -346,7 +386,7 @@ class xyGraphClass(pgraph.PlotWidget, edmWidget):
             axis.setStyle( tickFont=self.edmFont, tickLength=10)
 
             if self.xLabel:
-                self.setLabel( "bottom", self.xLabel )
+                self.setLabel( "bottom", toHTML(self.edmFont, self.xLabel ))
 
             if self.xAxisSrc == self.srcEnum.fromUser:
                 # print 'xAxisSrc=', self.xMin, self.xMax
@@ -367,7 +407,7 @@ class xyGraphClass(pgraph.PlotWidget, edmWidget):
             axis.setStyle( tickFont=self.edmFont, tickLength=10)
 
             if self.yLabel:
-                self.setLabel( "left", self.yLabel )
+                self.setLabel( "left", toHTML(self.edmFont, self.yLabel ))
 
             if self.yAxisSrc == self.srcEnum.fromUser:
                 self.setYRange( self.yMin, self.yMax, padding=0.0 )
@@ -394,7 +434,7 @@ class xyGraphClass(pgraph.PlotWidget, edmWidget):
             axis.setStyle( tickFont=self.edmFont, tickLength=10)
 
             if self.y2Label:
-                self.setLabel("right", self.y2Label)
+                self.setLabel("right", toHTML(self.edmFont, self.y2Label))
             axis.setGrid(False)     # both y2 and y grid makes a messy display
             y2.setXLink(self.getViewBox())
             if self.y2AxisSrc == self.srcEnum.fromUser:
@@ -406,54 +446,15 @@ class xyGraphClass(pgraph.PlotWidget, edmWidget):
         self.setFont(self.edmFont)
         fm = QFontInfo(self.edmFont)
         args = { "color" : f"{self.fgColorInfo.setColor().name()}", "size" : f"{fm.pointSize()}", "bold" : fm.bold(), "italic" : fm.italic() }
-        self.setTitle( plotTitle, **args)
+        self.setTitle( toHTML(self.edmFont, plotTitle), **args)
         #
         # Build the curves that will be used
-        if not rebuild:
-            self.curves = []
+        if rebuild:
+            for curve in self.curves:
+                self.destroyCurve(curve)
+        self.curves = [None]*self.numCurves
         for idx in range(0, self.numCurves):
-            if self.debug(0) : print("Generating curve", idx)
-            if rebuild and idx < len(self.curves):
-                curve = self.curves[idx]
-            else:
-                curve =  pgraph.PlotCurveItem(name=str(idx)+yPv[idx])
-                self.curves.append( curve)
-                curve.xPv = None
-                curve.yPv = None
-            curve.updateMode = plotUpdateMode[idx]
-            curve.lastX = None   # used for xAndY, maybe xOrY(?). If None, no input value
-            curve.lastY = None   # ditto
-            if lineStyle is None or lineStyle[idx].value == 0:
-                dash = Qt.SolidLine
-            else:
-                dash = Qt.DashLine
-            pen = pgraph.mkPen(color=plotColor[idx].getColor(), width=1 if lineThickness is None or lineThickness[idx] is None else lineThickness[idx], style=dash)
-            curve.setPen( pen)
-            if (not rebuild) or curve.nPts != npts:
-                curve.nPts = npts
-                curve.edmXdata = collections.deque(maxlen=npts )
-                curve.edmYdata = collections.deque( maxlen=npts )
-
-            if not rebuild:
-                if useY2Axis and useY2Axis[idx]:
-                    y2.addItem(curve)
-                else:
-                    self.addItem(curve)
-
-            if (not rebuild) or self.pvChanged(xPv, idx, curve.xPv):
-                if curve.xPv:
-                    curve.xPv.del_callback(self)
-                curve.xPv = self.pvConnect(xPv, idx, self.xDataCallback, ( curve, 0, 0 ) )
-            if curve.xPv is None:
-                if curve.updateMode == self.updateModeEnum.xAndY:
-                    curve.updateMode = self.updateModeEnum.y
-                elif curve.updateMode == self.updateModeEnum.xOrY:
-                    curve.updateMode = self.updateModeEnum.y
-            if (not rebuild) or self.pvChanged(yPv, idx, curve.yPv):
-                if curve.yPv:
-                    curve.yPv.del_callback(self)
-                curve.yPv = self.pvConnect(yPv, idx, self.yDataCallback, ( curve, 0, 0 ) )
-            if self.debug(): print('xyPlotData build curve', curve.xPv, curve.yPv, curve.updateMode)
+            self.buildCurve(idx, rebuild=False)
 
         self.xaxisInstance.setTickLabelMode(mode=self.xAxisStyle.value)
         if self.xAxisStyle.value == 2:    # If we're doing a "time" x-axis, then track seconds since we started.
@@ -473,6 +474,94 @@ class xyGraphClass(pgraph.PlotWidget, edmWidget):
         self.updateTimerMs = updateTimerMs
         if self.updateTimerMs != 0:
             self.timerID = self.startTimer(self.updateTimerMs)
+
+    def buildCurve(self, curveIdx,rebuild=False):
+        '''
+            build a single curve.
+            How to preserve plot data when rebuilding? not easily done!
+
+        '''
+        if self.debug(1) : print("Generating curve", curveIdx)
+        changed = True
+        if rebuild:
+            curve = self.curves[curveIdx]
+            changed = False
+            try:
+                isY2 = curve in self.y2.allChildren()
+            except AttributeError:
+                isY2 = False
+            if isY2 != self.useY2Axis[curveIdx]:
+                changed = True
+                if isY2:
+                    self.y2.removeItem(curve)
+                else:
+                    self.removeItem(curve)
+            elif self.pvChanged(self.xPv, curveIdx, curve.xPv) or self.pvChanged(self.yPv, curveIdx, curve.yPv):
+                changed = True
+            elif curve.updateMode != self.plotUpdateMode[curveIdx]:
+                changed = True
+            elif curve.nPts != self.npts:
+                changed = True
+        
+        if changed:     # original build, or need to replace previous build
+            curve =  pgraph.PlotCurveItem(name=str(curveIdx)+self.yPv[curveIdx])
+            self.curves[curveIdx] = curve
+            curve.xPv = None
+            curve.yPv = None
+
+        curve.updateMode = self.plotUpdateMode[curveIdx]
+        curve.lastX = None   # used for xAndY, maybe xOrY(?). If None, no input value
+        curve.lastY = None   # ditto
+        if self.lineStyle[curveIdx] == self.lineStyleEnum.solid:
+            dash = Qt.SolidLine
+        else:
+            dash = Qt.DashLine
+        pen = pgraph.mkPen(color=self.plotColor[curveIdx].getColor(), width=self.lineThickness[curveIdx], style=dash)
+        curve.setPen( pen)
+        if changed:
+            curve.nPts = self.npts
+            curve.edmXdata = collections.deque(maxlen=self.npts )
+            curve.edmYdata = collections.deque( maxlen=self.npts )
+
+        # if rebuilding, need to remove then add the curve.
+        if changed:
+            if self.useY2Axis[curveIdx]:
+                self.y2.addItem(curve)
+            else:
+                self.addItem(curve)
+
+        if changed:
+            if curve.xPv:
+                curve.xPv.del_callback(self)
+            curve.xPv = self.pvConnect(self.xPv, curveIdx, self.xDataCallback, ( curve, 0, 0 ) )
+        if curve.xPv is None:
+            if curve.updateMode == self.updateModeEnum.xAndY:
+                curve.updateMode = self.updateModeEnum.y
+            elif curve.updateMode == self.updateModeEnum.xOrY:
+                curve.updateMode = self.updateModeEnum.y
+
+        if changed:
+            if curve.yPv:
+                curve.yPv.del_callback(self)
+            curve.yPv = self.pvConnect(self.yPv, curveIdx, self.yDataCallback, ( curve, 0, 0 ) )
+        if self.debug(): print('xyPlotData build curve', curve.xPv, curve.yPv, curve.updateMode)
+
+    def destroyCurve(self, curve):
+        ''' destroyCurve - undo curve connections
+        '''
+        if curve.yPv:
+            curve.yPv.del_callback(self)
+        if curve.xPv:
+            curve.xPv.del_callback(self)
+        try:
+            isY2 = curve in self.y2.allChildren()
+        except AttributeError:
+            isY2 = False
+        if isY2:
+            self.y2.removeItem(curve)
+        else:
+            self.removeItem(curve)
+
 
     def pvChanged( self, nameList, idx, oldRef):
         if nameList is None or len(nameList) <= idx or nameList[idx] is None or nameList[idx] == "":
@@ -553,9 +642,12 @@ class xyGraphClass(pgraph.PlotWidget, edmWidget):
                     # auto-generate some x data: regular x or log(x)
                     curve.edmXdata.clear()
                     curve.edmXdata.extend([ xn for xn in range(0, len(curve.edmYdata))] )
-                if self.updateTimerMs == 0:
-                    curve.setData(list(curve.edmXdata),list(curve.edmYdata))
-                    redisplay(self)
+                try:
+                    if self.updateTimerMs == 0:
+                        curve.setData(list(curve.edmXdata),list(curve.edmYdata))
+                        redisplay(self)
+                except RuntimeError as exc:
+                    print(f"monitorXYgraph yDataCallback runtime exception {exc}")
             else:
                 # have x data - use X and Y directly
                 self.setOneXY(curve)
@@ -664,8 +756,11 @@ class xyGraphClass(pgraph.PlotWidget, edmWidget):
                 curve.edmYdata.clear()
                 curve.edmYdata.extend(list(range(1, len(curve.edmXdata)+1)))
 
-            if self.updateTimerMs == 0:
-                curve.setData(x=list(curve.edmXdata), y=list(curve.edmYdata))
+            try:
+                if self.updateTimerMs == 0:
+                    curve.setData(x=list(curve.edmXdata), y=list(curve.edmYdata))
+            except RuntimeError as exc:
+                print(f"monitorXYgraph triggerCallback runtime exception {exc}")
 
         if self.updateTimerMs == 0:
             redisplay(self)
@@ -681,9 +776,12 @@ class xyGraphClass(pgraph.PlotWidget, edmWidget):
             curve.edmYdata.extend([curve.edmYdata[-1]]*-diff)
         elif diff > 0:
             curve.edmXdata.extend([curve.edmXdata[-1]]*diff)
-        if self.updateTimerMs == 0:
-            curve.setData(x=list(curve.edmXdata), y=list(curve.edmYdata))
-            redisplay(self)
+        try:
+            if self.updateTimerMs == 0:
+                curve.setData(x=list(curve.edmXdata), y=list(curve.edmYdata))
+                redisplay(self)
+        except RuntimeError as exc:
+            print(f"monitorXYgraph setMatchedData runtime exception {exc}")
 
     def setOneXY(self, curve):
         '''
@@ -753,7 +851,10 @@ class xyGraphClass(pgraph.PlotWidget, edmWidget):
         if self.debug() : print('timerEvent')
         for curve in self.curves:
             if len(curve.edmXdata) > 0 and len(curve.edmYdata) > 0:
-                curve.setData(list(curve.edmXdata), list(curve.edmYdata))
+                try:
+                    curve.setData(list(curve.edmXdata), list(curve.edmYdata))
+                except RuntimeError as exc:
+                    print(f"monitorXYgraph timerEvent runtime exception {exc}")
         redisplay(self)
         return
 

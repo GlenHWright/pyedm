@@ -17,7 +17,8 @@ class activeMessageButtonClass (activeButtonClass):
     menuGroup = [ "control", "Message Button"]
     edmEntityFields = [
             edmField("pressValue", edmEdit.String),
-            edmField("releaseValue", edmEdit.String)
+            edmField("releaseValue", edmEdit.String),
+            edmField("toggle", edmEdit.Bool, defaultValue=False),
             ] + activeButtonClass.edmEntityFields
 
     V3propTable = {
@@ -40,8 +41,7 @@ class activeMessageButtonClass (activeButtonClass):
 
     # toggle type is determined by "toggle" property
     def getToggleType(self):
-        ty = self.objectDesc.getIntProperty("toggle")
-        return ty==1
+        return self.objectDesc.getProperty("toggle")
 
     # change the onPress() callback to set the label value
     def onPress(self):

@@ -132,7 +132,7 @@ def convText(Value, PvType, Fmt='%.*f', Precision=None, Enums=None):
 def expandPVname(name, macroTable=None):
     if macroTable != None:
         name = macroTable.expand(name)
-    prefix = name.split("\\\\", 1)
+    prefix = name.split('\\', 1)
     if len(prefix) == 1:
         return "EPICS", prefix[0]
     else:

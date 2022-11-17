@@ -72,7 +72,7 @@ def X11GetFont(fontName):
 def toHTML(font, text):
     if isinstance(font, QFont):
         family = font.family()
-        pointsize = font.pointsize()
+        pointsize = font.pointSize()
         bold = font.weight()
         italic = font.italic()
     elif type(font) == dict:
@@ -81,8 +81,11 @@ def toHTML(font, text):
         italic = fontName["italic"]
         pointsize = fontName["pointSize"]
     else:
+        print(f"unable to determine {font} - return {text}")
         return text
-    return f'<span style="font-family: {family} font-size: {pointsize}px">text</span>'
+    rval= f'<span style="font-size: {pointsize}px">{text}</span>'
+    print(rval)
+    return rval
 
 
 import os

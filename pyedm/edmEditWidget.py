@@ -5,6 +5,10 @@
 # MODULE LEVEL: low
 # This is a low-level module, and must only call base level pyedm modules
 #
+## OPPORTUNITY FOR IMPROVEMENT -
+##  there's a number of places where a widget is simply a container for a layout
+##  that gets inserted into another layout - this can be optimized to return a
+##  layout in many cases.
 
 from typing import Any
 from dataclasses import dataclass
@@ -12,7 +16,7 @@ from enum import Enum
 
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import pyqtSignal, QObject, Qt
-from PyQt5.QtGui import QFontDatabase,QFont,QFontInfo,QPalette
+from PyQt5.QtGui import QFontDatabase,QFont,QFontInfo,QPalette,QIntValidator,QDoubleValidator,QRegExpValidator
 
 from .edmField import edmField, edmTag
 from .edmApp import redisplay, edmApp
@@ -26,7 +30,7 @@ class ColorWindow(QtWidgets.QWidget):
         draw a window with a grid of colors,
         Different from edm, this is a pop-up window at
         the point of button push, and disappears when
-        used or  focus is lost (?)
+        used or focus is lost (?)
     '''
     def __init__(self,*args, callback=None, **kw):
         super().__init__(*args, **kw)
@@ -83,6 +87,9 @@ class edmTagWidget:
 #
 class QColorButton(QtWidgets.QPushButton):
     def __init__(self, parent=None, mycolor=None):
+        ''' QColorButton - QPushButton that changes
+            color according to the edmColorRule 'mycolor'
+        '''
         super().__init__(parent)
         self.buttonColor = mycolor
         self.setFlat(True)
@@ -144,7 +151,9 @@ class edmEditInt(edmEditField):
         if displayValue == None:
             displayValue = ""
         intedit = edmEditField.buildOneEditWidget(self, displayValue)
-        # TO DO - add validity checking on input
+        # add validity checking on input
+        self.validator = QIntValidator()
+        intedit.setValidator(self.validator)
         return intedit
 
 class edmEditClass(edmEditField):
@@ -241,8 +250,11 @@ class edmEditColor(edmEditField):
         self.colorScreen.show()
 
     def onNewValue(self, colorRule):
+        self.colorScreen.hide()
+        self.colorScreen.destroy()
         self.colorScreen = None
         self.button.newColor(colorRule)
+        self.name.setText(colorRule.name)
         self.onValueUpdate(colorRule)
 
 class edmEditPV(edmEditString):
@@ -255,7 +267,9 @@ class edmEditReal(edmEditField):
         if displayValue == None:
             displayValue = ""
         floatedit = edmEditField.buildOneEditWidget(self, displayValue)
-        # TO DO - add validity checking on input string
+        # add validity checking on input string
+        self.validator = QDoubleValidator()
+        floatedit.setValidator(self.validator)
         return floatedit
     pass
 
@@ -288,12 +302,12 @@ class edmEditSubScreen(edmEditField):
         self.subwindow = QtWidgets.QWidget()
         scrollWidget = QtWidgets.QWidget()
         scrollWidget.setLayout(layout)
-        scrollArea = QtWidgets.QScrollArea()
-        scrollArea.setWidget(scrollWidget)
+        self.scrollArea = QtWidgets.QScrollArea()
+        self.scrollArea.setWidget(scrollWidget)
 
         # build the top level of scroll area and buttons.
         topLayout = QtWidgets.QBoxLayout(QtWidgets.QBoxLayout.TopToBottom)
-        topLayout.addWidget(scrollArea)
+        topLayout.addWidget(self.scrollArea)
 
         buttons = QtWidgets.QBoxLayout(QtWidgets.QBoxLayout.LeftToRight)
         buttons.addWidget( MakeButton("Apply", self.onApply) )
@@ -310,6 +324,17 @@ class edmEditSubScreen(edmEditField):
 
     def buildLayout(self):
         return buildVerticalLayout( self, self.widget, self.edmfield.group, self.onNewValue)
+
+    def changeLayout(self, newlayout):
+        ''' changeLayout - change the layout used in the scrolling area by destroying the
+            old widget and adding a new widget.
+        '''
+        scrollWidget = QtWidgets.QWidget()
+        scrollWidget.setLayout(newlayout)
+        self.scrollArea.takeWidget()
+        self.scrollArea.setWidget(scrollWidget)
+        scrollWidget.show()
+        self.subwindow.show()
 
     def onNewValue(self, tag, value):
         print(f"buildSubWindow.onNewValue({tag} {value})")
@@ -416,9 +441,6 @@ class edmEditFontAlign(edmEditEnum):
 class edmEditFilename(edmEditField):
     pass
 
-class edmEditStripchartCurve(edmEditField):
-    pass
-
 class edmEditSymbolItem(edmEditField):
     pass
 
@@ -519,7 +541,7 @@ class edmShowEdit(QtWidgets.QWidget):
         self.editWidget.updateTags(self.tags)
 
     def onNewValue(self, key, value):
-        if edmApp.debug(0) : print(f"Saving {value} to {key}")
+        if edmApp.debug() : print(f"Saving {value} to {key}")
         self.tags[key] = edmTag(key, value)
 
     def onApply(self):

@@ -11,7 +11,6 @@ from PyQt5.QtCore import Qt
 from PyQt5.Qt import QApplication, QClipboard
 
 from .edmApp import edmApp
-from .edmScreen import edmScreen
 from .edmWidget import edmWidget, buildNewWidget
 from .edmEditWidget import edmShowEdit, edmRubberband, edmEdit
 from .edmColors import findColorRule
@@ -48,11 +47,12 @@ class edmParentSupport:
             try:
                 child.edmCleanup()
             except AttributeError as exc:
-                print(f"WindowWidget closeEvent: child {child} lacking edmCleanup! {exc}")
+                print(f"WindowWidget edmCleanup: child {child} lacking edmCleanup! {exc}")
         try:
             edmApp.windowList.remove(self)
         except ValueError as exc:
-            print(f"Unable to remove windowWidget {self} from window list -- already gone!")
+            # some widgets always generate this (e.g. group widgets). There must be a better way
+            if self.debug() : print(f"Unable to remove windowWidget {self} from window list -- already gone!")
 
         self.destroy()
 
@@ -130,18 +130,18 @@ class windowMenu(QtWidgets.QMenu):
         
     def saveWindow(self):
         try:
-            self.edmWidget.edmScreen.saveToFile()
+            self.edmWidget.getParentScreen().saveToFile()
         except BaseException as exc:
-            print(f"Unable to save file for {self.edmWidget.edmScreen}\nBecause {exc}")
+            print(f"Unable to save file for {self.edmWidget}\nBecause {exc}")
 
     def saveAsWindow(self):
         filename = QtWidgets.QFileDialog.getSaveFileName(parent=self.edmWidget, 
                 caption="Save To...", filter="JSON edl (*.jedl)")
         try:
             filename = filename[0]
-            self.edmWidget.edmScreen.saveToFile(filename)
+            self.edmWidget.getParentScreen().saveToFile(filename)
         except BaseException as exc:
-            print(f"Unable to save file for {self.edmWidget.edmScreen}\nBecause {exc}")
+            print(f"Unable to save file for {self.edmWidget}\nBecause {exc}")
 
     def openWindow(self):
         pass

@@ -11,6 +11,7 @@
 import traceback
 import json
 import os
+import re
 from enum import Enum
 
 from PyQt5.QtGui import QFont, QFontInfo
@@ -224,7 +225,7 @@ class edmScreen(edmObject):
                 elif tagname[1][0] == '{':
                     self.addTag(tagname[0], edlFp.readBlock() )
                 elif tagname[1][0] == '"':
-                    self.addTag(tagname[0], tagname[1][1:-1] )
+                    self.addTag(tagname[0], re.sub(r"\\(.)", r"\1", tagname[1].strip('"') ))
                 else:
                     self.addTag(tagname[0], tagname[1] )
             return 0
@@ -341,7 +342,7 @@ class edmScreen(edmObject):
                 elif tagname[1][0] == '{':
                     obj.addTag(tagname[0], edlFp.readBlock())
                 elif tagname[1][0] == '"':
-                    obj.addTag(tagname[0], tagname[1][1:-1])
+                    obj.addTag(tagname[0], re.sub(r"\\(.)", r"\1", tagname[1].strip('"') ))
                 else:
                     obj.addTag(tagname[0], tagname[1])
         except NextError as ne:
@@ -354,6 +355,7 @@ class edmScreen(edmObject):
 
 #
 # A class that reads lines from an EDL file.
+# supports 'with' statement (__enter__ and __exit__)
 #
 class readInput:
     def __init__(self, fn, paths=[".",]):
@@ -370,7 +372,7 @@ class readInput:
         return self
 
     def __exit__(self,*args,**kw):
-        print(f"readInput._exit__({self}:{args},{kw})")
+        if edmApp.debug() : print(f"readInput._exit__({self}:{args},{kw})")
         self.close()
 
     def valid(self):

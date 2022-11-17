@@ -44,6 +44,7 @@ class edmObject:
         return flag
 
     def addTag(self, field, value):
+        if edmApp.debug(1) : print(f"add tag {field} value *{value}*")
         self.tags[field] = edmTag(field, value)
 
     # Return properties of a converted type. There must be a more pythonesque

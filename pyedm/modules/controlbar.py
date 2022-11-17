@@ -11,7 +11,7 @@ from .edmTextFormat import convDefault
 
 import PyQt5.QtWidgets as QtWidgets
 from PyQt5.QtWidgets import QSlider, QWidget, QHBoxLayout, QVBoxLayout, QFrame
-from PyQt5.QtGui import QPainter, QPalette, QFontMetrics
+from PyQt5.QtGui import QPainter, QPalette, QFontMetrics, QDoubleValidator
 from PyQt5.QtCore import Qt
 
 
@@ -62,6 +62,8 @@ class activeSliderClass(QFrame, edmWidget):
         self.setAutoFillBackground(True)
         self.orientation = objectDesc.getProperty("orientation")
         self.haveIndicator = objectDesc.checkProperty("indicatorPv")
+        self.precision = objectDesc.getProperty("precision")
+        self.setCounter = 0
         if self.orientation == self.orientationEnum(0):
             self.buildHLayout()
             self.slider.setOrientation(Qt.Horizontal)
@@ -85,7 +87,6 @@ class activeSliderClass(QFrame, edmWidget):
         self.displayLimits = self.objectDesc.getProperty("limitsFromDb")
         self.objMin = self.objectDesc.getProperty(self.minField)
         self.objMax = self.objectDesc.getProperty(self.maxField)
-        self.precision = objectDesc.getProperty("precision")
 
         self.labelWidget.setFont(self.edmFont)
         self.incrementWidget.setFont(self.edmFont)
@@ -127,10 +128,13 @@ class activeSliderClass(QFrame, edmWidget):
         self.setIncrementValue( self.objectDesc.getProperty("increment"))
 
         self.edmParent.buttonInterest.append(self)
-        self.setCounter = 0
         self.slider.valueChanged.connect(self.gotNewValue)
         self.saveButton.clicked.connect(self.savePosition)
         self.restoreButton.clicked.connect(self.restorePosition)
+        self.validator = QDoubleValidator()
+        self.validator.setDecimals(self.precision)
+        self.incrementWidget.setValidator(self.validator)
+        self.incrementWidget.editingFinished.connect(self.incrementCallback)
 
     # build a horizontal layout.
     def buildHLayout(self):
@@ -289,8 +293,11 @@ class activeSliderClass(QFrame, edmWidget):
         if value != None:
             self.rbValueWidget.setText(convDefault(value, precision=self.precision))
 
+    def incrementCallback(self):
+        val = float(self.incrementWidget.text())
+        self.setIncrementValue(val)
+
     def setIncrementValue(self, increment):
-        self.increment = increment
         if self.precision == 0:
             disp = convDefault(increment, precision=1)
         else:
@@ -298,6 +305,9 @@ class activeSliderClass(QFrame, edmWidget):
         fm = QFontMetrics(self.edmFont)
         self.incrementWidget.setFixedWidth(fm.width(f" {disp} "))
         self.incrementWidget.setText(disp)
+        print(f"setIncrementValue incr:{disp}({increment}) mul:{self.stepMul} min:{self.slider.minimum()} max:{self.slider.maximum()}")
+        self.slider.setSingleStep(int(increment/self.stepMul))
+        self.slider.setPageStep(int(increment/self.stepMul))
 
         
     def savePosition(self, *ignore):

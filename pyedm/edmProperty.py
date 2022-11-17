@@ -9,6 +9,8 @@
 # conversion routines to change input strings to appropriate types.
 #
 
+import re
+
 from PyQt5.QtGui import QFont
 
 from . import edmEditWidget
@@ -46,10 +48,9 @@ def decode( tagRef, fieldRef=None, count=-1, defValue=None):
         if type(val) != str:
             idx = idx+1
             fakeTag.value = val
-            rval[idx] = converter(fakeTag, fieldRef, defValue)
         else:
             # check if a string.
-            if val[0] == "\"":
+            if len(val)>0 and val[0] == "\"":
                 strVal = val
                 idx = idx + 1
             else:
@@ -69,8 +70,8 @@ def decode( tagRef, fieldRef=None, count=-1, defValue=None):
                 else:
                     strVal = val
                     idx = idx + 1
-            if strVal[0] == "\"":
-                strVal = strVal.strip("\"")
+            if len(strVal) > 0 and strVal[0] == "\"":
+                strVal = re.sub(r"\\(.)", r"\1", strVal.strip("\""))
             fakeTag.value = strVal
 
         if idx < 0 or idx >= count:
@@ -82,6 +83,8 @@ def decode( tagRef, fieldRef=None, count=-1, defValue=None):
 def getIntProperty(tagRef, fieldRef, defValue=None):
     if type(tagRef.value) is int:
         return tagRef.value
+    if fieldRef:
+        defValue = fieldRef.defaultValue
     try:
         w = tagRef.value.split(" ", 1)
         if len(w) == 2 and w[1] != "0":
@@ -103,6 +106,8 @@ def getIntProperty(tagRef, fieldRef, defValue=None):
 def getDoubleProperty(tagRef, fieldRef, defValue=None):
     if type(tagRef.value) is float:
         return tagRef.value
+    if fieldRef:
+        defValue = fieldRef.defaultValue
     try:
         w = tagRef.value.split(" ", 1)
     except AttributeError:
@@ -125,13 +130,19 @@ def getBoolProperty( tagRef, fieldRef, defValue=None):
 
 def getStringProperty( tagRef, fieldRef, defValue=""):
     value = tagRef.value
+    if fieldRef:
+        defValue = fieldRef.defaultValue
     try:
         if value[0] == "\"" and value[-1] == "\"":
-            return value[1:-1]
+            value = value[1:-1]
+            if '\\' in value:
+                value = re.sub(r"\\(.)", r"\1", value)
     except IndexError:
-        return defValue
+        value = defValue
     except TypeError:
-        return defValue
+        value = defValue
+    if value is None:
+        value = ""
     return value
 
 def getColorProperty( tagRef, fieldRef, defValue=None):
@@ -163,9 +174,13 @@ def getPVProperty( tagRef, fieldRef, defValue=None):
     if isinstance(tagRef.value,edmPVbase):
         return tagRef.value
     value = tagRef.value
+    if fieldRef:
+        defValue = fieldRef.defaultValue
     try:
         if value[0] == "\"" and value[-1] == "\"":
-            return value[1:-1]
+            value = value[1:-1]
+            if '\\' in value:
+                value = re.sub(r"\\(.)", r"\1", value)
     except IndexError:
         value = defValue
     except TypeError:
@@ -182,6 +197,8 @@ def getEnumProperty(  tagRef, fieldRef, defValue=None):
         val = toEnum(fieldRef, tagRef.value)
     except ValueError:
         print(f"getEnumProperty tagRef.value failed: {tagRef.value}")
+        if fieldRef:
+            defValue = fieldRef.defaultValue
         val = toEnum(fieldRef, defValue)      # if this fails, indicates a configuration error
     return val
 
@@ -222,6 +239,5 @@ conversionTable[edmEditWidget.edmEditSubScreen          ] = getStringProperty
 conversionTable[edmEditWidget.edmEditFontInfo           ] = getFontProperty
 conversionTable[edmEditWidget.edmEditFontAlign          ] = getEnumProperty
 conversionTable[edmEditWidget.edmEditFilename           ] = getStringProperty
-conversionTable[edmEditWidget.edmEditStripchartCurve    ] = getStringProperty
 conversionTable[edmEditWidget.edmEditSymbolItem         ] = getStringProperty
 conversionTable[edmEditWidget.edmEditSymbolItemSelect   ] = getStringProperty

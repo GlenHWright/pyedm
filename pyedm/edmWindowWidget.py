@@ -91,11 +91,17 @@ class edmWindowWidget(QtWidgets.QWidget, edmWidgetSupport, edmParentSupport):
                 pal.setColor( self.backgroundRole(), self.bgRule.getColor() )
 
         title = self.getProperty("title")
-        if title != None:
+        if title != "":
             self.setWindowTitle("PyEdm - " + self.macroExpand(title))
         else:
             self.setWindowTitle("PyEdm - " + self.getProperty("Filename"))
         self.setPalette(pal)
+
+    def getParentScreen(self):
+        return self
+
+    def saveToFile(self, *args, **kw):
+        self.edmScreen.saveToFile(*args, **kw)
 
     def mousePressEvent(self, event):
         mousePressEvent(self, event)
@@ -110,10 +116,10 @@ class edmWindowWidget(QtWidgets.QWidget, edmWidgetSupport, edmParentSupport):
         ''' before closing a window, give all
             widgets a chance to clean up.
         '''
-        print(f"closeEvent: cleaning up {self}")
+        if edmApp.debug() : print(f"closeEvent: cleaning up {self}")
         self.edmCleanup()
         event.accept()
-        print("done closeEvent")
+        if edmApp.debug() : print("done closeEvent")
 
     def edmCleanup(self):
         # To Do: add check for unsaved changes
@@ -164,7 +170,7 @@ def mousePressEvent(widget, event):
             showBackgroundMenu(widget, event)
             event.accept()
             return
-        print(f"clicked edit={widget.editModeValue} RB={widget.rubberband}")
+        if debug > 0 : print(f"clicked edit={widget.editModeValue} RB={widget.rubberband}")
         # if in rubberband mode, pass the event along.
         if widget.rubberband:
             if widget.rubberband.mousePressEvent(event) == False:

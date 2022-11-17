@@ -203,6 +203,8 @@ class edmWidget(edmWidgetSupport):
         self.visible = True
         self.lastVisible = True
         self.transparent = False
+        self.defaultFontTag = "textFont"
+        self.defaultAlignTag = "textAlign"
         # The 4 most common PV's. These can be over-ridden, and are not mandatory
         self.pvItem = {
                 "controlPv" : pvItemClass("controlName", "controlPV", redisplay=True) ,
@@ -250,7 +252,7 @@ class edmWidget(edmWidgetSupport):
         except AttributeError:
             pass
 
-    def delPV(self, *, pv=None, pvRef=None, attrName=None):
+    def delPV(self, *, pv=None, pvRef, attrName=None):
         '''delPV(pvname) - pvname is the attribute referencing a PV
         clean up callbacks, remove reference to the PV.
         Optionally removes the reference to the PV name if attrName set.
@@ -264,10 +266,10 @@ class edmWidget(edmWidgetSupport):
 
         if pv != None:
             pv.edmCleanup()
-            delattr(self, pvRef)
 
         if hasattr(self, pvRef):
             delattr(self, pvRef)
+
         if attrName != None and hasattr(self,attrName):
             delattr(self, attrName)
 
@@ -312,24 +314,24 @@ class edmWidget(edmWidgetSupport):
                     obj.tags[subitem.tag].field = subitem
 
 
-    # Generic object creation.
-    # Note that this is almost always over-ridden, and almost always the right
-    # thing to do first. Most inheriting classes will over-ride, and then
-    # make an immediate call to 'edmWidget.buildFromObject()' (or super()).
     def buildFromObject(self, objectDesc, *, attr=Qt.WA_TransparentForMouseEvents, rebuild=False, **kw):
+        '''
+            buildFromObject() - set Qt Widget fields based on attributes gathered
+            from an edm description list.
+         Generic object creation.
+         Note that this is almost always over-ridden, and almost always the right
+         thing to do first. Most inheriting classes will over-ride, and then
+         make an immediate call to 'edmWidget.buildFromObject()' (or super()).
+        '''
         if self.debug(): print("buildFromObject", objectDesc)
         self.objectDesc = objectDesc
         # C++ EDM often draws borders and such outside the specified widget geometries.
-        # items often need some adjustment. Although this was an attempt to have a
+        # items often need some adjustment. Although there was an attempt here to have a
         # generic resize that worked for all widgets, it works equally bad for all
-        # widgets. It should be removed from here and never spoken of again.
-        #adjxy = 1
-        #adjwh = 2
-        adjxy = 0
-        adjwh = 0
-        self.setGeometry(objectDesc.getProperty("x")-adjxy-self.edmParent.parentx,
-            objectDesc.getProperty("y")-adjxy-self.edmParent.parenty,
-            objectDesc.getProperty("w")+adjwh, objectDesc.getProperty("h")+adjwh)
+        # widgets. It has been removed.
+        self.setGeometry(objectDesc.getProperty("x")-self.edmParent.parentx,
+            objectDesc.getProperty("y")-self.edmParent.parenty,
+            objectDesc.getProperty("w"), objectDesc.getProperty("h"))
         if attr != None:
             self.setAttribute(attr)
             self.setAttribute(Qt.WA_NoMousePropagation)
@@ -345,17 +347,8 @@ class edmWidget(edmWidgetSupport):
             self.visible = True
             self.lastVisible = False
             self.setVisible(self.visible)
-        # Manage display fonts
-        # Do this before setting a PV that may cause a redisplay
-        # TO DO - check that edm always saves a font if one is to be displayed.
-        # if there is a default font, then need to change how the test is done here.
-        if objectDesc.checkProperty("font"):
-            self.edmFont = objectDesc.getProperty("font")
-            if self.debug() : print(f"font: {self.edmFont}")
-            self.setFont(self.edmFont)
-            # if this widget supports setting alignment, see what the object request might be
-            if getattr(self, "setAlignment", None) != None:
-                self.setAlignment( self.findAlignment("fontAlign"))
+
+        self.setEdmFont()
         #
         # Make generic PV connections
         #
@@ -403,6 +396,38 @@ class edmWidget(edmWidgetSupport):
         self.fgColorInfo.setColor()
         self.bgColorInfo.setColor()
         self.update()       # QT call to request a redraw.
+
+    # default setting of font for a widget.
+    # recommend against over-riding this method, and instead update the
+    # defaultFontTag and defaultAlignTag.
+    def setEdmFont(self, fontTag="font"):
+        # Manage display fonts
+        # Do this before setting a PV that may cause a redisplay
+        # if there is a default font, then need to change how the test is done here.
+        if self.checkProperty(fontTag):
+            self.edmFont = self.getProperty(fontTag)
+        else:
+            self.edmFont = self.getScreenProperty(self.defaultFontTag)
+        if self.debug() : print(f"font: {self.edmFont}")
+        self.setFont(self.edmFont)
+        # if this widget supports setting alignment, interpret the fontAlign tag
+        if getattr(self, "setAlignment", None) != None:
+            self.setAlignment( self.findAlignment())
+
+    # find the alignment for a widget
+    def findAlignment(self, defValue=Qt.AlignLeft):
+        if self.objectDesc.checkProperty("fontAlign"):
+            align = self.objectDesc.getProperty("fontAlign")
+        else:
+            align = self.getScreenProperty(self.defaultAlignTag)
+        if align != None:
+            if align.value == 0:
+                return Qt.AlignLeft
+            if align.value == 1:
+                return Qt.AlignHCenter
+            if align.value == 2:
+                return Qt.AlignRight
+        return defValue
 
     # Generic selection of foreground and background rules
     def findFgColor(self, fgcolor="fgColor", palette=(QPalette.WindowText,),
@@ -473,17 +498,6 @@ class edmWidget(edmWidgetSupport):
             rcinfo.addColorPV( self.controlPV)
         elif getattr( self, "alarmPV", None) != None:
             rcinfo.addColorPV(self.alarmPV)
-
-    def findAlignment(self, alignName, defValue=Qt.AlignLeft):
-        align = self.objectDesc.getProperty(alignName, None)
-        if align != None:
-            if align.value == 0:
-                return Qt.AlignLeft
-            if align.value == 1:
-                return Qt.AlignHCenter
-            if align.value == 2:
-                return Qt.AlignRight
-        return defValue
 
     # Creation of a tagged PV
     # This expects a number of things:
@@ -565,10 +579,34 @@ class edmWidget(edmWidgetSupport):
     def getProperty(self, tag, defaultValue=None):
         ''' convenience function - objectDesc.getProperty called
         '''
-        return self.objectDesc.getProperty(tag, defaultValue)
+        try:
+            return self.objectDesc.getProperty(tag, defaultValue)
+        except AttributeError as exc:
+            print(f"widget {self} getProperty failure {exc}")
 
     def checkProperty(self, tag):
         return self.objectDesc.checkProperty(tag)
+
+    def getScreenProperty(self, tag):
+        ''' getScreenProperty(self, tag) - find the parent that has screen parameters
+            and get the property value of 'tag'
+            Returns None on failure
+        '''
+        try:
+            return self.getParentScreen().getProperty(tag)
+        except AttributeError:
+            return None
+
+    def getParentScreen(self):
+        parent = self
+        while(True):
+            if hasattr(parent, "edmScreen"):
+                return parent
+            try:
+                parent = parent.edmParent
+            except AttributeError:
+                return None
+
     #
     #
     # METHODS AND PROPERTIES TO SUPPORT WIDGET EDITING
@@ -576,7 +614,7 @@ class edmWidget(edmWidgetSupport):
     #
 
     def editMode(self, *args, **kw):
-        print(f"editMode {self} {kw}")
+        if self.debug() : print(f"editMode {self} {kw}")
         try:
             return self.edmParent.editMode(*args, **kw)
         except AttributeError:
@@ -637,10 +675,17 @@ class edmWidget(edmWidgetSupport):
             self.setGeometry(x,y,w,h)
 
     def setTagField(self, tag):
-        for field in self.edmFieldList:
+        return self.setTagFieldItem(tag, self.edmFieldList)
+
+    @classmethod
+    def setTagFieldItem(cls, tag, fieldList):
+        for field in fieldList:
             if field.tag == tag.tag:
                 tag.field = field
                 return True
+            if len(field.group) > 0:
+                if cls.setTagFieldItem(tag, field.group):
+                    return True
         return False
 
 def buildNewWidget(parent, source, widgetClassRef=None):
