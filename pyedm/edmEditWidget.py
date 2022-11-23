@@ -274,7 +274,13 @@ class edmEditReal(edmEditField):
     pass
 
 class edmEditTextBox(edmEditField):
-    pass
+    def buildOneEditWidget(self, displayValue):
+        print(f"edmEditTextBox {displayValue}")
+        textedit = QtWidgets.QTextEdit()
+        for line in displayValue:
+            textedit.append(line)
+        return textedit
+        
 
 #
 # Unusual entry - build a button that activates a sub-screen. The sub-screen is built
@@ -676,7 +682,9 @@ def buildLayout(displayWidget, editWidget, proplist, callback, direction):
         # build the list of widgets for the layout area
         if isinstance(proplist[0], edmField):
             for oneprop in proplist:
-                if oneprop.hidden is True or oneprop.array:
+                if oneprop.hidden is True:
+                    continue
+                if oneprop.array is True and oneprop.editClass != edmEditTextBox:
                     continue
                 if oneprop.tag != "":
                     tagval = editWidget.getProperty(oneprop.tag)

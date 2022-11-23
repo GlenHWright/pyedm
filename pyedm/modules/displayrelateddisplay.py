@@ -33,6 +33,7 @@ class relatedDisplayClass(QPushButton,edmWidget):
             edmField("menuLabel", edmEdit.String, array=True),
             edmField("symbols", edmEdit.String, array=True)
             ] + edmWidget.edmFontFields
+
     def __init__(self, parent=None):
         super().__init__(parent)
 
@@ -67,57 +68,68 @@ class relatedDisplayClass(QPushButton,edmWidget):
         self.edmParent.buttonInterest.append(self)
 
     @classmethod
-    def setV3PropertyList(classRef, values, tags):
+    def setV3PropertyList(classRef, values, obj):
         for name in [ "x", "y", "w", "h", "fgColor", "bgColor", "topShadowColor", "botShadowColor"]:
            if values[0] == "index" : values.pop(0) 
-           tags[name] = values.pop(0)
-        filelist = []       ; tags['displayFileName'] = filelist
-        labellist = []      ; tags['menulabel'] = labellist
-        closeaction = []    ; tags['closeAction'] = closeaction
-        setposition = []    ; tags['setPosition'] = setposition
-        allowDups = []      ; tags['allowDups'] = allowDups
-        cascade = []        ; tags['cascade'] = cascade
-        symbollist = []     ; tags['symbols'] = symbollist
-        replacelist = []    ; tags['replaceSymbols'] = replacelist
-        propagatelist = []  ; tags['propagateMacros'] = propagatelist
-        destPvExp = []      ; tags['pv'] = destPvExp
-        sourceExp = []      ; tags['value'] = sourceExp
-        filelist.append( '"%s"'% (values.pop(0), ) )
-        labellist.append( '"%s"'% (values.pop(0), ) )
-        tags['fontTag'] = values.pop(0)
-        tags['invisible'] = values.pop(0)
+           obj.addTag(name, values.pop(0))
+        filelist = []     
+        labellist = []   
+        closeaction = []
+        setposition = []  
+        allowDups = []   
+        cascade = []    
+        symbollist = []
+        replacelist = []   
+        propagatelist = []
+        destPvExp = []   
+        sourceExp = []  
+        filelist.append( f'"{values.pop(0)}"')
+        labellist.append(f'"{values.pop(0)}"')
+        obj.addTag('fontTag', values.pop(0))
+        obj.addTag('invisible', values.pop(0))
         closeaction.append(values.pop(0) )
         setposition.append(values.pop(0) )
-        tags['numPvs'] = values.pop(0)
-        for idx in range( 0,int(tags['numPvs']) ):
-            destPvExp.append('"%s"'% (values.pop(0), ) )
-            sourceExp.append('"%s"'% (values.pop(0), ) )
+        obj.addTag('numPvs', values.pop(0))
+        for idx in range( 0,int(obj.tags['numPvs'].value) ):
+            destPvExp.append(f'"{values.pop(0)}"')
+            sourceExp.append(f'"{values.pop(0)}"')
         allowDups.append( values.pop(0) )
         cascade.append( values.pop(0) )
-        symbollist.append( '"%s"'% (values.pop(0), ) )
+        symbollist.append( f'"{values.pop(0)}"')
         replacelist.append( values.pop(0) )
         propagatelist.append( values.pop(0) )
-        tags['useFocus'] = values.pop(0)
-        tags['numDsps'] = values.pop(0)
-        numDsps = int( tags['numDsps'] )
+        obj.addTag('useFocus', values.pop(0))
+        obj.addTag('numDsps', values.pop(0))
+        numDsps = int( obj.tags['numDsps'].value )
         for idx in range(1, numDsps):
-            filelist.append( '"%s"'% (values.pop(0), ) )
-            labellist.append( '"%s"'% (values.pop(0), ) )
+            filelist.append( f'"{values.pop(0)}"')
+            labellist.append( f'"{values.pop(0)}"')
             closeaction.append(values.pop(0) )
             setposition.append(values.pop(0) )
             allowDups.append( values.pop(0) )
             cascade.append( values.pop(0) )
-            symbollist.append( '"%s"'% (values.pop(0), ) )
+            symbollist.append( f'"{values.pop(0)}"')
             replacelist.append( values.pop(0) )
             propagatelist.append( values.pop(0) )
             
-        tags['buttonLabel'] = values.pop(0)
-        tags['noEdit'] = values.pop(0)
-        if int(tags['minor'] ) > 5:
-            tags['xPosOffset'] = values.pop(0)
-            tags['yPosOffset'] = values.pop(0)
-            if int(tags['minor']) > 6:
-                tags['button3Popup'] = values.pop(0)
+        obj.addTag('buttonLabel',values.pop(0))
+        obj.addTag('noEdit',  values.pop(0))
+        obj.addTag('displayFileName',  filelist)
+        obj.addTag('menulabel',  labellist)
+        obj.addTag('closeAction',  closeaction)
+        obj.addTag('setPosition',  setposition)
+        obj.addTag('allowDups',  allowDups)
+        obj.addTag('cascade',  cascade)
+        obj.addTag('symbols',  symbollist)
+        obj.addTag('replaceSymbols',  replacelist)
+        obj.addTag('propagateMacros',  propagatelist)
+        obj.addTag('pv',  destPvExp)
+        obj.addTag('value',  sourceExp)
+        if int(obj.tags['minor'].value ) > 5:
+            obj.addTag('xPosOffset', values.pop(0))
+            obj.addTag('yPosOffset', values.pop(0))
+            if int(obj.tags['minor'].value) > 6:
+                obj.addTag('button3Popup', values.pop(0))
 
     def findFgColor(self):
         self.fgColorInfo = self.findColor("fgColor", (QPalette.ButtonText,), alarmPV="FGalarm", alarmName="fgAlarm")

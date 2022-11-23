@@ -13,6 +13,7 @@ import re
 
 from PyQt5.QtGui import QFont
 
+from . import edmApp
 from . import edmEditWidget
 from . import edmColors
 from . import edmFont
@@ -29,7 +30,8 @@ def decode( tagRef, fieldRef=None, count=-1, defValue=None):
         fieldRef = tagRef.field
 
     if count <= 0:
-        count = len(values)
+        if type(values) != str:
+            count = len(values)
 
     fakeTag = edmTag(tagRef.tag, None, fieldRef)
     if fieldRef != None:
@@ -45,12 +47,13 @@ def decode( tagRef, fieldRef=None, count=-1, defValue=None):
         rval = [defValue] * count
     idx = -1
     for val in values:
+        if edmApp.debug(2) : print(f"decoding '{val}' {type(val)}")
         if type(val) != str:
             idx = idx+1
             fakeTag.value = val
         else:
-            # check if a string.
-            if len(val)>0 and val[0] == "\"":
+            # check if a string has quotes.
+            if len(val)>0 and val[0] == '"':
                 strVal = val
                 idx = idx + 1
             else:
@@ -70,8 +73,10 @@ def decode( tagRef, fieldRef=None, count=-1, defValue=None):
                 else:
                     strVal = val
                     idx = idx + 1
-            if len(strVal) > 0 and strVal[0] == "\"":
-                strVal = re.sub(r"\\(.)", r"\1", strVal.strip("\""))
+            if edmApp.debug(2) : print(f"{strVal} len:{len(strVal)}")
+            if len(strVal) > 0 and strVal[0] == '"':
+                strVal = re.sub(r"\\(.)", r"\1", strVal.strip('"'))
+                if edmApp.debug(2) : print(f"{strVal} len:{len(strVal)}")
             fakeTag.value = strVal
 
         if idx < 0 or idx >= count:
@@ -205,10 +210,15 @@ def getEnumProperty(  tagRef, fieldRef, defValue=None):
 def toEnum(fieldRef, value):
     if value == None:
         return None
-    if type(value) == int:
-        return fieldRef.enumList(value)
+    if type(value) == str:
+        try:
+            value = int(value)
+        except ValueError:
+            pass
     if type(value) == str:
         return fieldRef.enumList[value]
+    if type(value) == int:
+        return fieldRef.enumList(value)
     try:
         if value in fieldRef.enumList:
             return value

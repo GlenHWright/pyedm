@@ -305,7 +305,7 @@ class activeSliderClass(QFrame, edmWidget):
         fm = QFontMetrics(self.edmFont)
         self.incrementWidget.setFixedWidth(fm.width(f" {disp} "))
         self.incrementWidget.setText(disp)
-        print(f"setIncrementValue incr:{disp}({increment}) mul:{self.stepMul} min:{self.slider.minimum()} max:{self.slider.maximum()}")
+        if self.debug() : print(f"setIncrementValue incr:{disp}({increment}) mul:{self.stepMul} min:{self.slider.minimum()} max:{self.slider.maximum()}")
         self.slider.setSingleStep(int(increment/self.stepMul))
         self.slider.setPageStep(int(increment/self.stepMul))
 

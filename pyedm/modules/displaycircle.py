@@ -13,8 +13,8 @@ class activeCircleClass(abstractShape):
     edmFieldList = abstractShape.edmBaseFields + abstractShape.edmShapeFields + abstractShape.edmVisFields
 
     V3propTable = {
-        "2-0" : [ "lineColor", "lineAlarm", "fill", "fillColor", "fillAlarm", "controlPv", "visPv", "visInvert", "visMin", "visMax", "lineWidth", "lineStyle" ],
-        "2-1" : [ "INDEX", "lineColor", "lineAlarm", "fill", "INDEX", "fillColor", "fillAlarm", "controlPv", "visPv", "visInvert", "visMin", "visMax", "lineWidth", "lineStyle" ]
+        "2-0" : [ "lineColor", "lineAlarm", "fill", "fillColor", "fillAlarm", "alarmPv", "visPv", "visInvert", "visMin", "visMax", "lineWidth", "lineStyle" ],
+        "2-1" : [ "INDEX", "lineColor", "lineAlarm", "fill", "INDEX", "fillColor", "fillAlarm", "alarmPv", "visPv", "visInvert", "visMin", "visMax", "lineWidth", "lineStyle" ]
             }
     def __init__(self, parent=None):
         super().__init__(parent)

@@ -56,34 +56,34 @@ class menuMuxClass(QComboBox,edmWidget):
 
     # over-ride the default method.
     @classmethod
-    def setV3PropertyList(classRef, values, tags):
+    def setV3PropertyList(classRef, values, obj):
         '''explicit conversion of the variable length paramenter list in V3 files
         '''
-        print("controlmenumux tags=", tags, "values=", values)
-        idx = "%s-%s" % (tags['major'].value, tags['minor'].value)
+        print("controlmenumux tags=", obj.tags, "values=", values)
+        idx = "%s-%s" % (obj.tags['major'].value, obj.tags['minor'].value)
         
         try:
             for name in menuMuxClass.V3propTable[idx]:
-                tags[name] = edmTag(name, values.pop(0))
+                obj.addTag(name, values.pop(0))
         except:
-            print("menuMuxClass V3 tags/values failure:", idx, tags, values)
+            print("menuMuxClass V3 tags/values failure:", idx, obj.tags, values)
 
         numItems = int(tags["numItems"].value)
         st = []
         for idx in range(0,numItems):
             st.append(values.pop(0))
-        tags["symbolTag"] = st
+        obj.addTag("symbolTag", st)
         for idx in range(0,numItems):
             names=[]
             symbols=[]
             for idx2 in range(0,4):
                 names.append( values.pop(0))
                 symbols.append( values.pop(0))
-            tags[ f"value{idx}"] = edmTag(f"value{idx}", names)
-            tags[ f"symbol{idx}"] = edmTag(f"symbol{idx}", symbols)
+            obj.addTag(f"value{idx}", names)
+            obj.addTag(f"symbol{idx}", symbols)
 
-        tags["initialState"] = edmTag("initialState", values.pop(0))
-        print("controlmenumux tags=", tags, "values=", values)
+        obj.addTag("initialState", values.pop(0))
+        print("controlmenumux tags=", obj.tags, "values=", values)
 
     def buildFromObject(self, objectDesc, **kw):
         super().buildFromObject(objectDesc, **kw)

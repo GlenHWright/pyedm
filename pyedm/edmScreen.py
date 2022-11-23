@@ -112,11 +112,12 @@ class edmScreen(edmObject):
             try:
                 with readInput(fileName, paths) as edlFp:
                     self.version = edlFp.getNextLine().split(" ")
+                    if edmApp.debug() : print(f"file {fileName} version {self.version}")
                     if self.version[0] == "3":
                         endTag = self.read3ScreenProperties(edlFp)
                         while self.read3ObjectProperties(self, edlFp, macroTable, endTag=endTag):
                             pass
-                    else:
+                    elif self.version[0] == "4":
                         self.readScreenProperties(edlFp)
                         while self.readObjectProperties(self, edlFp, macroTable):
                             pass
@@ -178,6 +179,7 @@ class edmScreen(edmObject):
             json.dump(self, fp, cls=edmEncoder)
 
     def read3ScreenProperties(self, edlFp):
+        if edmApp.debug() : print("read3ScreenProperties")
         endTag = "<<<E~O~D>>>"
         altEndTag="E\002O\002D"
         emptyString = "<<<empty>>>"
@@ -215,6 +217,8 @@ class edmScreen(edmObject):
 
     def readScreenProperties(self, edlFp):
         '''read edl version 4 screen properties'''
+        if edmApp.debug() : print("readScreenProperties")
+        endTag = "<<<E~O~D>>>"
         try:
             while edlFp.getNextLine() != None:
                 if edlFp.nextline == "endScreenProperties":
@@ -288,9 +292,9 @@ class edmScreen(edmObject):
             # find out if we even know about this class
             try:
                 classRef = edmApp.edmClasses[classname]
-                classRef.setV3PropertyList(propValue, obj.tags)
-            except:
-                print("No V3 Class/Property for", classname)
+                classRef.setV3PropertyList(propValue, obj)
+            except BaseException as exc:
+                print(f"No V3 Class/Property for {classname} because {exc}")
             return 1
 
         except NextError as ne:
@@ -387,12 +391,11 @@ class readInput:
                     break
 
         if edmApp.debug():
-            print("Requesting open edm file *", fn, "*")
+            print(f"Requesting open edm file *{fn}*")
         self.filename = fn
         if fn[0] == "/":
             try:
                 self.fp = open(fn, "r")
-                self.getNextLine()
                 return
             except FileNotFoundError:
                 pass

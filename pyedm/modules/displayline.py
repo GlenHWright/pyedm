@@ -102,21 +102,21 @@ class activeLineClass(abstractShape):
         self.setGeometry(geom)
 
     @classmethod
-    def setV3PropertyList(classRef, values, tags):
+    def setV3PropertyList(classRef, values, obj):
         for name in [ "x", "y", "w", "h", "numPoints" ]:
-            tags[name] = values.pop(0)
-        npoints = int( tags['numPoints'] )
+            obj.addTag(name, values.pop(0))
+        npoints = int( obj.tags['numPoints'].value )
         xpoints = []
         ypoints = []
         for idx in range(npoints):
             xyv = values.pop(0).split(' ')
             xpoints.append(xyv[0])
             ypoints.append(xyv[1])
-        tags['xPoints'] = xpoints
-        tags['yPoints'] = ypoints
+        obj.addTag('xPoints', xpoints)
+        obj.addTag('yPoints', ypoints)
         for name in [ "lineColor", "lineAlarm", "fillflag", "fillColor", "fillAlarm", "lineWidth", "lineStyle", "alarmPv", "visPv", "visInvert", 'visMin', 'visMax', "closePolygon", "arrows" ]:
             if values[0] == "index" and (name == "lineColor" or name  == "fillColor" ) : values.pop(0)
-            tags[name] = values.pop(0)
+            obj.addTag(name, values.pop(0))
 
 
 edmApp.edmClasses["activeLineClass"] = activeLineClass

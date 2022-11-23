@@ -23,33 +23,34 @@ class activeBarClass(abstractShape,edmWidget):
     menuGroup = [ "monitor", "Bar" ]
     labelTypeEnum = Enum("labelType", "pvName literal", start=0)
     scaleFormatEnum = Enum("scaleFormat", "FFloat GFloat Exponential", start=0)
-    orientationEnum = Enum("orientation", "horizontal vertical", start=0)
+    orientationEnum = Enum("orientation", "vertical horizontal", start=0)
     edmEntityFields = [
         edmField("indicatorPv", edmEdit.PV, None),
+        edmField("indicatorAlarm", edmEdit.Bool, False),
         edmField("indicatorColor", edmEdit.Color, 0),
         edmField("limitsFromDb", edmEdit.Bool, False),
-        edmField("orientation", edmEdit.Enum, defaultValue=0, enumList=orientationEnum),
+        edmField("orientation", edmEdit.Enum, defaultValue="horizontal", enumList=orientationEnum),
         edmField("min", edmEdit.Real, None),
         edmField("max", edmEdit.Real, None),
         edmField("origin", edmEdit.Real, None),
         edmField("label", edmEdit.String, None),
-        edmField("labelType", edmEdit.Enum, enumList=labelTypeEnum, defaultValue="pvName"),
+        edmField("labelType", edmEdit.Enum, enumList=labelTypeEnum, defaultValue="literal"),
         edmField("showScale", edmEdit.Bool, False),
         edmField("scaleFormat", edmEdit.Enum, enumList=scaleFormatEnum, defaultValue="FFloat"),
         edmField("precision", edmEdit.Int, 0),
         edmField("labelTicks", edmEdit.Int, 10),
         edmField("majorTicks", edmEdit.Int, 2),
         edmField("minorTicks", edmEdit.Int, 2),
-        edmField("border", edmEdit.Bool, True)
+        edmField("border", edmEdit.Bool, False)
         ]
     edmFieldList = abstractShape.edmBaseFields + abstractShape.edmColorFields + \
             edmEntityFields + \
             abstractShape.edmShapeFields + abstractShape.edmFontFields
 
     V3propTable = {
-        "2-1" : [ "indicatorColor", "indicatorAlarm", "fgColor", "fgAlarm", "bgColor", "indicatorPv", "readPv", "label", "labelType", "showScale",
+        "2-1" : [ "indicatorColor", "indicatorAlarm", "fgColor", "fgAlarm", "bgColor", "readPv", "indicatorPv", "label", "labelType", "showScale",
             "origin","font", "labelTicks", "majorTicks", "minorTicks", "border", "limitsFromDb", "precision", "min", "max", "scaleFormat", "nullPv", "orientation" ],
-        "2-2" : [ "INDEX", "indicatorColor", "indicatorAlarm", "INDEX", "fgColor", "fgAlarm", "INDEX", "bgColor", "indicatorPv", "readPv", "label", "labelType", "showScale",
+        "2-2" : [ "INDEX", "indicatorColor", "indicatorAlarm", "INDEX", "fgColor", "fgAlarm", "INDEX", "bgColor", "readPv", "indicatorPv", "label", "labelType", "showScale",
             "origin","font", "labelTicks", "majorTicks", "minorTicks", "border", "limitsFromDb", "precision", "min", "max", "scaleFormat", "nullPv", "orientation" ]
             }
     def __init__(self, parent=None):

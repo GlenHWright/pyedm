@@ -9,8 +9,9 @@
 from .edmApp import edmApp
 
 class edmWidgetSupport:
-    def __init__(self, *args, **kw): # this seems unnecessary...
-         super().__init__(*args, **kw)
+    def __init__(self, *args, **kw):
+        super().__init__(*args, **kw)
+
     '''methods shared by edmWidget and edmWindowWidget'''
     def debug(self,level=1, *, mesg=None, setDebug=None):
         if setDebug != None:

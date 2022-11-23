@@ -19,7 +19,7 @@ from .edmApp import edmApp, redisplay
 from .edmObject import edmObject
 from . import edmFont
 from . import edmColors
-from .edmField import edmField
+from .edmField import edmField, edmTag
 from .edmWidgetSupport import edmWidgetSupport
 from .edmEditWidget import edmEdit, fontAlignEnum
 from .edmScreen import edmScreen
@@ -175,11 +175,11 @@ class edmWidget(edmWidgetSupport):
         ]
     edmColorFields = [
         edmField("fgColor", edmEdit.Color, defaultValue=14),
-        edmField("fgAlarm", edmEdit.Bool, defaultValue=20),
+        edmField("fgAlarm", edmEdit.Bool, defaultValue=False),
         edmField("bgColor", edmEdit.Color, defaultValue=0),
-        edmField("bgAlarm", edmEdit.Bool, defaultValue=20),
+        edmField("bgAlarm", edmEdit.Bool, defaultValue=False),
         edmField("colorPv", edmEdit.PV),
-        edmField("useDisplayBg", edmEdit.Bool, defaultValue=0)
+        edmField("useDisplayBg", edmEdit.Bool, defaultValue=False)
         ]
     edmFontFields = [
             edmField("font", edmEdit.FontInfo, defaultValue="helvetica-medium-r-18.0"),
@@ -369,20 +369,20 @@ class edmWidget(edmWidgetSupport):
         try:
             pt = standard + classRef.V3propTable[idx]
         except:
-            print('no V3 table for', classRef, "index", idx)
+            print('note: no V3 table for', classRef, "index", idx)
             return standard
         return pt
 
     @classmethod
-    def setV3PropertyList(classRef, propValue, tags):
-        propName = classRef.getV3PropertyList(tags['major'], tags['minor'], tags['release'])
+    def setV3PropertyList(classRef, propValue, obj):
+        propName = classRef.getV3PropertyList(obj.tags['major'].value, obj.tags['minor'].value, obj.tags['release'].value)
         if len(propValue) != len(propName):
-            print("warning: mismatched property list", "class", tags['Class'], tags['major'], tags['minor'], len(propName), len(propValue))
+            print("warning: mismatched property list", "class", obj.tags['Class'], obj.tags['major'].value, obj.tags['minor'].value, len(propName), len(propValue))
             print(propName)
             print(propValue)
 
         for n,v in zip(propName, propValue):
-            tags[n] = v
+            obj.tags[n] = edmTag(n,v)
 
     def checkVisible(self):
         '''visibility check to be done before redisplay'''
@@ -409,6 +409,8 @@ class edmWidget(edmWidgetSupport):
         else:
             self.edmFont = self.getScreenProperty(self.defaultFontTag)
         if self.debug() : print(f"font: {self.edmFont}")
+        if self.edmFont == None:
+            return
         self.setFont(self.edmFont)
         # if this widget supports setting alignment, interpret the fontAlign tag
         if getattr(self, "setAlignment", None) != None:
@@ -479,6 +481,8 @@ class edmWidget(edmWidgetSupport):
         # check if alarm sensitive: is so, find a PV to use
         if self.objectDesc.checkProperty(alarmName) == False:
             return None
+        if self.objectDesc.getProperty(alarmName) == False:
+            return None
         for pvname in [ alarmPV, "indicatorPV", "controlPV", "colorPV" ]:
             pv = getattr(self, pvname, None)
             if pv != None:
@@ -524,7 +528,7 @@ class edmWidget(edmWidgetSupport):
         '''
         
         pvName = self.getName(pvName, tag)
-        if pvName == None:
+        if pvName == None or pvName == "":
             return None
         item = self.pvItem[tag]
         mt = self.findMacroTable()
@@ -600,12 +604,9 @@ class edmWidget(edmWidgetSupport):
     def getParentScreen(self):
         parent = self
         while(True):
-            if hasattr(parent, "edmScreen"):
+            if not hasattr(parent, "edmParent") or parent.edmParent == None:
                 return parent
-            try:
-                parent = parent.edmParent
-            except AttributeError:
-                return None
+            parent = parent.edmParent
 
     #
     #

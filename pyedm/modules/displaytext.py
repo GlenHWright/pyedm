@@ -1,5 +1,5 @@
-from __future__ import division
-# Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
+# Copyright 2022 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
+#
 # Module for generating a widget for a static text display class
 
 # This SHOULD simply be a QT label. However, there is no control over
@@ -8,23 +8,24 @@ from __future__ import division
 # rather than auto-adjustable displays, the work needs to be done here.
 import os
 from .edmApp import edmApp
-from .edmWidget import edmWidget
-from .edmField import edmField
+from .edmWidget import edmWidget, pvItemClass
+from .edmField import edmField, edmTag
 from .edmEditWidget import edmEdit
 
-from PyQt5.QtWidgets import QWidget
-from PyQt5.QtGui import QTextLayout, QTextOption, QPalette, QFontMetrics, QPainter
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel
+from PyQt5.QtGui import QFontMetrics, QPalette
 from PyQt5.QtCore import QPoint, QPointF
 
 class activeXTextClass(QWidget,edmWidget):
     menuGroup = [ "monitor", "Text Box" ]
 
     edmEntityFields = [
-        edmField("value", edmEdit.String, array=True),
+        edmField("value", edmEdit.TextBox, array=True),
         edmField("autoSize", edmEdit.Bool, False),
         edmField("border", edmEdit.Bool, False),
         edmField("lineWidth", edmEdit.Int, 1),
         edmField("ID", edmEdit.String, None),
+        edmField("alarmPv", edmEdit.PV, None)
             ] + edmWidget.edmFontFields
     V3propTable = {
         "2-0" : [ "fgColor", "colorMode", "useDisplayBg", "bgColor", "bgColorMode", "alarmPv", "visPv", "visInvert", "visMin", "visMax", "value",
@@ -33,80 +34,70 @@ class activeXTextClass(QWidget,edmWidget):
         }
     def __init__(self, parent=None, **kw):
         super().__init__(parent, **kw)
-        self.offset = 0
+        self.layout = None
+        self.pvItem["alarmPv"] = pvItemClass( "alarmName", "alarmPV" )
 
     def findBgColor(self):
         edmWidget.findBgColor(self, palette=(QPalette.Base,) )
+
+    @classmethod
+    def setV3PropertyList(classRef, propValue, obj):
+        if edmApp.debug() : print(f"setV3PropertyList({classReff}, {propValue}, {obj}")
+        propName = classRef.getV3PropertyList(obj.tags['major'].value, obj.tags['minor'].value, obj.tags['release'].value)
+        if len(propValue) != len(propName):
+            print("warning: mismatched property list", "class", obj.tags['Class'], obj.tags['major'].value, obj.tags['minor'].value, len(propName), len(propValue))
+            print(propName)
+            print(propValue)
+
+        for n,v in zip(propName, propValue):
+            obj.tags[n] = edmTag(n,v)
+
+        if 'value' in obj.tags:
+            obj.tags['value'].value = obj.tags['value'].value.split("\\n")
 
     def buildFromObject(self, objectDesc, **kw):
         super().buildFromObject(objectDesc, **kw)
 
         if self.objectDesc.checkProperty("value") == False:
             value = [ "" ]
-        elif self.objectDesc.getProperty("major", 0) < 4:
-            # EDM V3 format has a single string with embedded newlines encoded as '\n'
-            value = [ self.macroExpand(val) for val in self.objectDesc.getProperty("value",arrayCount=-1).split('\\n') ]
         else:
             # EDM V4 has multiple strings, 1 per line.
             value = [ self.macroExpand(val) for val in self.objectDesc.getProperty("value",arrayCount=-1)]
 
-        self.qtlayout = QTextLayout( '\n'.join(value), self.objectDesc.getProperty("font") )
-        fm = QFontMetrics(self.qtlayout.font())
-        border = self.objectDesc.getProperty("border", 0)
-        autoSize = self.objectDesc.getProperty("autoSize", 0) 
-        lineWidth = self.objectDesc.getProperty("lineWidth", 0) 
-        align = self.objectDesc.getProperty("fontAlign", 0)
+        fm = QFontMetrics(self.edmFont)
+        border = self.objectDesc.getProperty("border")
+        autoSize = self.objectDesc.getProperty("autoSize") 
+        lineWidth = self.objectDesc.getProperty("lineWidth") 
         # Find new box size.
         if autoSize:
-            max = -1
+            maxwidth = -1
             for word in value:
-                check_width = fm.width(word)
-                if check_width > max:
-                    max = check_width
+                maxwidth = max(maxwidth, fm.width(word))
+
             h = (fm.height())*len(value)
-
             if border:
-                max = max + lineWidth*2
+                maxwidth = maxwidth + lineWidth*2
                 h = h + lineWidth*2
-            geom = self.geometry()
-            geom.setWidth(max+2)
-            geom.setHeight(h)
-            self.setGeometry(geom)
-        # print "- - -", self.fontInfo().family()
-        # print "Metrics: leading:", fm.leading(), "ascent", fm.ascent(), "descent", fm.descent(), "border", border, "autoSize", autoSize , "align", align
-        # print "Widget: ", self.x(), self.y(), self.width(), self.height()
-        option = self.qtlayout.textOption()
-        option.setAlignment( self.findAlignment("fontAlign"))
-        #option.setWrapMode(QTextOption.NoWrap)
-        self.qtlayout.setTextOption(option)
-        self.qtlayout.beginLayout()
-        leading = fm.leading()
-        height = 0
-        if os.name == "posix" and autoSize:
-            #self.offset = -5 # essentially an adjustment to "leading"
-            height = self.height()//len(value) - fm.height()
-        if fm.height() > self.height():
-            height = (self.height() - fm.height())//2
-        if border:
-            height = height+lineWidth+1
-        # starting height sets the baseline to the midpoint of the allocated space.
-        while 1:
-            line = self.qtlayout.createLine()
-            if not line.isValid():
-                break
-            line.setLineWidth(self.width())
-            height += leading
-            line.setPosition( QPointF(0, height))
-            height += fm.height() + self.offset
-        self.qtlayout.endLayout()
-        self.update()
 
-    def paintEvent(self, event=None):
-        painter = QPainter(self)
-        painter.fillRect(0, self.offset, self.width()-1, self.height()-1,
-        self.palette().brush(QPalette.Base))
-        self.qtlayout.draw( painter, QPointF(0,self.offset))
-        # print "activeXTextClass: lines:", self.layout.lineCount(), self.layout.text()
+            geom = self.geometry()
+            geom.setWidth(maxwidth+2)
+            geom.setHeight(h+2*len(value))
+            self.setGeometry(geom)
+
+        if self.layout == None:
+            self.layout = QVBoxLayout()
+            self.layout.setContentsMargins(0,0,0,0)
+            self.layout.setSpacing(4)
+        else:
+            while self.layout.takeAt(0) != None:
+                pass
+
+        for line in value:
+            label = QLabel(line)
+            self.layout.addWidget(label)
+            self.layout.setAlignment(label, self.findAlignment())
+        self.setLayout(self.layout)
+        self.update()
 
 edmApp.edmClasses["activeXTextClass"] = activeXTextClass
 

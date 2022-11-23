@@ -35,10 +35,10 @@ class activeButtonClass(QPushButton, edmWidget):
             ]
     V3propTable = {
         "2-1" : [ "fgColor", "fgAlarm", "onColor", "offColor", "unknownColor", "topShadowColor", "botShadowColor",
-        "controlPv", "readPv", "onLabel", "offLabel", "labelType", "buttonType", "threeD", "invisible", "font", "ID", "downCallbackFlag", "upCallbackFlag", "activateCallbackFlag",
+        "controlPv", "indicatorPv", "onLabel", "offLabel", "labelType", "buttonType", "threeD", "invisible", "font", "ID", "downCallbackFlag", "upCallbackFlag", "activateCallbackFlag",
         "deactivateCallbackFlag", "objType", "visPv", "visInvert", "visMin", "visMax", "colorPv" ],
         "2-4" : [ "INDEX", "fgColor", "fgAlarm", "INDEX", "onColor", "INDEX", "offColor", "INDEX", "unknownColor", "INDEX", "topShadowColor", "INDEX", "botShadowColor",
-        "controlPv", "readPv", "onLabel", "offLabel", "labelType", "buttonType", "threeD", "invisible", "font", "ID", "downCallbackFlag", "upCallbackFlag", "activateCallbackFlag",
+        "controlPv", "indicatorPv", "onLabel", "offLabel", "labelType", "buttonType", "threeD", "invisible", "font", "ID", "downCallbackFlag", "upCallbackFlag", "activateCallbackFlag",
         "deactivateCallbackFlag", "objType", "visPv", "visInvert", "visMin", "visMax", "colorPv" ]
         }
     def __init__(self, parent=None, **kw):

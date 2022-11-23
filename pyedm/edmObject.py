@@ -89,8 +89,10 @@ class edmObject:
 
         # at this point - we have valid tagRef and tagRef.field.
         # check whether creating an array or a single value
-        if arrayCount == None:
+        if arrayCount == None and tagRef.field.array == False:
             val = converter( tagRef, tagRef.field, defValue)
+        elif arrayCount == None:
+            val = decode( tagRef, tagRef.field, -1, defValue)
         else:
             val = decode( tagRef, tagRef.field, arrayCount, defValue)
         return val

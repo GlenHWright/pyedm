@@ -87,6 +87,7 @@ def pyedm(argv):
     parser.add_argument( "--one", action="count", help="(not implemented) Allow only one edm instance" )
     parser.add_argument( "--open", action="count", help="(not implemented) Request edm server to open files" )
     parser.add_argument( "--eolc", action="count", help="(not implemented) Exit when last screen is closed" )
+    parser.add_argument( "-eolc", action="count", help="(not implemented) Exit when last screen is closed" )
     parser.add_argument( "--ul", action="count", help="(not implemented) Takes name of user written shareable library")
 
 # any unused arguments are considered files.

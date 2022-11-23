@@ -12,7 +12,7 @@ import os
 from threading import Thread
 from .edmApp import edmApp
 from .edmWidget import edmWidget
-from .edmField import edmField
+from .edmField import edmField, edmTag
 from .edmEditWidget import edmEdit
 
 from PyQt5.QtWidgets import QPushButton, QMenu
@@ -44,22 +44,22 @@ class shellCmdClass(QPushButton,edmWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-    def setV3PropertyList(classRef, values, tag):
+    def setV3PropertyList(classRef, values, obj):
         for name in [ "INDEX", "fgColor", "INDEX", "bgColor", "INDEX", "topShadowColor", "INDEX", "botShadowColor",
             "command0", "buttonLabel", "font", "invisible", "closeDisplay", "autoExecPeriod", "multipleInstances",
             "initialDelay", "password", "lock", "label0", "numCmds" ]:
-            tag[name] = values.pop(0)
+            obj.addTag(name, values.pop(0))
 
-        cmd = [tag['command0'] ]
-        label = [tag['label0'] ]
-        for idx in range(1, int(tag['numCmds']) ):
+        cmd = [obj.tags['command0'].value ]
+        label = [obj.tags['label0'].value ]
+        for idx in range(1, int(tag['numCmds']).value ):
             cmd.append( values.pop(0))
             label.append( values.pop(0) )
 
-        tag['commandLabel'] = label
-        tag['command'] = cmd
+        obj.addTag( "commandLabel", label)
+        obj.addTag("command", cmd)
 
-        tag['requiredHostName'] = values.pop(0)
+        obj.addTag( "requiredHostName", values.pop(0))
             
     def buildFromObject(self, objectDesc, **kw):
         super().buildFromObject(objectDesc, **kw)

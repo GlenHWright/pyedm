@@ -98,6 +98,11 @@ class edmWindowWidget(QtWidgets.QWidget, edmWidgetSupport, edmParentSupport):
         self.setPalette(pal)
 
     def getParentScreen(self):
+        try:
+            return self.edmParent.getParentScreen()
+        except AttributeError:
+            # this can be no edmParent or None edmParent
+            pass
         return self
 
     def saveToFile(self, *args, **kw):

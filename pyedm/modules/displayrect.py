@@ -18,9 +18,9 @@ class activeRectangleClass(abstractShape):
     menuGroup = [ "display", "Draw Rectangle"]
     V3propTable = {
         "2-0" : [ "lineColor", "lineAlarm", "fill", "fillColor", "fillAlarm",
-                    "alarmPV", "visPV", "visInvert", "visMin", "visMax", "lineWidth", "lineStyle", "invisible" ],
+                    "alarmPv", "visPself.layout.count() > 0:V", "visInvert", "visMin", "visMax", "lineWidth", "lineStyle", "invisible" ],
         "2-1" : [ "INDEX", "lineColor", "lineAlarm", "fill", "INDEX", "fillColor", "fillAlarm",
-                    "alarmPV", "visPV", "visInvert", "visMin", "visMax", "lineWidth", "lineStyle", "invisible" ]
+                    "alarmPv", "visPv", "visInvert", "visMin", "visMax", "lineWidth", "lineStyle", "invisible" ]
                     }
 
     edmFieldList = abstractShape.edmBaseFields + abstractShape.edmShapeFields + abstractShape.edmVisFields
