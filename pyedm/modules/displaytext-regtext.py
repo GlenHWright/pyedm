@@ -1,4 +1,4 @@
-# Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
+# Copyright 2011-2022 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # This module manages the display of text with regular expression manipulation
 
 from . import edmImport
@@ -13,7 +13,7 @@ displaytext = edmImport("displaytext")
 activeXTextClass = displaytext.activeXTextClass
 
 class activeXRegTextClass(activeXTextClass):
-    menuGroup = [ "monitor", "active Text" ]
+    menuGroup = [ "display", "active Text regex" ]
     edmEntityFields = [
         edmField("regExpr", edmEdit.String)
             ]

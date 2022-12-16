@@ -15,7 +15,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPalette, QFontDatabase
 
 from .edmPVfactory import buildPV, expandPVname, edmPVbase
-from .edmApp import edmApp, redisplay
+from .edmApp import edmApp
 from .edmObject import edmObject
 from . import edmFont
 from . import edmColors
@@ -48,11 +48,15 @@ class reColorInfo:
     def __init__(self, widget, cr=None):
         self.widget = widget
         self.alarmpv = None
-        self.colorpv = None
-        self.alarmSensitive = 0
-        self.colorRule = cr
+        self.alarmSensitive = False
         self.alarmStatus = 0
+        self.colorPV = None
+        self.colorRule = cr
         self.colorValue = 0.0
+        self.nullPV = None
+        self.checkNull = False
+        self.useNull = False
+        self.nullColor = None
         self.colorPalette = ()
         self.lastColor = None
 
@@ -68,37 +72,54 @@ class reColorInfo:
             self.alarmpv = None
         except: pass
         try:
-            self.colorpv.del_callback(self)
-            self.colorpv = None
+            self.colorPV.del_callback(self)
+            self.colorPV = None
         except: pass
         self.widget = None      # break circular reference
         self.colorRule = None
 
-    # called for an alarm sensitive color
     def addAlarmStatus(self, alarmPV, widget):
-        self.debug(mesg=f"addAlarmStatus {alarmPV}")
-        self.alarmSensitive = 1
+        ''' addAlarmStatus(alarmPV, widget) - called for an alarm sensitive color '''
+        self.debug(1,mesg=f"addAlarmStatus {alarmPV}")
+        self.alarmSensitive = True
         self.alarmpv = alarmPV
         alarmPV.add_callback( self.onAlarmUpdate, self)
 
     def addColorPV(self, colorPV):
         self.debug(mesg=f"addColorPV {self}, {colorPV}")
-        self.colorpv = colorPV
+        self.colorPV = colorPV
         colorPV.add_callback( self.onColorUpdate, self)
 
+    def addNullPV(self, *, nullPV, nullColor, nullTest):
+        '''addNullPV(nullPV=pv, nullColor=colorRule, nullTest=callable(testThis) )'''
+        self.debug(mesg=f"addNullPV {self}, {nullPV}")
+        self.useNull = False
+        self.nullPV = nullPV
+        self.nullColor = nullColor
+        self.nullTest = nullTest
+        nullPV.add_callback( self.onNullUpdate, self)
+
     def onAlarmUpdate(self, widget, **kw):
-        self.debug(mesg=f'onAlarmUpdate {self}, {kw}')
-        if self.alarmSensitive == 0 or "severity" not in kw:
+        self.debug(1, mesg=f'onAlarmUpdate {self}, {kw}')
+        if not self.alarmSensitive or "severity" not in kw:
             print("Useless onAlarmUpdate call!", self.alarmSensitive)
             return
         self.alarmStatus = kw["severity"]
-        redisplay(self.widget)
+        edmApp.redisplay(self.widget)
     
     def onColorUpdate(self, widget, **kw):
         self.debug(mesg=f"onColorUpdate, {self}, {kw}")
         if "value" in kw:
             self.colorValue = kw["value"]
-            redisplay(self.widget)
+            edmApp.redisplay(self.widget)
+
+    def onNullUpdate(self, widget, **kw):
+        self.debug(mesg=f"onNullUpdate, {self}, {kw}")
+        if "value" not in kw:
+            return
+
+        self.useNull = self.nullTest(kw["value"])
+        edmApp.redisplay(self.widget)
 
     # The force flag disables an optimization that keeps a colorinfo from resetting the last color.
     # This fails for controlbutton.py because the same palette is controlled by two different colorinfo
@@ -113,8 +134,11 @@ class reColorInfo:
         else:
             if self.colorRule == None:
                 self.debug(mesg=f"colorInfo: no color rule!")
-                return
-            col = self.colorRule.getColor( self.colorValue)
+                return None
+            if self.useNull:
+                col = self.nullColor.getColor(self.colorValue)
+            else:
+                col = self.colorRule.getColor( self.colorValue)
         if col != self.lastColor or force:
             self.debug(mesg=f"Changing {self.widget} palette {col} {self.colorPalette} {self.colorValue} {self.alarmStatus} {self.alarmSensitive}")
             self.lastColor = col
@@ -165,12 +189,12 @@ class edmWidget(edmWidgetSupport):
         edmField("minor", edmEdit.Int, defaultValue=0, hidden=True),
         edmField("release", edmEdit.Int, defaultValue=0, hidden=True),
         edmField("", edmEdit.HList, group= [
-            edmField("x", edmEdit.Int, defaultValue=50),
-            edmField("y", edmEdit.Int, defaultValue=50),
+            edmField("x", edmEdit.Int, defaultValue=20),
+            edmField("y", edmEdit.Int, defaultValue=60),
             ] ),
         edmField("", edmEdit.HList, group= [
-            edmField("w", edmEdit.Int, defaultValue=100),
-            edmField("h", edmEdit.Int, defaultValue=100)
+            edmField("w", edmEdit.Int, defaultValue=110),
+            edmField("h", edmEdit.Int, defaultValue=85)
             ] )
         ]
     edmColorFields = [
@@ -187,8 +211,8 @@ class edmWidget(edmWidgetSupport):
         ]
     edmVisFields = [
             edmField("visPv", edmEdit.PV, defaultValue=None),
-            edmField("visMin", edmEdit.Int, defaultValue=None),
-            edmField("visMax", edmEdit.Int, defaultValue=None),
+            edmField("visMin", edmEdit.Int, defaultValue=0),
+            edmField("visMax", edmEdit.Int, defaultValue=1),
             edmField("visInvert", edmEdit.Bool, defaultValue=False)
         ]
 
@@ -313,6 +337,18 @@ class edmWidget(edmWidgetSupport):
                 if subitem.tag in obj.tags:
                     obj.tags[subitem.tag].field = subitem
 
+    # C++ EDM often draws borders and such outside the specified widget geometries.
+    # items often need some adjustment. Although there was an attempt here to have a
+    # generic resize that worked for all widgets, it works equally bad for all
+    # widgets. It has been removed.
+    def setObjectGeometry(self):
+        '''setObjectGeometry: adapt object geometry to Qt geometry'''
+        x = int(self.objectDesc.getProperty("x")*edmApp.rescale)-self.edmParent.parentx
+        y = int(self.objectDesc.getProperty("y")*edmApp.rescale)-self.edmParent.parenty
+        w = int(self.objectDesc.getProperty("w")*edmApp.rescale)
+        h = int(self.objectDesc.getProperty("h")*edmApp.rescale)
+
+        self.setGeometry(x,y,w,h)
 
     def buildFromObject(self, objectDesc, *, attr=Qt.WA_TransparentForMouseEvents, rebuild=False, **kw):
         '''
@@ -325,13 +361,7 @@ class edmWidget(edmWidgetSupport):
         '''
         if self.debug(): print("buildFromObject", objectDesc)
         self.objectDesc = objectDesc
-        # C++ EDM often draws borders and such outside the specified widget geometries.
-        # items often need some adjustment. Although there was an attempt here to have a
-        # generic resize that worked for all widgets, it works equally bad for all
-        # widgets. It has been removed.
-        self.setGeometry(objectDesc.getProperty("x")-self.edmParent.parentx,
-            objectDesc.getProperty("y")-self.edmParent.parenty,
-            objectDesc.getProperty("w"), objectDesc.getProperty("h"))
+        self.setObjectGeometry()
         if attr != None:
             self.setAttribute(attr)
             self.setAttribute(Qt.WA_NoMousePropagation)
@@ -409,12 +439,11 @@ class edmWidget(edmWidgetSupport):
         else:
             self.edmFont = self.getScreenProperty(self.defaultFontTag)
         if self.debug() : print(f"font: {self.edmFont}")
-        if self.edmFont == None:
-            return
-        self.setFont(self.edmFont)
         # if this widget supports setting alignment, interpret the fontAlign tag
         if getattr(self, "setAlignment", None) != None:
             self.setAlignment( self.findAlignment())
+        if self.edmFont != None:
+            self.setFont(self.edmFont)
 
     # find the alignment for a widget
     def findAlignment(self, defValue=Qt.AlignLeft):
@@ -444,15 +473,16 @@ class edmWidget(edmWidgetSupport):
 
     # Generic selection of a palette entry. the Name pv's are the edm object
     # field names.
-    # if fillName set, then this is the Field that, if != to fillTest, fill
+    # if fillName set, then this is the Field that, if equal to fillTest, fill
     # with color, otherwise make transparent. This isn't exactly what EDM does.
     # NOTE: mostly called by findFgColor and findBgColor
     # if alarmName != 0, flag to look for alarm sensitivity.
     # if alarmPV != None, alternative name to check for alarm.
-    def findColor( self, colorName, palette, *, alarmName=None, alarmPV="alarmPv", fillName=None, fillTest=True):
-        if self.debug():
+    def findColor( self, colorName, palette, *, alarmName=None, alarmPV="alarmPV", fillName=None, fillTest=True):
+        if self.debug(1):
             print('findColor(', self, colorName, palette, alarmPV, alarmName, fillName, fillTest, ')')
-            print('... alarmName=', self.objectDesc.getProperty(alarmName,0))
+            if alarmName != None:
+                print(f'... {alarmName} alarmName=', self.objectDesc.getProperty(alarmName))
 
         # if there is a PV that we'll alarm against, list it here.
         alarmid = self.getAlarmPv(alarmName, alarmPV)
@@ -463,9 +493,10 @@ class edmWidget(edmWidgetSupport):
             colorRule = edmColors.findColorRule("builtin:transparent")
         else:
             colorRule = self.objectDesc.getProperty(colorName)
+        if self.debug() : print(f"findColor {colorName}-> CR {colorRule} isRule: {colorRule.isRule()}")
         rcinfo = reColorInfo(self, colorRule)
         rcinfo.colorPalette = palette
-        if colorRule != None and len(colorRule.ruleList) > 1:
+        if colorRule != None and colorRule.isRule():
             self.setColorPV(rcinfo, colorName)
         if alarmid != None:
             rcinfo.addAlarmStatus(alarmid,self)
@@ -527,10 +558,15 @@ class edmWidget(edmWidgetSupport):
         dynamic updates of the macro table.
         '''
         
+        item = self.pvItem[tag]
         pvName = self.getName(pvName, tag)
         if pvName == None or pvName == "":
+            if checkChanged:
+                oldPV = getattr(self, item.attributePV, None)
+                if oldPV != None:
+                    self.delPV(pvRef=item.attributePV, attrName=item.attributeName)
             return None
-        item = self.pvItem[tag]
+
         mt = self.findMacroTable()
         # Usually only True when rebuilding a widget.
         if checkChanged:
@@ -571,20 +607,20 @@ class edmWidget(edmWidgetSupport):
         try:
             value = float(value)
             self.visible = (value >= self.visMin and value < self.visMax)
-            if self.visInvert > 0: self.visible = not self.visible
+            if self.visInvert : self.visible = not self.visible
         except:
             # failures should force visibility
             print("onCheckVisible failure. Make it visible '%s'" % ( str(value),))
             self.visible = True
 
         if self.lastVisible != self.visible:
-            redisplay(self)
+            edmApp.redisplay(self)
 
-    def getProperty(self, tag, defaultValue=None):
+    def getProperty(self, *args, **kw):
         ''' convenience function - objectDesc.getProperty called
         '''
         try:
-            return self.objectDesc.getProperty(tag, defaultValue)
+            return self.objectDesc.getProperty(*args, **kw)
         except AttributeError as exc:
             print(f"widget {self} getProperty failure {exc}")
 
@@ -605,6 +641,8 @@ class edmWidget(edmWidgetSupport):
         parent = self
         while(True):
             if not hasattr(parent, "edmParent") or parent.edmParent == None:
+                return parent
+            if parent.checkProperty("Filename"):
                 return parent
             parent = parent.edmParent
 
@@ -669,11 +707,7 @@ class edmWidget(edmWidgetSupport):
         if rebuild == True:
             self.buildFromObject(objDesc, rebuild=True)
         else:
-            x = objDesc.getProperty("x")
-            y = objDesc.getProperty("y")
-            w = objDesc.getProperty("w")
-            h = objDesc.getProperty("h")
-            self.setGeometry(x,y,w,h)
+            self.setObjectGeometry()
 
     def setTagField(self, tag):
         return self.setTagFieldItem(tag, self.edmFieldList)
@@ -700,7 +734,6 @@ def buildNewWidget(parent, source, widgetClassRef=None):
         if 'source' looks like a json input, convert it to tag objects,
             and then create a widget
     '''
-    
     objParent = getattr(parent, "edmScreen", None)
     if type(source) == dict:
         obj = edmObject(objParent)

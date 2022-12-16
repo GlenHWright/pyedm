@@ -123,19 +123,20 @@ class activeBarClass(abstractShape,edmWidget):
             painter.eraseRect(0, 0, w, h)
 
         painter.setBrush(self.bgColorInfo.setColor() )
+        pen = painter.pen()
+        # draw a border around the widget.
         if self.border:
-            # draw a border around the widget. adjust the
-            # geometry of the bar drawing area accordingly
-            pen = painter.pen()
             pen.setColor( self.fgColorInfo.setColor() )
-            bw = 2 # border width
-            pen.setWidth(bw )
-            painter.setPen(pen)
-            painter.drawRect(x,y,w,h)
-            x += bw+1
-            y += bw+1
-            w -= (bw+1)*2
-            h -= (bw+1)*2
+        else:
+            pen.setColor( self.bgColorInfo.setColor() )
+        bw = 2 # border width
+        pen.setWidth(bw )
+        painter.setPen(pen)
+        painter.drawRect(x,y,w,h)
+        x += bw+1
+        y += bw+1
+        w -= (bw+1)*2
+        h -= (bw+1)*2
 
         if self.labelType == self.labelTypeEnum.pvName:
             label = self.indicatorPV.name
@@ -224,7 +225,6 @@ class activeBarClass(abstractShape,edmWidget):
                     la_incr = w / ticks
                     majorTicks = majorTicks * int(labelTicks/ticks)
                     labelTicks = ticks
-
 
                 ma_incr = la_incr / majorTicks
                 mi_incr = ma_incr / minorTicks

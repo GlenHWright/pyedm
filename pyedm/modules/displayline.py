@@ -90,11 +90,12 @@ class activeLineClass(abstractShape):
         self.xpoints = self.objectDesc.getProperty("xPoints", arrayCount=self.npoints,defValue=0)
         self.ypoints = self.objectDesc.getProperty("yPoints", arrayCount=self.npoints,defValue=0)
         self.arrows = self.objectDesc.getProperty("arrows", "none")
-        self.arrowSize = 15
+        self.arrowSize = int(15*edmApp.rescale)
         self.arrowAngle = Pi/2.5
         # translate points to 'QT' space
         adj = self.arrowSize//2
-        self.points = [QPoint(x-self.myx+adj,y-self.myy+adj) for x,y in zip(self.xpoints,self.ypoints)]
+        self.points = [ QPoint(int((x-self.myx+adj)*edmApp.rescale),int((y-self.myy+adj)*edmApp.rescale)) \
+                    for x,y in zip(self.xpoints,self.ypoints)]
         geom = self.geometry()
         geom.translate(-adj, -adj)
         geom.setWidth( geom.width() + adj*2)

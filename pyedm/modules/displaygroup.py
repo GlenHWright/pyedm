@@ -3,7 +3,7 @@
 #
 
 from .edmApp import edmApp
-from .edmWindowWidget import edmWindowWidget, generateWidget, mousePressEvent, mouseReleaseEvent, mouseMoveEvent, editModeEnum
+from .edmWindowWidget import edmWindowWidget, mousePressEvent, mouseReleaseEvent, mouseMoveEvent
 from .edmWidget import edmWidget
 from .edmParentSupport import edmParentSupport
 
@@ -35,10 +35,15 @@ class activeGroupClass(QtWidgets.QWidget, edmParentSupport, edmWidget):
 
     def buildFromObject(self, objectDesc, **kw):
         super().buildFromObject( objectDesc, **kw)
-        self.parentx = objectDesc.getProperty("x")
-        self.parenty = objectDesc.getProperty("y")
+        self.parentx = int(objectDesc.getProperty("x")*edmApp.rescale)
+        self.parenty = int(objectDesc.getProperty("y")*edmApp.rescale)
         self.macroTable = getattr(self.edmParent, "macroTable", None)
-        generateWidget(self.objectDesc, self)
+        # specific check here rather than 'try'
+        # so we don't mask out AttributeError
+        # from lower level calls.
+        if not hasattr(self.objectDesc, "objectList"):
+            self.objectDesc.objectList = []
+        edmApp.generateWidget(self.objectDesc, self)
         # Unknown level of nesting, so the assumption is made that
         # this widget could contain something that would like
         # a mouse message
@@ -55,9 +60,6 @@ class activeGroupClass(QtWidgets.QWidget, edmParentSupport, edmWidget):
 
     def redisplay(self):
         self.checkVisible()
-
-    def buildNewWindow(self):
-        pass
 
     def findFgColor(self):
         return None

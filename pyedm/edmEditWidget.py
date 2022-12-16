@@ -15,7 +15,7 @@ from dataclasses import dataclass
 from enum import Enum
 
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import pyqtSignal, QObject, Qt
+from PyQt5.QtCore import pyqtSignal, QObject, Qt, QPoint
 from PyQt5.QtGui import QFontDatabase,QFont,QFontInfo,QPalette,QIntValidator,QDoubleValidator,QRegExpValidator
 
 from .edmField import edmField, edmTag
@@ -42,6 +42,7 @@ class ColorWindow(QtWidgets.QWidget):
         for idx,cr in enumerate(edmColor.colorNames.values()):
             row, col = divmod(idx, ncol)
             color = QColorButton(mycolor=cr)
+            color
             self.group.addButton(color)
             layout.addWidget(color, row, col)
         self.setLayout(layout)
@@ -104,6 +105,7 @@ class QColorButton(QtWidgets.QPushButton):
         palette.setColor(QPalette.WindowText, color)
         self.setAutoFillBackground(True)
         self.setPalette(palette)
+        self.setToolTip(str(newcolor))
         self.update()
 
 class edmEditField(QObject):
@@ -137,7 +139,7 @@ class edmEditField(QObject):
         return lineedit
 
     def onNewValue(self, widget):
-        print(f"onNewValue({self}, {widget})")
+        if edmApp.debug(0) : print(f"onNewValue({self}, {widget})")
         self.onValueUpdate(widget.text())
 
     def onValueUpdate(self, newValue):
@@ -271,16 +273,20 @@ class edmEditReal(edmEditField):
         self.validator = QDoubleValidator()
         floatedit.setValidator(self.validator)
         return floatedit
-    pass
 
 class edmEditTextBox(edmEditField):
     def buildOneEditWidget(self, displayValue):
         print(f"edmEditTextBox {displayValue}")
-        textedit = QtWidgets.QTextEdit()
+        self.textedit = QtWidgets.QPlainTextEdit()
         for line in displayValue:
-            textedit.append(line)
-        return textedit
-        
+            self.textedit.appendPlainText(line)
+        self.textedit.textChanged.connect(self.onNewValue)
+        return self.textedit
+
+    def onNewValue(self):
+        doc = self.textedit.document()
+        value = [ doc.findBlockByNumber(blockno).text() for blockno in range(doc.blockCount())]
+        self.onValueUpdate(value)
 
 #
 # Unusual entry - build a button that activates a sub-screen. The sub-screen is built
@@ -330,6 +336,12 @@ class edmEditSubScreen(edmEditField):
 
     def buildLayout(self):
         return buildVerticalLayout( self, self.widget, self.edmfield.group, self.onNewValue)
+
+    def buildVerticalLayout(self):
+        return buildVerticalLayout( self, self.widget, self.edmfield.group, self.onNewValue)
+
+    def buildHorizontalLayout(self):
+        return buildHorizontalLayout( self, self.widget, self.edmfield.group, self.onNewValue)
 
     def changeLayout(self, newlayout):
         ''' changeLayout - change the layout used in the scrolling area by destroying the
@@ -407,9 +419,10 @@ class edmEditFontInfo(edmEditField):
             return v
         self.busy = True
         self.family.setCurrentText(self.saveInfo["family"])
+        weight = QFont.Normal if self.saveInfo["bold"] == False else QFont.Bold
         self.font = QFont(  self.saveInfo["family"],
                             safeInt(self.saveInfo["pointSize"]),
-                            self.saveInfo["bold"],
+                            weight,
                             self.saveInfo["italic"])
         self.fontInfo = QFontInfo(self.font)
         style = self.fontDB.styleString(self.fontInfo)
@@ -581,6 +594,8 @@ class edmRubberband(QtWidgets.QRubberBand):
     '''
     def __init__(self, *args, widget, **kw):
         super().__init__(QtWidgets.QRubberBand.Rectangle, widget.edmParent, *args, **kw)
+        if widget is None:
+            raise ValueError("edmRubberband needs non-None widget")
         self.active(widget)
 
     def edmCleanup(self):
@@ -588,39 +603,52 @@ class edmRubberband(QtWidgets.QRubberBand):
         self.destroy()
 
     def active(self, widget=None):
-        print(f"edmRubberband.active({self},{widget}")
+        ''' active(widget) - set widget to manage
+            active() - return whether managing widget
+        '''
         self.movemode = False       # True - moving, False - resizing
         self.edges = 0              # bits 0x01 left, 0x02 top, 0x04 right, 0x08 bottom
         if widget == None:
             return self.edmWidget != None
-        self.setGeometry(widget.geometry())
+        self.winParent = widget.getParentScreen()
+        geom = widget.geometry()
+        pos = widget.edmParent.mapTo(self.winParent, geom.topLeft())
+        if edmApp.debug(1) : print(f"mapTo{geom} {geom.topLeft()} => {pos} -> {self.mapFrom(self.winParent,pos)}") # debugging note - this part makes sense
+        geom.setTopLeft(self.mapFrom(self.winParent,pos))
+        self.setGeometry(geom)
+        if edmApp.debug(1) : print(f"edmRubberband.active: {self}, {widget}, geom {geom} {geom.topLeft()}")
         self.edmWidget = widget
         self.show()
         return True
 
     def inactive(self):
-        print(f"edmRubberband.inactive({self},{self.edmWidget}")
+        if edmApp.debug(1) : print(f"edmRubberband.inactive({self},{self.edmWidget}")
         if self.edmWidget:
             geom = self.geometry()
+            pos = self.mapToGlobal(QPoint(0,0))     # get top-left of rubber band position in global units
+            pos = self.winParent.mapFromGlobal(pos) # change global position to parent's units.
+
+            if edmApp.debug(0) :  print(f"   map from RB {self.pos()} to parent {self.winParent} pos {pos}")
             self.edmWidget.updateTags( {
-                "x" : edmTag("x", geom.x()),
-                "y" : edmTag("y", geom.y()),
-                "w" : edmTag("w", geom.width()),
-                "h" : edmTag("h", geom.height()),
+                "x" : edmTag("x", int(pos.x()/edmApp.rescale)),
+                "y" : edmTag("y", int(pos.y()/edmApp.rescale)),
+                "w" : edmTag("w", int(geom.width()/edmApp.rescale)),
+                "h" : edmTag("h", int(geom.height()/edmApp.rescale)),
                 } )
             self.edmWidget = None
         self.hide()
     
     def mousePressEvent(self, event):
-        print(f"edmRubberband.mousePress {self}")
-        if not self.geometry().contains(event.pos()):
-            print(f"event pos{event.pos()} pos {self.geometry()}")
+        pos = self.parent().mapFromGlobal(event.globalPos())
+        if not self.geometry().contains(pos):
+            if edmApp.debug(1) : print(f"event inactive pos{pos} geom {self.geometry()}")
             self.inactive()
             return False
+        if edmApp.debug() : print(f"edmRubberband.mousePress {self} event:{event.pos()} pos:{pos} geom:{self.geometry()}")
         # decide if we're in a corner(resize) or not (move)
         width = self.width()
         height = self.height()
-        self.location = event.pos()
+        self.location = pos
         self.startat = self.geometry()
         where = self.location - self.startat.topLeft()
         self.movemode = (where.x() > width/5 and where.x() < width*4/5) or \
@@ -640,8 +668,9 @@ class edmRubberband(QtWidgets.QRubberBand):
         return True
 
     def mouseMoveEvent(self, event):
-        print(f"mouseMove({self} {event}")
-        pos = event.pos() - self.location
+        if edmApp.debug(2) : print(f"mouseMove({self} {event}")
+        pos = self.parent().mapFromGlobal(event.globalPos())
+        pos = pos - self.location
         if self.movemode:
             self.move(self.startat.topLeft() + pos)
         else:
@@ -657,14 +686,13 @@ class edmRubberband(QtWidgets.QRubberBand):
             if self.edges & 8:
                 newgeom.setHeight(self.startat.height() + pos.y())
             self.setGeometry(newgeom)
-
         
     def mouseReleaseEvent(self, event):
-        print(f"mouseReleaseEvent {self} {event} {self.edmWidget}")
+        print(f"mouseReleaseEvent.rubberband {self} {event.pos()} {self.edmWidget}")
         if self.edmWidget == None:
             return
-        geom = self.geometry()
-        self.edmWidget.setGeometry(geom)
+        self.edmWidget.setGeometry(self.geometry() )
+        return
 
 '''
 General support for layout of widgets

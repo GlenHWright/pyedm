@@ -26,6 +26,7 @@ def intConverter(value, enums):
     else:
         val = int(value)
     return val, str(value)
+
 class channel:
     # these types match the general types from edmPVbase
     types = { "i":edmPVbase.typeInt,
@@ -59,6 +60,8 @@ class channel:
         if len(decode) == 1:
             return [pvName, "U", None]
         pvType = [val for val in decode[1:-1] if val != None ][0][1]
+        if pvType not in channel.types:
+            pvType = "U"
         if decode[4] == '':
             return [decode[0], pvType, None]
         return [decode[0], pvType, decode[4]]
@@ -93,6 +96,9 @@ class channel:
         if initVal != None:
             self.value, self.char_value = self.converter[self.pvType](value, self.enums)
 
+    def delPV(self, pv):
+        self.connectList.remove(pv)
+
     def setValue(self, value):
         if edmApp.debug(): print('setValue(', self, value, ')')
         try:
@@ -107,7 +113,6 @@ class channel:
             if ePV.debug(): print("callback LOCAL", self.name, "value=", value)
             for fn in ePV.callbackList:
                     fn[0](fn[1], pvname=self.name, chid=0,pv=ePV,value=self.value,count=1,units=ePV.units,severity=0,userArgs=fn[2])
-
 
 # create a new channel, and connect this PV to it.
 def findChannel(name, init=0, pv=None):
@@ -131,7 +136,6 @@ def findChannel(name, init=0, pv=None):
     chanDict[words[0]] = newchan
     return newchan
 
-
 class edmPVlocal(edmPVbase):
     def __init__(self, name=None, **kw):
         super().__init__(name=name, **kw)
@@ -149,11 +153,10 @@ class edmPVlocal(edmPVbase):
     def put(self, value):
         self.chan.setValue(value)
 
+    def edmCleanup(self):
+        self.chan.delPV(self)
+
 def buildPV(**kw):
     return edmPVlocal(**kw)
-
-# Track names used to ensure we only have 1 instance and many references of a
-# local variable
-localPVlist = {}
 
 pvClassDict["LOC"] = buildPV

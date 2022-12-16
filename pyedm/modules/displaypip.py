@@ -14,15 +14,90 @@
 from enum import Enum
 
 from .edmApp import redisplay, edmApp
-from .edmScreen import edmScreen
 from .edmWidget import edmWidget, pvItemClass
 from .edmWindowWidget import edmWindowWidget, generateWidget, mousePressEvent, mouseReleaseEvent, mouseMoveEvent
 from . import edmColors
-from .edmField import edmField
-from .edmEditWidget import edmEdit
+from .edmField import edmField, edmTag
+from .edmEditWidget import edmEdit, edmEditField
+from .edmProperty import converter
 
-from PyQt5 import QtCore, QtGui
+from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QWidget, QFrame, QScrollArea
+
+class edmEditPIP(edmEdit.SubScreen):
+    def __init__(self, *args, **kw):
+        super().__init__(*args, **kw)
+        self.colvalue = {}
+        self.newtags = {}
+        self.numDsps = self.widget.numDsps
+        for idx, fld in enumerate(self.edmfield.group):
+            self.colvalue[idx] = self.widget.objectDesc.getProperty(fld.tag, arrayCount=self.numDsps).copy()
+
+    def buildLayout(self):
+        layout = QtWidgets.QGridLayout()
+        # add column headers, and create the array of values
+        for idx, fld in enumerate(self.edmfield.group):
+            label = QtWidgets.QLabel(fld.tag)
+            label.setFrameShape(QtWidgets.QFrame.Panel|QtWidgets.QFrame.Sunken)
+            layout.addWidget(label, 0, idx)
+
+        for row in range(self.numDsps):
+            for idx, fld in enumerate(self.edmfield.group):
+                tagw = fld.editClass(fld.tag, fld, self.widget, **fld.editKeywords)
+                w = tagw.showEditWidget(self.colvalue[idx][row]).nolabel()
+                layout.addWidget(w, row+1, idx)
+                tagw.newValue.connect(lambda tag, value, row=row,col=idx:self.onNewValue(tag,value,row,col))
+            remove = QtWidgets.QPushButton("Remove")
+            layout.addWidget(remove, row+1, len(self.edmfield.group))
+            remove.clicked.connect(lambda clicked, rmRow=row: self.removeRow(rmRow))
+        addrow = QtWidgets.QPushButton("Add Display")
+        layout.addWidget(addrow, self.numDsps+1, 0)
+        addrow.clicked.connect(self.addRow)
+
+        return layout
+
+    def removeRow(self, curveNum):
+        ''' removeRow - copy the gridlayout to a new gridlayout,
+            ignoring the row to be deleted.
+        '''
+        print(f"edmEditCurveConfig removeRow {curveNum}")
+        for idx in range(len(self.colvalue)):
+            self.colvalue[idx].pop(curveNum)
+            self.numDsps -= 1
+        layout = self.buildLayout()
+        self.changeLayout(layout)
+        self.newtags["numDsps"] = self.numDsps
+
+
+    def addRow(self):
+        print(f"edmEditCurveConfig {self} addRow")
+        self.numDsps += 1
+        for idx, fld in enumerate(self.edmfield.group):
+            self.colvalue[idx].append(converter(edmTag(fld.tag, fld.defaultValue), fld, None))
+            self.onNewValue(fld.tag, self.colvalue[idx][-1], self.numDsps-1, idx)
+        layout = self.buildLayout()
+        self.changeLayout(layout)
+        self.newtags["numDsps"] = self.numDsps
+
+    def onNewValue(self, tag, value, row, col):
+        print(f"onNewValue {tag} {value} {row} {col}")
+        if tag not in self.newtags.keys():
+            self.newtags[tag] = self.colvalue[col]
+        try:
+            self.newtags[tag][row] = value
+        except IndexError:
+            self.newtags[tag].append(value)
+
+    def onApply(self):
+        print(f"onApply {self.newtags}")
+        for tag,value in self.newtags.items():
+            self.newValue.emit(tag,value)
+
+    def onDone(self):
+        print(f"onDone {self.newtags}")
+        for tag,value in self.newtags.items():
+            self.newValue.emit(tag,value)
+        edmEdit.SubScreen.onDone(self)
 
 class scrolledWidget(edmWindowWidget):
     def __init__(self, parent=None):
@@ -35,31 +110,21 @@ class scrolledWidget(edmWindowWidget):
         if parent:
             self.edmParent.buttonInterest.append(self)
 
+    def edmCleanup(self):
+        try:
+            self.edmParent.buttonInterest.remove(self)
+        except (AttributeError,IndexError):
+            pass    # parents may remove buttonintest
+        self.edmParent = None
+        self.buttonInterest = []
+        super().edmCleanup()
+
     def mousePressEvent(self, event):
         # strange operation - the scroll widget catches mouse
         # events before the top-level window. To translate,
         # the mouse positions have to be rewritten.
-        if True or self.edmParent.editMode(check="none"):
-            mousePressEvent(self, event)
-        else:
-            self.edmParent.mousePressEvent(event)
-
-    def xxmouseReleaseEvent(self, event):
-        mouseReleaseEvent(self, event)
-
-    def xxmouseMoveEvent(self, event):
-        mouseMoveEvent(self, event)
-
-    def xxedmShowEdit(self, widget):
-        ''' edmShowEdit - act like a window!
-            we have the situation where the widget has been clicked in
-            edit mode, and now we probably don't have the desired
-            widget because the child selection is wrong!
-        '''
-        parent = self.edmParent
-        while not hasattr(parent, "edmShowEdit"):
-            parent = parent.edmParent
-        return parent.edmShowEdit(self.edmParent)
+        # Currently, this does NOT capture the mouse events!
+        mousePressEvent(self, event)
 
 class activePipClass(QScrollArea,edmWidget):
     menuGroup = [ "display", "PIP"]
@@ -79,12 +144,14 @@ class activePipClass(QScrollArea,edmWidget):
             edmField("setSize", edmEdit.Int, defaultValue=0),
             edmField("sizeOfs", edmEdit.Int, defaultValue=0),
             edmField("numDsps", edmEdit.Int, defaultValue=0),
-            edmField("displayFileName", edmEdit.String, array=True),
-            edmField("menuLabel", edmEdit.String, array=True),
-            edmField("symbols", edmEdit.String, array=True),
-            edmField("replaceSymbols", edmEdit.Bool, array=True),
-            edmField("propagateMacros", edmEdit.Bool, array=True),
-            edmField("noScroll", edmEdit.Bool),
+            edmField("edit Menu", edmEditPIP, group = [
+                edmField("displayFileName", edmEdit.String, array=True),
+                edmField("menuLabel", edmEdit.String, array=True),
+                edmField("symbols", edmEdit.String, array=True),
+                edmField("replaceSymbols", edmEdit.Bool, array=True),
+                edmField("propagateMacros", edmEdit.Bool, array=True),
+                edmField("noScroll", edmEdit.Bool),
+                ] ),
             edmField("ignoreMulitplexors", edmEdit.Bool)
             ]
     V3propTable = {
@@ -114,7 +181,7 @@ class activePipClass(QScrollArea,edmWidget):
             try:
                 self.edmParent.buttonInterest.remove(self)
             except ValueError:
-                pass    # some widgets clear buttonInterest before calling child edmCleanup()
+                pass    # widgets may clear buttonInterest before calling child edmCleanup()
         super().edmCleanup()
 
     def buildFromObject(self, objectDesc, **kw):
@@ -133,12 +200,14 @@ class activePipClass(QScrollArea,edmWidget):
     def setupScreen(self, filename, mt):
         '''setupScreen is called each time a file is selected for display'''
         print(f"pip opening {filename}")
-        self.scr = edmScreen( filename, mt, self.findDataPaths() )
+        self.scr = edmApp.edmScreen( filename, mt, self.findDataPaths() )
         if len(self.scr.objectList) == 0:
             return
         self.scrollable.macroTable = mt
         generateWidget(self.scr, self.scrollable)
-        self.scrollable.setGeometry(0,0, int(self.scr.tags["w"].value), int(self.scr.tags["h"].value) )
+        self.scrollable.edmScreen = self.scr
+        w,h = int(self.scr.tags["w"].value), int(self.scr.tags["h"].value)
+        self.scrollable.setGeometry(0,0, int(w*edmApp.rescale), int(h*edmApp.rescale) )
         self.setWidget(self.scrollable)
         # over-ride the widget's color info with what the screen has available.
         pal = self.scrollable.palette()
@@ -226,15 +295,6 @@ class activePipClass(QScrollArea,edmWidget):
             child.deleteLater()
         self.scrollable.buttonInterest = []
         self.setupScreen( self.fileFromPV, self.selectMt)
-
-    def xxxmousePressEvent(self, event):
-        self.edmParent.mousePressEvent(event)
-
-    def xxxmouseReleaseEvent(self, event):
-        self.edmParent.mouseReleaseEvent(event)
-
-    def xxxmouseMoveEvent(self, event):
-        self.edmParent.mouseMoveEvent(event)
 
 
 edmApp.edmClasses["activePipClass"] = activePipClass

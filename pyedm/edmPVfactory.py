@@ -2,9 +2,10 @@
 #
 # PV factory support
 #
-# MODULE LEVEL: base
+# MODULE LEVEL: Low
 #
 import traceback
+from . import edmApp
 
 class edmPVbase:
     typeNames = [ "unknown", "int", "float", "string", "enum" ]
@@ -104,12 +105,12 @@ class edmPVbase:
         ''' delete all callbacks for this PV associated with 'widget'.
             if callback set, look for explicit instances of 'callback'
         '''
-        if self.debug() : print("del_callback: before:", widget, callback, self.callbackList)
+        if self.debug(2) : print("del_callback: before:", widget, callback, self.callbackList)
         if callback != None:
             self.callbackList = [ idx for idx in self.callbackList if idx[0] != callback ]
-        else:
+        if widget != None:
             self.callbackList = [ idx for idx in self.callbackList if idx[1] != widget ]
-        if self.debug() : print("del_callback: after:", self.callbackList)
+        if self.debug(2) : print("del_callback: after:", self.callbackList)
 
     def add_redisplay(self, widget, userArgs=None):
         self.callbackList.append((edmApp.redisplay, widget, userArgs))
@@ -121,7 +122,7 @@ def convText(Value, PvType, Fmt='%.*f', Precision=None, Enums=None):
         If the precision is supplied, use that, otherwise use a default precision'''
         if PvType == edmPVbase.typeFloat:
             if Precision != None:
-                return Fmt%(Precision, Value)
+                return Fmt%(Precision, float(Value))
 
         if PvType == edmPVbase.typeEnum and Enums != None:
             idx = int(Value)
@@ -157,7 +158,5 @@ def buildPV(pvname, *, macroTable=None, **kw):
         traceback.print_exc()
 
     return pvClassDict["LOC"](name="UNKNOWN TYPE", **kw)
-
-from pyedm.edmApp import edmApp
 
 pvClassDict = {}

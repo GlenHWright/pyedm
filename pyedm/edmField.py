@@ -40,7 +40,7 @@ class edmField:
     array : bool = False            # if True, then expect a list of values
     enumList : Any = None           # for edmEditEnum, must be type Enum
     group : list[object] = field(default_factory=list)
-                                    # intended to contain edmField references.
+                                    # intended to be a list of edmField objects.
 
 @dataclass
 class edmTag:

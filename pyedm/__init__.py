@@ -1,5 +1,7 @@
-# Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
+# Copyright 2022 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # If opened as 'main', use our mainline
+#
+# MODULE LEVEL: top
 #
 if __name__ == "__main__":
     print("""To call pyedm as a script rather than a module,
@@ -22,7 +24,7 @@ from .edmApp import edmApp
 from .edmWindowWidget import generateWindow, generateWidget, edmWindowWidget
 from .edmScreen import edmScreen
 from .edmMacro import macroDictionary
-from .edmColors import findColorRule
+from .edmColors import findColorRule, colorTable
 
 def sigint_handler(*args):
     for window in edmApp.windowList:
@@ -73,9 +75,13 @@ def pyedm(argv):
     parser.add_argument( "--debug", "-d", action="count", default=0, help="produces diagnostic output of window creation and PV creation")
     parser.add_argument( "--remap", nargs=2, action="append", default=[], help="--remap PATH NEWPATH remaps paths matching PATH to NEWPATH")
     parser.add_argument( "--new", action="count", default=0, help="creates a new window for editing")
+    parser.add_argument( "--noedit", action="count",  default=0, help="Remove capability to put display in edit mode, used with  -x to produce execute only operation" )
+    parser.add_argument( "-noedit", action="count",  default=0, help="Remove capability to put display in edit mode, used with  -x to produce execute only operation" )
+    parser.add_argument( "--autosize", action="count", default=0, help="expand text widgets to avoid clipping characters" )
+    parser.add_argument( "--scale", type=float, default=1.0, help="scale offsets and sizes" )
+    parser.add_argument( "--delimiter", action="store",  default=';', help="change the delimter character used by environment variables" )
 # following items are not implemented - either low priority or not applicable
     parser.add_argument( "--execute", "-x", action="count", help="(not implemented) Open all displays in execute rather than edit mode" )
-    parser.add_argument( "--noedit", action="count",  default=0, help="Remove capability to put display in edit mode, used with  -x to produce execute only operation" )
     parser.add_argument( "--ctl", nargs=1, help="(not implemented)Takes name of string process variable, writing a display file name to this string causes edm to open the display in execute mode")
     parser.add_argument( "--color", help="(not implemented) Set Colormode - index (default) or rgb")
     parser.add_argument( "--cmap", action="count", help="(not implemented) use private colormap if necessary")
@@ -95,13 +101,31 @@ def pyedm(argv):
 
     results = parser.parse_args(argv)
 
+    ''' order of operations
+            1. check for debugging
+            2. determine delimiter
+            3. set edmApp paths
+            4. read color table
+            5. import modules
+            6. interpret remaining flags
+            7. read command line files
+    '''
     edmApp.DebugFlag = results.debug
+    edmApp.delimiter = results.delimiter
+    edmApp.rescale = results.scale
 
+    # searchPath states where to look for a module.
+    # default path must be set before calling 'setPath()'
+    edmApp.searchPath = [".", __path__[0], os.path.join(__path__[0],"modules") ]
+    edmApp.setPath()
+    colorTable.loadColor()
+    loadModules()
     for macro in results.macro:
         mt.macroDecode(macro)
 
     edmApp.macroTable = mt
     edmApp.remap = results.remap
+    edmApp.autosize = results.autosize
 
     if results.noedit:
         edmApp.allowEdit = False
@@ -118,6 +142,9 @@ def pyedm(argv):
         window = generateWindow(scr,macroTable=mt)
         edmApp.windowList.append(window)
 
+    if results.new:
+        edmWindowWidget.buildNewWindow()
+
     edmApp.startTimer()
     return 0
 
@@ -127,7 +154,7 @@ def loadScreen(fileName, macros="", parentWidget=None, parentDictionary=None, da
     mt = macroDictionary(parentDictionary)
     mt.addMacro("!W", "!W%d" % ( mt.myid,) )
     mt.macroDecode(macros)
-    if dataPaths != None: dataPaths = dataPaths.split(";")
+    if dataPaths != None: dataPaths = dataPaths.split(edmApp.delimiter)
     scr = edmScreen(fileName, macroTable=mt, paths=dataPaths)
     if not scr.valid():
         return
@@ -159,26 +186,11 @@ def loadScreen(fileName, macros="", parentWidget=None, parentDictionary=None, da
         parentWidget.setPalette(pal)
         generateWidget(scr, parentWidget)
 
-# load modules selectively for EDM 'extensible' operation. This allows adding and
-# over-riding existing modules. Note that the latter can be dangerous.
-#
-# myImports prevents duplication on names: if there are (e.g.) multiple edmPVepics.py files
-# in the path, the first one gets imported, and then myImports[] flags 'edmPVepics'
-# as having been imported.
-# This all seemed necessary in python 2.4. This should be re-evaluated in light of
-# import improvements in python 3
-#
-myImports = {}
-
-#
-# searchPath states where to look for a module.
-#
-searchPath = [".", __path__[0], os.path.join(__path__[0],"modules") ]
-# Note that ';' is used to allow Windows "C:\path" style to be valid.
-if "PYTHONEDMPATH" in os.environ:
-    searchPath = os.environ["PYTHONEDMPATH"].split(";") + searchPath
-
-def edmImport(modulename, modulepath=None):
+''' There is an unfortunate need for __path__, which only exists
+in __init__.py. Otherwise, this could all be part of edmApp
+'''
+        
+def edmImport( modulename, modulepath=None):
     '''
         attempt to load a module that may or may not be part of the pyedm
         package.
@@ -186,9 +198,10 @@ def edmImport(modulename, modulepath=None):
         - if called with explicit modulepath, does an import on that path.
         - otherwise, recursively calls with enties from searchPath
     '''
-    if modulename in myImports:
-        return myImports[modulename]
-    print(f"searching {modulename} in {modulepath}")
+    if modulename in edmApp.myImports:
+        return edmApp.myImports[modulename]
+    if edmApp.debug() : print(f"searching {modulename} in {modulepath}")
+    # if module path set, try an import
     if modulepath != None:
         if modulepath not in __path__:
             __path__.insert(0,modulepath)
@@ -196,21 +209,23 @@ def edmImport(modulename, modulepath=None):
             __path__.pop(0)
         else:
             module = __import__(modulename, globals=globals(), locals=locals(), level=1)
-        myImports[modulename] = module
+        edmApp.myImports[modulename] = module
         return module
 
-    for path in searchPath:
+    # module path not set; recurse with explicit path entries
+    for path in edmApp.searchPath:
         try:
             module = edmImport(modulename, modulepath=path)
             return module
-        except ImportError:
+        except ImportError as exc:
             # this can be a problem if the module is found, but has an import error!
-            pass    #
+            # TODO - interpret exc
+            pass
     # unable to find the module
     raise ImportError(f"unable to import module {modulename}")
 
 def genImport(pattern):
-    print(f"search {pattern}")
+    if edmApp.debug() : print(f"search {pattern}")
     files = glob.glob(pattern)
     for fname in files:
         if not fname.endswith(".py"):
@@ -218,9 +233,13 @@ def genImport(pattern):
         head, tail = os.path.split(fname[0:-3])
         edmImport(tail, modulepath=head)
 
-for path in searchPath:
-    genImport(os.path.join(path,"edmPV*.py"))
-    genImport(os.path.join(path,"display*.py"))
-    genImport(os.path.join(path,"monitor*.py"))
-    genImport(os.path.join(path,"control*.py"))
-
+def loadModules():
+    ''' load modules selectively for EDM 'extensible' operation. This allows
+        adding and over-riding existing modules.
+        Note that the latter can be challenging.
+    '''
+    for path in edmApp.searchPath:
+        genImport(os.path.join(path,"edmPV*.py"))
+        genImport(os.path.join(path,"display*.py"))
+        genImport(os.path.join(path,"monitor*.py"))
+        genImport(os.path.join(path,"control*.py"))

@@ -12,12 +12,12 @@ from .edmWidget import edmWidget, pvItemClass
 from .edmField import edmField, edmTag
 from .edmEditWidget import edmEdit
 
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QPlainTextEdit
 from PyQt5.QtGui import QFontMetrics, QPalette
 from PyQt5.QtCore import QPoint, QPointF
 
-class activeXTextClass(QWidget,edmWidget):
-    menuGroup = [ "monitor", "Text Box" ]
+class activeXTextClass(QLabel,edmWidget):
+    menuGroup = [ "display", "Text Box" ]
 
     edmEntityFields = [
         edmField("value", edmEdit.TextBox, array=True),
@@ -34,11 +34,11 @@ class activeXTextClass(QWidget,edmWidget):
         }
     def __init__(self, parent=None, **kw):
         super().__init__(parent, **kw)
-        self.layout = None
         self.pvItem["alarmPv"] = pvItemClass( "alarmName", "alarmPV" )
+        self.setAutoFillBackground(True)
 
     def findBgColor(self):
-        edmWidget.findBgColor(self, palette=(QPalette.Base,) )
+        edmWidget.findBgColor(self)
 
     @classmethod
     def setV3PropertyList(classRef, propValue, obj):
@@ -61,7 +61,6 @@ class activeXTextClass(QWidget,edmWidget):
         if self.objectDesc.checkProperty("value") == False:
             value = [ "" ]
         else:
-            # EDM V4 has multiple strings, 1 per line.
             value = [ self.macroExpand(val) for val in self.objectDesc.getProperty("value",arrayCount=-1)]
 
         fm = QFontMetrics(self.edmFont)
@@ -84,19 +83,7 @@ class activeXTextClass(QWidget,edmWidget):
             geom.setHeight(h+2*len(value))
             self.setGeometry(geom)
 
-        if self.layout == None:
-            self.layout = QVBoxLayout()
-            self.layout.setContentsMargins(0,0,0,0)
-            self.layout.setSpacing(4)
-        else:
-            while self.layout.takeAt(0) != None:
-                pass
-
-        for line in value:
-            label = QLabel(line)
-            self.layout.addWidget(label)
-            self.layout.setAlignment(label, self.findAlignment())
-        self.setLayout(self.layout)
+        self.setText("\n".join(value))
         self.update()
 
 edmApp.edmClasses["activeXTextClass"] = activeXTextClass

@@ -291,6 +291,7 @@ class epicsPV(edmPVbase):
             # If this fails, connect doesn't occur properly
             try:
                 self.value = self.chan.value
+                self.count = self.chan.count
                 self.char_value = self.chan.char_value
                 self.severity = self.chan.severity
                 self.pvType = self.chan.pvType

@@ -86,6 +86,10 @@ class edmScreen(edmObject):
             self.addFile(Filename, macroTable, paths)
         self.version = [None]
 
+    def edmCleanup(self):
+        print(f"edmCleanup screen {self}")
+        super().edmCleanup()
+
     def valid(self):
         return self.objectList != []
 
@@ -103,7 +107,7 @@ class edmScreen(edmObject):
         if not ( fileName.endswith(".edl") or fileName.endswith(".jedl")):
             fileName += ".edl"
 
-        if fileName.endswith(".jedl") or fileName.endswith(".edljson"):
+        if fileName.endswith(".jedl"):
             self.readJSONfile(fileName, macroTable, paths)
         else:
             self.addTag( "Class",  "Screen" )
@@ -111,7 +115,13 @@ class edmScreen(edmObject):
 
             try:
                 with readInput(fileName, paths) as edlFp:
-                    self.version = edlFp.getNextLine().split(" ")
+                    while True:
+                        self.version = edlFp.getNextLine().split(" ")
+                        if edlFp.eof:
+                            raise EOFError(f"no version line found in {fileName}")
+                        if len(self.version) == 3 and self.version[0] in ["3", "4"]:
+                            break
+
                     if edmApp.debug() : print(f"file {fileName} version {self.version}")
                     if self.version[0] == "3":
                         endTag = self.read3ScreenProperties(edlFp)
@@ -145,7 +155,7 @@ class edmScreen(edmObject):
     def buildJSONobject(jsonDesc, target):
         for key, value in jsonDesc.items():
             if isinstance(value, dict): # currently, this indicates a font.
-                target.addTag(key, edmFont.getFont(value))
+                target.addTag(key, edmFont.getFont(value, edmApp.rescale))
             elif isinstance(value, list):   # either an array list or a group widget list
                 if key == "edmWidgets":
                     target.objectList = []
@@ -364,7 +374,7 @@ class edmScreen(edmObject):
 class readInput:
     def __init__(self, fn, paths=[".",]):
         self.reuseLine=0
-        self.eof = 1
+        self.eof = True
         if fn != None:
             self.open(fn, paths)
         else:
@@ -383,7 +393,7 @@ class readInput:
         return self.fp != None
 
     def open(self, fn, paths):
-        self.eof = 0
+        self.eof = False
         if "/" in fn:
             for p in edmApp.remap:
                 if fn.startswith(p[0]):
@@ -480,3 +490,5 @@ class edmEncoder(json.JSONEncoder):
             return f'index {obj.numeric}'
             
         return json.JSONEncoder.default(self, obj)
+
+edmApp.edmScreen = edmScreen

@@ -12,17 +12,19 @@ from PyQt5.QtWidgets import QFrame, QWidget
 from PyQt5.QtGui import QPainter
 from PyQt5.QtCore import Qt
 
+#  a weirdness in shapes is that they have an alarmPv, but it is used as
+# a colorPv. recommend over-writing tags somehow someway.
 class abstractShape(QFrame, edmWidget):
     lineStyleEnum = Enum("linestyle", "solid dash", start=0)
     edmShapeFields = [
             edmField("lineColor", edmEdit.Color, defaultValue=0),
-            edmField("lineAlarm", edmEdit.Bool, defaultValue=0),
-            edmField("fill",        edmEdit.Bool, defaultValue=0),
+            edmField("lineAlarm", edmEdit.Bool, defaultValue=False),
+            edmField("fill",        edmEdit.Bool, defaultValue=False),
             edmField("fillColor", edmEdit.Color, defaultValue=0),
-            edmField("fillAlarm", edmEdit.Bool, defaultValue=0),
+            edmField("fillAlarm", edmEdit.Bool, defaultValue=False),
             edmField("lineWidth", edmEdit.Int, defaultValue=1),
             edmField("lineStyle", edmEdit.Enum, enumList=lineStyleEnum, defaultValue=0),
-            edmField("invisible", edmEdit.Bool, defaultValue=0),
+            edmField("invisible", edmEdit.Bool, defaultValue=False),
             edmField("alarmPv", edmEdit.String, defaultValue=None)
             ]
     def __init__(self, parent=None, **kwargs):
@@ -34,14 +36,16 @@ class abstractShape(QFrame, edmWidget):
         except: pass
         try: self.fillColorInfo.edmCleanup()
         except: pass
-        edmWidget.edmCleanup(self)
+        self.lineColorInfo = None
+        self.fillColorInfo = None
+        super().edmCleanup()
 
     def findFgColor(self):
         self.lineColorInfo = self.findColor("lineColor", (), alarmName="lineAlarm")
-        if self.objectDesc.getProperty("fill", 0) == 0:
-            self.fillColorInfo = None
-        else:
+        if self.objectDesc.getProperty("fill"):
             self.fillColorInfo = self.findColor("fillColor", (), alarmName="fillAlarm")
+        else:
+            self.fillColorInfo = None
 
     def findBgColor(self):
         pass

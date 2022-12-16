@@ -28,6 +28,7 @@ class edmObject:
             parent.objectList.append(self)
 
     def edmCleanup(self):
+        if self.debug(1) : print(f"edmObject Cleanup {self}")
         self.tags = None
         self.edmFields = None
         self.edmParent = None

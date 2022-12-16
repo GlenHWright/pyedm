@@ -212,7 +212,7 @@ class xyGraphClass(pgraph.PlotWidget, edmWidget):
             edmField("triggerPv", edmEdit.PV, defaultValue=None),
             edmField("resetPv", edmEdit.PV, defaultValue=None),
             edmField("gridColor", edmEdit.Color, defaultValue=0),
-            edmField("numTraces", edmEdit.Int, defaultValue=0),                              # this may need to be invisible and auto generated!
+            edmField("numTraces", edmEdit.Int, defaultValue=0, readonly=True),                              # this may need to be invisible and auto generated!
             edmField("Curve Configure", edmEditCurveConfig, group=[
                 edmField("xPv", edmEdit.PV, defaultValue=None, array=True),
                 edmField("yPv", edmEdit.PV, defaultValue=None, array=True),                  # optional(?) list of Y-axis PV's
@@ -340,8 +340,16 @@ class xyGraphClass(pgraph.PlotWidget, edmWidget):
         tags['y2Label'] = values.pop(0)
             
     def buildFromObject(self, objectDesc, **kw):
-        super().buildFromObject( objectDesc, **kw)
+        '''buildFromObject - build the widget plus all the plot curves needed
+        '''
+        # before doing anything else, we'll clean up the curves!
         rebuild = kw.get('rebuild', False)
+        if rebuild:
+            for curve in self.curves:
+                self.destroyCurve(curve)
+            self.curves = None
+
+        super().buildFromObject( objectDesc, **kw)
 
         # WARNING: edm uses npts as a vague suggestion, pyedm uses as a true limit.
         # This isn't compatible enough.
@@ -449,9 +457,6 @@ class xyGraphClass(pgraph.PlotWidget, edmWidget):
         self.setTitle( toHTML(self.edmFont, plotTitle), **args)
         #
         # Build the curves that will be used
-        if rebuild:
-            for curve in self.curves:
-                self.destroyCurve(curve)
         self.curves = [None]*self.numCurves
         for idx in range(0, self.numCurves):
             self.buildCurve(idx, rebuild=False)
@@ -717,13 +722,13 @@ class xyGraphClass(pgraph.PlotWidget, edmWidget):
 
 
     def triggerCallback(self, widget, **args):
-        if self.debug() : print('xyPlotData triggerCallback', widget, args)
-        if hasattr(self, "curves") == 0:
+        if getattr(self, "curves", None) == None:
             return
+        if self.debug() : print('xyPlotData triggerCallback', widget, args)
         for curve in self.curves:
             if curve.updateMode != self.updateModeEnum.trigger:
                 continue
-            if self.debug() : print(f'xyPlotData curve {curve.lastX}, {curve.lastY}, {curve.edmXdata} {curve.edmYdata}')
+            if self.debug() : print(f'xyPlotData triggerCallback curve {curve}\nlastx {curve.lastX},\nlasty {curve.lastY},\nxdata= {curve.edmXdata}\nydata= {curve.edmYdata}')
             if curve.lastX is None:
                 if curve.xPv is not None and len(curve.edmXdata) > 0:
                     curve.edmXdata.append(curve.edmXdata[-1])
@@ -757,13 +762,11 @@ class xyGraphClass(pgraph.PlotWidget, edmWidget):
                 curve.edmYdata.extend(list(range(1, len(curve.edmXdata)+1)))
 
             try:
-                if self.updateTimerMs == 0:
+                if self.updateTimerMs == 0 and len(curve.edmYdata) > 0 and len(curve.edmXdata) > 0:
                     curve.setData(x=list(curve.edmXdata), y=list(curve.edmYdata))
             except RuntimeError as exc:
                 print(f"monitorXYgraph triggerCallback runtime exception {exc}")
 
-        if self.updateTimerMs == 0:
-            redisplay(self)
 
     def setMatchedData(self, curve):
         ''' stretch the shorter of x or y lists out to make the lists equal length.
@@ -811,9 +814,10 @@ class xyGraphClass(pgraph.PlotWidget, edmWidget):
             edm 105F has ~300 lines of code to reset limits
             for the various curves. 
         '''
-        if hasattr(self, "curves") == 0:
+        if getattr(self, "curves",None) == None:
             return
         for curve in self.curves:
+            # TO DO: decide what 'reset' means for each type of plot
             pass
         self.clockStart = time.time()
         redisplay(self)

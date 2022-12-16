@@ -61,6 +61,10 @@ class colorRule:
         self.ruleList.append( oneRule(value, op, color, blinkColor, left, right) )
         return self.ruleList[-1]
 
+    def isRule(self):
+        '''isRule - returns False if a static rule, True otherwise'''
+        return self.ruleList[0].op != oneRule.DEFAULT
+
     # return the color for this rule
     def getColor( self, value=0.0, defColor=Qt.black):
         try:
@@ -78,10 +82,10 @@ class colorRule:
         return defColor
 
 class edmColor:
+    '''edmColor - loads and manages an edm Color file.'''
     # This pattern element looks weird - what it does is fails the match if
     # it immediately followed by "=" followed by a non-identifier character
     #    | [a-zA-Z0-9\.-]*(?=[^\.a-zA-Z0-9-])
-    debug = 0
     pat = "\\s+"\
         "|#.*"\
         "|[{}:?*]"\
@@ -90,6 +94,7 @@ class edmColor:
         "|[a-zA-Z][a-zA-Z0-9]*=.+"\
         "|[a-zA-Z0-9\\.-]+(?=[^\\.a-zA-Z0-9-])"
     pat_r = re.compile(pat)
+    debug = 0
 
     # dictionary of names for colors
     colorNames = {}
@@ -104,13 +109,17 @@ class edmColor:
 
     def __init__(self):
         self.wordlist = []
-        colorfile = getenv("EDMCOLORFILE")
+        # self.loadColor( colorfile)
+
+    def loadColor(self, colorfile=None):
         if colorfile == None:
-            colorfile = getenv("EDMFILES")
+            colorfile = getenv("EDMCOLORFILE")
             if colorfile == None:
-                colorfile = "/etc/edm"
-            colorfile = colorfile + "/colors.list"
-        self.loadColor( colorfile)
+                colorfile = getenv("EDMFILES")
+                if colorfile == None:
+                    colorfile = "/etc/edm"
+                colorfile = colorfile + "/colors.list"
+        self.readColorFile(colorfile)
         self.addBuiltin( "builtin:transparent", 0, 0, 0, 0)
 
     def addBuiltin(self, name, r, g, b, a=255):
@@ -142,10 +151,11 @@ class edmColor:
         print('buildRule dropped out the bottom!')
         return start
 
-    def loadColor(self, filename):
-        try: fp = open(filename, "r")
+    def readColorFile(self, colorfile):
+        if self.debug > 0 : print(f"colorFile {colorfile}")
+        try: fp = open(colorfile, "r")
         except:
-            print("Unable to open Color File '%s'" % (filename,))
+            print("Unable to open Color File '%s'" % (colorfile,))
             return
 
         inBlock = 0

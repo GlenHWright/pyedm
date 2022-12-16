@@ -62,16 +62,19 @@ class macroDictionary:
             if value != None:
                 return value
         if edmApp.debug(): print(" ... not found")
+        # informative warning, not an error
         print("Macro", macName, "not found in table", self)
         return None
 
     def expand( self, input, depth=0):
-        '''perform a keyword substitution -
-            this doesn't have recursion safety monitor, and
-            can cause a stack overflow with a loop of macro
-            definitions
+        '''expand(input, depth=0) : perform a keyword substitution -
+            looks for $(NAME) in input, and replaces it with
+            the value from this macro table or, failing that,
+            the value from the closest parent.
+            if NAME is not found, the string remains unchanged.
+            Macro loops should be prevented by use of 'depth'.
         '''
-        success = 0
+        success = False
         source = re.split("(\$\([^)]*\))", input)
         result = ""
         for part in source:
@@ -79,7 +82,7 @@ class macroDictionary:
                 value = self.findValue(part[2:-1])
                 if value != None:
                     result = result + value
-                    success = 1
+                    success = True
                     continue
             result = result + part
         if success and depth < 10 and "$" in result and input != result:

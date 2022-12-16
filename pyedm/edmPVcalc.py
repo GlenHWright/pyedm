@@ -11,7 +11,7 @@ class calcPV(edmPVbase):
     def __init__(self, name=None, macroTable=None, **kw):
         super().__init__( name="CALC", macroTable=macroTable, **kw)
         self.name = name
-        self.inInit = True
+        self.inInit = True      # flag to prevent early calls to onChange from processing
         expression = name.split("}", 1)
         self.setCalc(expression[0].strip("{}\\"))
         self.setPVargs(expression[1][1:-1], macroTable )
@@ -36,37 +36,50 @@ class calcPV(edmPVbase):
         pvlist = args.split(",")
         self.pvArgs = []
         self.pvValues = [ ]
-        for pv in pvlist:
+        for idx, pv in enumerate(pvlist):
             thispv = buildPV(pv,macroTable=mt)
             self.pvArgs.append( thispv)
             self.pvValues.append( 0.0)
-            thispv.add_callback(self.onChange, self, len(self.pvArgs)-1)
+            thispv.add_callback(self.onChange, self, idx)
 
     def setCalc(self, calc):
         self.expr = Postfix(calc)
+
+    def edmCleanup(self):
+        super().edmCleanup()
+        self.pvArgs, pvs = None, self.pvArgs
+
+        for pv in pvs:
+            pv.del_callback(self.onChange)
 
     def get(self):
         return self.calcValue()
 
     def onChange(self, item, **kw):
+        # userArgs is the index into pvValues, allValid
+        #
         if self.debug(): print("callback CALC onChange", item)
-        if 'userArgs' in kw:
-            userArgs = kw['userArgs']
-        else: return
-        idx = int(userArgs)
+        if 'userArgs' not in kw:
+            return
+
+        idx = int(kw['userArgs'])
+
         self.pvValues[idx] = kw["value"]
+
         # if still initializing, don't perform the calculation
         if self.inInit:
             return
+
         self.allValid[idx] = True
-        if False in self.allValid:
-            self.isValid = False
+        self.isValid = False not in self.allValid
+
+        if not self.isValid:
             self.severity = 3
             return
+
         self.value = self.calcValue()
         self.char_value = self.convText()
 
-        self.isValid = True
         self.severity = 0
         if self.debug(): print("callback CALC", self.name, "value=", self.value, self.callbackList)
         for fn in self.callbackList:

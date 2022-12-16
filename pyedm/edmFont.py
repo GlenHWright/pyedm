@@ -14,7 +14,7 @@ mapPointSize = [ 0,  1,  2,  3,  4,  5,  6,  6,  7,  8,
                  8,  9,  9, 11, 11, 12, 13, 14, 15, 15,
                 16, 17, 18, 19, 19, 20, 21, 22, 23, 24,
                 25, 26, 27, 28, 29, 30, 30, 31, 32, 33 ]
-def GenericGetFont(fontName):
+def GenericGetFont(fontName, rescale=1.0):
     if type(fontName) == str:
         if fontName in edmFontTable:
             return edmFontTable[fontName]
@@ -33,7 +33,7 @@ def GenericGetFont(fontName):
             pointsize = int(pointsize)
     elif type(fontName) == dict:
         fn = fontName["family"]
-        weight = int( fontName["bold"] )
+        weight = QFont.Normal if fontName["bold"] == False else QFont.Bold
         italic = fontName["italic"]
         pointsize = fontName["pointSize"]
         fontName = f"json:{fn}-{weight}-{italic}-{pointsize}"
@@ -42,6 +42,7 @@ def GenericGetFont(fontName):
     else:
         raise ValueError(f"GenericGetFont illegal fontName type {type(fontName)} must be dict or str")
 
+    pointsize = int(pointsize*rescale)
     font = QFont(fn, pointsize, weight, italic)
     font.setStyleStrategy(QFont.PreferDevice+QFont.PreferMatch)
     # font.setWordSpacing(-1)
@@ -54,7 +55,7 @@ def GenericGetFont(fontName):
     edmFontTable[fontName] = font
     return font
 
-def X11GetFont(fontName):
+def X11GetFont(fontName, rescale=1.0):
     ''' X11GetFont - unused -preference is for a consistent compatible lookup
     '''
     if fontName in edmFontTable:
@@ -84,7 +85,6 @@ def toHTML(font, text):
         print(f"unable to determine {font} - return {text}")
         return text
     rval= f'<span style="font-size: {pointsize}px">{text}</span>'
-    print(rval)
     return rval
 
 

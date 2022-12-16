@@ -5,6 +5,16 @@
 # "global" variables.
 # This is a base level file for importing, it must not directly or indirectly import any other pyedm files.
 #
+# For importing, this module needs to be a base-level module. However, reasonable design integration
+# means that this should be able to reference higher level modules and classes!
+# The approach taken to achieve this is to make some virtual-equivalent functions (should
+# be abstract methods) and these get filled in by the higher-level method.
+#
+# Cleaner implementation:
+#  edmApp should be created and initialized at the top level __init__, and other modules should not
+#  reference the edmApp module directly. It might make the most sense to have allow multiple edmApp's
+#  which might make remote display requests more doable.
+#
 import os
 import traceback
 from PyQt5.QtWidgets import QStyle, QStyleFactory
@@ -38,22 +48,32 @@ class edmAppClass:
         self.allowEdit = True
         self.commonstyle = QStyleFactory.create("Plastique")
         self.edmClasses = {}
+        self.delimiter = ':'   # edm compatible, may not be windows friendly
         self.macroTable = None
+        self.searchPath = None
 
         # CLS HARD-CODED DEFAULTS
         if "EDMCOLORFILE" not in os.environ:
             os.environ['EDMCOLORFILE'] = os.path.join(cur_dir, "colors.list")
-        self.setPath()
+        #self.setPath()
+        # myImports prevents duplication on names: if there are (e.g.) multiple edmPVepics.py files
+        # in the path, the first one gets imported, and then myImports[] flags 'edmPVepics'
+        # as having been imported.
+        # This all seemed necessary in python 2.4. This should be re-evaluated in light of
+        # import improvements in python 3
+        #
+        self.myImports = {}
 
     def setPath(self):
         try: dfp = os.environ["EDMDATAFILES"]
-        except:
+        except (IndexError,KeyError):
             dfp = "."
-        if ';' in dfp: # workaround for Windows drive paths
-            self.dataPaths = dfp.split(";")
-        else:
-            self.dataPaths = dfp.split(':')
+        self.dataPaths = dfp.split(edmApp.delimiter)
 
+        # Note that ';' is used to allow Windows "C:\path" style to be valid.
+        if "PYTHONEDMPATH" in os.environ:
+            self.searchPath = os.environ["PYTHONEDMPATH"].split(edmApp.delimiter) + searchPath
+        
     def addBlink(self, widget):
         if widget not in self.blinkList:
             self.blinkList.append(widget)
@@ -84,6 +104,8 @@ class edmAppClass:
                 print('necessary cleanup of', li)
                 try:
                     li.edmCleanup()
+                except RuntimeError:
+                    pass    # most likely due to 'isdeleted()'
                 except BaseException as exc:
                     print(f"Cleanup failure for {li} in onTimer")
                     traceback.print_exc()
@@ -94,6 +116,8 @@ class edmAppClass:
                 traceback.print_exc()
                 print("RuntimeError exception: forcing cleanup of", li)
                 try: li.edmCleanup()
+                except RuntimeError:
+                    pass
                 except: traceback.print_exc()
             except AttributeError:
                 traceback.print_exc()
@@ -103,6 +127,9 @@ class edmAppClass:
                 traceback.print_exc()
 
     def debug(self, level=1, *, mesg=None, setDebug=None):
+        ''' debug(level, mesg, setDebug) - debugging test for general cases. Note that edmWidgets
+            have their own debug method.
+        '''
         if setDebug != None:
             self.DebugFlag = setDebug
         flag = self.DebugFlag >= level
@@ -114,9 +141,31 @@ class edmAppClass:
     def redisplay(self, widget, **kw):
         if widget not in self.redisplayList:
             self.redisplayList.append(widget)
-        
+
+    @staticmethod
+    def edmScreen(*args,**kw):
+        ''' edmScreen - return a class instance of edmScreen
+        '''
+        raise AttributeError("edmScreen must be redefined before use!")
+
+    @staticmethod
+    def generateWidget(*args,**kw):
+        raise AttributeError("generateWidget must be redefined before use!")
+
+    @staticmethod
+    def generateWindow(*args,**kw):
+        raise AttributeError("generateWindow must be redefined before use!")
+
+    @staticmethod
+    def buildNewWindow(*args,**kw):
+        raise AttributeError("buildNewWindow must be redefined before use!")
+
 edmApp = edmAppClass()
 
+# general import request from other modules.
+def edmImport(filename):
+    edmApp.edmImport(filename)
+    
 # add the widget to the redisplay request queue
 def redisplay(widget, **kw):
     edmApp.redisplay(widget)

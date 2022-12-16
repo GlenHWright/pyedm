@@ -19,7 +19,7 @@ record(ai, "$(P)testPV")
 record(ao, "$(P)controlPV")
 {
 	field(PREC, "2")
-	field(OUT, "ControlPV PP")
+	field(OUT, "$(P)ControlPV PP")
 	field(LOPR, "0")
 	field(HOPR, "100")
 	field(LOW, "10")
@@ -133,4 +133,32 @@ record(mbbo, "$(P)PVselectEmbeddedWindow")
 	field(ONST, "One")
 	field(TWST, "Two")
 	field(THST, "THREE!")
+}
+
+record(stringout, "$(P)MainDisplay:1:edmFile")
+{
+}
+record(stringout, "$(P)MainDisplay:1:1:edmFile")
+{
+}
+record(stringout, "$(P)MainDisplay:1:2:edmFile")
+{
+}
+record(stringout, "$(P)MainDisplay:1:3:edmFile")
+{
+}
+record(stringout, "$(P)MainDisplay:1:4:edmFile")
+{
+}
+record(stringout, "$(P)MainDisplay:2:1:edmFile")
+{
+}
+record(stringout, "$(P)MainDisplay:2:2:edmFile")
+{
+}
+record(stringout, "$(P)MainDisplay:2:3:edmFile")
+{
+}
+record(stringout, "$(P)MainDisplay:2:4:edmFile")
+{
 }

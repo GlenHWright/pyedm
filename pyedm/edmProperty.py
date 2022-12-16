@@ -171,7 +171,7 @@ def getFontProperty( tagRef, fieldRef, defValue=None):
     else:
         value = defValue
     if type(value) in [ str, dict ]:
-        return edmFont.getFont(tagRef.value)
+        return edmFont.getFont(tagRef.value, edmApp.rescale)
 
     return value
 

@@ -1,4 +1,4 @@
-# Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
+# Copyright 2011-2022 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # This module displays a widget that allows text entry.
 
 from . import edmImport
@@ -10,9 +10,10 @@ from .edmField import edmField
 from PyQt5.QtWidgets import QLineEdit
 from PyQt5.QtGui import QPalette
 from PyQt5.QtCore import Qt
+
+# relative execution of "from monitortext import TextupdateClass"
 monitortext = edmImport("monitortext")
 TextupdateClass = monitortext.TextupdateClass
-
 
 class TextentryClass(TextupdateClass):
     menuGroup = [ "control", "Text Entry" ]
@@ -38,7 +39,7 @@ class TextentryClass(TextupdateClass):
         super().buildFromObject(objectDesc, **kw)
         self.setReadOnly(0) # override the  "display only" settings
         self.setFocusPolicy(Qt.StrongFocus)
-        self.setFrame(1)    # override the  "display only" settings
+        self.setFrame(1)    # use the QFrame border ability
         self.edmParent.buttonInterest.append(self)
 
     # over-ride the focus events - simplification, because we really
@@ -50,18 +51,18 @@ class TextentryClass(TextupdateClass):
             if self.controlPV.units != "" and value.endswith(self.controlPV.units):
                 value = value[:-len(self.controlPV.units)]
             self.controlPV.put(value)
-            self.haveFocus = 0
+            self.haveFocus = False
             # self.controlPV.char_value = value
             event.accept()
             self.redisplay()
             return
 
         QLineEdit.keyPressEvent(self, event)
-        self.haveFocus = 1
+        self.haveFocus = True
 
     def focusOutEvent(self, event):
         QLineEdit.focusOutEvent(self, event)
-        self.haveFocus = 0
+        self.haveFocus = False
         self.redisplay()
 
 

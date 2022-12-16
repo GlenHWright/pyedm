@@ -31,19 +31,21 @@ class activeChoiceButtonClass(QWidget,edmWidget):
 
     def buildFromObject(self, objectDesc, **kw):
         super().buildFromObject(objectDesc, **kw)
-        self.orientation = objectDesc.getProperty("orientation", "vertical")
-        self.layout = QVBoxLayout() if self.orientation == self.orientationEnum.vertical else QHBoxLayout()
-        self.setLayout(self.layout)
-        self.layout.setSpacing(0)
-        #self.layout.setMargin(0)
-        self.layout.setContentsMargins(0,0,0,0)
-        self.group = QButtonGroup(self)
+        rebuild = kw.get("rebuild", False)
+        self.orientation = objectDesc.getProperty("orientation")
+        if rebuild == False:
+            self.layout = QVBoxLayout() if self.orientation == self.orientationEnum.vertical else QHBoxLayout()
+            self.setLayout(self.layout)
+            self.layout.setSpacing(0)
+            #self.layout.setMargin(0)
+            self.layout.setContentsMargins(0,0,0,0)
+            self.group = QButtonGroup(self)
+            self.group.buttonClicked.connect(self.gotNewValue)
+            self.edmParent.buttonInterest.append(self)
+            self.buttonInterest = []
         self.lastSelect = -2
-        self.group.buttonClicked.connect(self.gotNewValue)
 
         self.selectColorInfo = self.findColor("selectColor",(QPalette.Button,) )
-        self.buttonInterest = []
-        self.edmParent.buttonInterest.append(self)
         # Race conditions: if using a preemptive callback environment, the test and set of 'ready' can have
         # the onConnect callback occur in the middle, meaning the menu never gets set. Need to reevaluate
         # the use of 'ready' and the potential for fully correct implementation.

@@ -67,6 +67,18 @@ class relatedDisplayClass(QPushButton,edmWidget):
             self.actions = [ self.newmenu.addAction(menu, lambda idx=idx:self.onMenu(idx)) for (menu,idx) in zip(self.menulist,list(range(0,len(self.filename)))) ]
         self.edmParent.buttonInterest.append(self)
 
+    def edmCleanup(self):
+        if self.debug() : print(f"cleanup related {self.generated} {self.widgets}")
+        try:
+            self.edmParent.buttonInterest.remove(self)
+        except ValueError:
+            pass
+        self.generated = None
+        self.widgets = None
+        self.actions = None
+        self.pressed.disconnect()
+        super().edmCleanup()
+
     @classmethod
     def setV3PropertyList(classRef, values, obj):
         for name in [ "x", "y", "w", "h", "fgColor", "bgColor", "topShadowColor", "botShadowColor"]:
@@ -143,6 +155,7 @@ class relatedDisplayClass(QPushButton,edmWidget):
         self.onMenu(0)
 
     def onMenu(self, idx):
+        if self.debug(1) : print(f"onMenu({idx}) {self.generated} {self.widgets}")
         try:
             if self.generated[idx] == None:
                 mt = self.findMacroTable()
@@ -153,18 +166,28 @@ class relatedDisplayClass(QPushButton,edmWidget):
                 self.generated[idx].macroTable = mt
                 self.widgets[idx] = None
 
-            if self.widgets[idx] == None:
-                self.widgets[idx] = generateWindow( self.generated[idx], myparent=self, macroTable=self.generated[idx].macroTable)
-                self.widgets[idx].destroyed.connect(lambda *args, idx=idx: self.lostChild(*args, childIdx=idx))
-            self.widgets[idx].show()
+        except BaseException as exc:
+            print(f"related display: onMenu({idx}) macro/edmScreen failed: {exc}")
+            return
 
-        #except:
-            #print "onMenu exception"
-        finally:
-            pass
+        if self.widgets[idx] == None:
+            self.widgets[idx] = generateWindow( self.generated[idx], myparent=self, macroTable=self.generated[idx].macroTable)
+            self.widgets[idx].destroyed.connect(lambda *args, idx=idx: self.lostChild(*args, childIdx=idx))
+        self.widgets[idx].show()
+
+    def edmCleanupChild(self, child):
+        try:
+            idx = self.widgets.index(child)
+            self.widgets[idx] = None
+            self.generated[idx] = None
+        except AttributeError:
+            pass    # self.widgets already cleaned up
+        except BaseException as exc:
+            print(f"edmCleanupChild self:{self} child:{child} failed: {exc}")
 
     def lostChild(self, *args, childIdx=None):
-        if childIdx != None:
+        if self.debug() : print(f"lostChild {args} {childIdx}  {self.widgets}")
+        if self.widgets != None and childIdx != None:
             self.widgets[childIdx] = None
         
 edmApp.edmClasses["relatedDisplayClass"] = relatedDisplayClass

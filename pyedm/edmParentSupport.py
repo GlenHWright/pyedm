@@ -13,6 +13,7 @@ from PyQt5.Qt import QApplication, QClipboard
 from .edmApp import edmApp
 from .edmWidget import edmWidget, buildNewWidget
 from .edmEditWidget import edmShowEdit, edmRubberband, edmEdit
+from .edmScreen import edmScreen
 from .edmColors import findColorRule
 from .edmField import edmField, edmTag
 #
@@ -20,7 +21,7 @@ from .edmField import edmField, edmTag
 # Any widget that inherits from here will provide mouse support and child edit support
 #
 
-editModeEnum = Enum("editmode", "none edit move resize")
+editModeEnum = Enum("editmode", "none edit move copy cut paste")
 class edmParentSupport:
     '''edmParentSupport - common interface for container widgets
         manage mouse clicks on behalf of children'''
@@ -37,6 +38,10 @@ class edmParentSupport:
     def edmCleanup(self):
         # To Do: add check for unsaved changes
         #
+        if self.rubberband:
+            rb, self.rubberband = self.rubberBand, None
+            rb.destroy()
+            rb = None
         self.edmParent = None
         self.selectedWidget = None
         self.focusedWidget = None
@@ -97,9 +102,9 @@ class windowMenu(QtWidgets.QMenu):
         self.addSection(str(edmWidget))
         self.setMenuAction("Edit", self.selectEdit)
         self.setMenuAction("Move/Resize", self.moveMode)
-        #self.setMenuAction("Resize", self.resizeMode)
         self.setMenuAction("Widget Copy", self.copy)
         self.setMenuAction("Widget Paste", self.paste)
+        self.setMenuAction("Widget Cut", self.cut)
         self.buildNewWidgetMenu(self.addMenu("New Widget"))
         self.setMenuAction("Edit Screen", self.editScreen)
         self.setMenuAction("Save", self.saveWindow)
@@ -119,11 +124,8 @@ class windowMenu(QtWidgets.QMenu):
         if edmApp.debug(): print("select widget to move")
         self.edmWidget.editMode(value="move")
 
-    def resizeMode(self):
-        self.edmWidget.editMode(value="resize")
-
     def newWindow(self):
-        self.edmWidget.buildNewWindow()
+        edmApp.buildNewWindow()
 
     def editScreen(self):
         self.edmWidget.edmShowEdit(self.edmWidget)
@@ -144,13 +146,27 @@ class windowMenu(QtWidgets.QMenu):
             print(f"Unable to save file for {self.edmWidget}\nBecause {exc}")
 
     def openWindow(self):
-        pass
+        filename = QtWidgets.QFileDialog.getOpenFileName(parent=self.edmWidget, 
+                caption="Open...", filter="JSON edl (*.jedl);;edl (*.edl)")
+        try:
+            filename = filename[0]
+            mt = edmApp.macroTable
+            scr = edmScreen(filename, mt)
+            if scr.valid():
+                edmApp.screenList.append(scr)
+                window = edmApp.generateWindow(scr,macroTable=mt)
+                edmApp.windowList.append(window)
+        except BaseException as exc:
+            print(f"Unable to open file {filename}\n     because {exc}")
 
     def copy(self):
-        pass
+        self.edmWidget.editMode(value="copy")
 
     def paste(self):
-        pass
+        self.edmWidget.editMode(value="paste")
+
+    def cut(self):
+        self.edmWidget.editMode(value="cut")
 
     def edmReset(self):
         self.edmWidget.editMode(value="none")
@@ -201,21 +217,3 @@ def showWidgetMenu(widgetlist, event):
     menu = edmEditWidgetMenu(edmWidgets=widgetlist)
     menu.exec_(event.globalPos())
     return menu.selected
-
-def generateWidget(screen, parent):
-    '''
-     generate widgets based on the screen description. The expectation is that 'parent'
-     is a container widget and the widgets generated from screen.objectList will be
-     built within parent.
-    '''
-    if edmApp.debug() : print("generateWidget", screen, parent, getattr(parent,"macroTable", None))
-    for obj in screen.objectList:
-        otype =  obj.tags["Class"].value
-        if edmApp.debug() :  print("checking object type", otype)
-        if otype in edmApp.edmClasses:
-            widget = edmApp.edmClasses[otype](parent)
-            widget.buildFieldList(obj)
-            widget.buildFromObject(obj)
-        else:
-            if edmApp.debug() : print("Unknown object type", otype, "in", edmApp.edmClasses)
-    if edmApp.debug() : print("Done generateWidget")

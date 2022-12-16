@@ -7,9 +7,7 @@
 # Any class inheriting 'AbstractSymbolClass' must have a field of 'statelist'
 # of the length of the number of supported states.
 #
-from .edmWindowWidget import generateWidget
-from .edmApp import redisplay
-from .edmScreen import edmScreen
+from .edmApp import edmApp, redisplay
 from .edmWidget import edmWidget
 
 from PyQt5 import QtCore, QtGui
@@ -35,7 +33,7 @@ class AbstractSymbolClass(QFrame,edmWidget):
         '''
            load the named file, and search out all objects that define groups.
         '''
-        self.edmScreen = edmScreen(filename, macroTable, self.findDataPaths() )
+        self.edmScreen = edmApp.edmScreen(filename, macroTable, self.findDataPaths() )
         # build a list of items from the file
         self.stateObjects = []
         for item in self.edmScreen.objectList:
@@ -57,7 +55,7 @@ class AbstractSymbolClass(QFrame,edmWidget):
             s_item.widgets = symbolWidget(self)
             s_item.widgets.parentx = 0
             s_item.widgets.parenty = 0
-            generateWidget(s_obj, s_item.widgets)
+            edmApp.generateWidget(s_obj, s_item.widgets)
             self.buttonInterest.append(s_item.widgets)
             s_item.widgets.hide()
         self.lastState = None

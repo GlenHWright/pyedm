@@ -49,11 +49,14 @@ class messageBoxClass(QWidget,edmWidget):
 
     # use the control PV for alarm, rather than color PV
     def getAlarmPv(self, colorName=None, alarmName=None):
-        return self.pv
+        return getattr(self, "pv", None)
 
     def redisplay(self, **kw):
         self.checkVisible()
-        self.line.append(self.pv.char_value)
+        try:
+            self.line.append(self.pv.char_value)
+        except AttributeError as exc:
+            self.line.append(f"EDM Error {exc}")
 
     def clear(self):
         self.line.clear()
