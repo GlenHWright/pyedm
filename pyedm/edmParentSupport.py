@@ -16,6 +16,7 @@ from .edmEditWidget import edmShowEdit, edmRubberband, edmEdit
 from .edmScreen import edmScreen
 from .edmColors import findColorRule
 from .edmField import edmField, edmTag
+from . import edmWindowWidget
 #
 # A support widget for code common to any widget that is a parent to other edm widgets
 # Any widget that inherits from here will provide mouse support and child edit support
@@ -96,9 +97,10 @@ class windowMenu(QtWidgets.QMenu):
         that have set the .WA_TransparentForMouseEvents
         attribute.
     '''
-    def __init__(self, *args, edmWidget=None, **kw):
+    def __init__(self, *args, edmWidget=None, position=None, **kw):
         super().__init__(*args, **kw)
         self.edmWidget = edmWidget
+        self.position = position
         self.addSection(str(edmWidget))
         self.setMenuAction("Edit", self.selectEdit)
         self.setMenuAction("Move/Resize", self.moveMode)
@@ -119,10 +121,11 @@ class windowMenu(QtWidgets.QMenu):
 
     def selectEdit(self):
         self.edmWidget.editMode(value="edit")
+        edmWindowWidget.findActionWidget(self.edmWidget, self.position)
 
     def moveMode(self):
-        if edmApp.debug(): print("select widget to move")
         self.edmWidget.editMode(value="move")
+        edmWindowWidget.findActionWidget(self.edmWidget, self.position)
 
     def newWindow(self):
         edmApp.buildNewWindow()
@@ -161,12 +164,14 @@ class windowMenu(QtWidgets.QMenu):
 
     def copy(self):
         self.edmWidget.editMode(value="copy")
+        edmWindowWidget.findActionWidget(self.edmWidget, self.position)
 
     def paste(self):
         self.edmWidget.editMode(value="paste")
 
     def cut(self):
         self.edmWidget.editMode(value="cut")
+        edmWindowWidget.findActionWidget(self.edmWidget, self.position)
 
     def edmReset(self):
         self.edmWidget.editMode(value="none")
@@ -179,7 +184,8 @@ class windowMenu(QtWidgets.QMenu):
         for clsName,cls in edmApp.edmClasses.items():
             action = namemap[cls.menuGroup[0]].addAction(cls.menuGroup[1])
             action.triggered.connect(
-                    lambda action,clsName=clsName,cls=cls: buildNewWidget(parent=self.edmWidget,source=clsName,widgetClassRef=cls)
+                    lambda action,clsName=clsName,cls=cls, position=self.position:
+                        buildNewWidget(parent=self.edmWidget,source=clsName,widgetClassRef=cls,position=position)
                     )
 
 
@@ -189,8 +195,9 @@ def showBackgroundMenu(widget, event):
     '''
     if edmApp.allowEdit is False:
         return
-    menu = windowMenu(edmWidget=widget)
+    menu = windowMenu(edmWidget=widget, position=event.pos())
     menu.exec_(event.globalPos())
+    menu.edmWidget = None
 
 class edmEditWidgetMenu(QtWidgets.QMenu):
     '''
@@ -211,9 +218,3 @@ class edmEditWidgetMenu(QtWidgets.QMenu):
 
     def displayWidget(self, widget):
         self.selected = widget
-
-
-def showWidgetMenu(widgetlist, event):
-    menu = edmEditWidgetMenu(edmWidgets=widgetlist)
-    menu.exec_(event.globalPos())
-    return menu.selected

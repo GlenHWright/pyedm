@@ -22,7 +22,7 @@ class TextentryClass(TextupdateClass):
             ] + TextupdateClass.edmEntityFields
 
     V3propTable = {
-        "7-0" : [ "controlPv", "displayMode", "precision", "INDEX", "fgColor", "fgAlarm", "INDEX", "fillColor", "filled", "colorPv",
+        "7-0" : [ "controlPv", "displayMode", "precision", "INDEX", "fgColor", "fgAlarm", "INDEX", "fillColor", "colorPv", "filled",
             "font", "alignment", "lineWidth", "lineAlarm" ]
             }
                 

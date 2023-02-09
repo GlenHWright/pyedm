@@ -21,7 +21,7 @@ from . import edmFont
 from . import edmColors
 from .edmField import edmField, edmTag
 from .edmWidgetSupport import edmWidgetSupport
-from .edmEditWidget import edmEdit, fontAlignEnum
+from .edmEditWidget import edmEdit, fontAlignEnum, edmRubberband
 from .edmScreen import edmScreen
 
 # assign a color to a palette set
@@ -191,6 +191,7 @@ class edmWidget(edmWidgetSupport):
         edmField("", edmEdit.HList, group= [
             edmField("x", edmEdit.Int, defaultValue=20),
             edmField("y", edmEdit.Int, defaultValue=60),
+            edmField("z", edmEdit.Int, defaultValue=0, hidden=True)
             ] ),
         edmField("", edmEdit.HList, group= [
             edmField("w", edmEdit.Int, defaultValue=110),
@@ -229,6 +230,7 @@ class edmWidget(edmWidgetSupport):
         self.transparent = False
         self.defaultFontTag = "textFont"
         self.defaultAlignTag = "textAlign"
+        self.showEditWindow = None
         # The 4 most common PV's. These can be over-ridden, and are not mandatory
         self.pvItem = {
                 "controlPv" : pvItemClass("controlName", "controlPV", redisplay=True) ,
@@ -349,6 +351,11 @@ class edmWidget(edmWidgetSupport):
         h = int(self.objectDesc.getProperty("h")*edmApp.rescale)
 
         self.setGeometry(x,y,w,h)
+
+        if self.edmParent.rubberband != None:
+            if self.edmParent.rubberband.edmWidget == self:
+                self.edmParent.rubberband.setGeometry(x,y,w,h)
+
 
     def buildFromObject(self, objectDesc, *, attr=Qt.WA_TransparentForMouseEvents, rebuild=False, **kw):
         '''
@@ -723,7 +730,7 @@ class edmWidget(edmWidgetSupport):
                     return True
         return False
 
-def buildNewWidget(parent, source, widgetClassRef=None):
+def buildNewWidget(parent, source, widgetClassRef=None, position=None, startEdit=True):
     '''
         addWidget(source) add a new widget onto the parent screen.
         if 'source' is an edmObject, creates a widget
@@ -733,8 +740,10 @@ def buildNewWidget(parent, source, widgetClassRef=None):
             edmObject, assign the tags, then create the widget.
         if 'source' looks like a json input, convert it to tag objects,
             and then create a widget
+        if 'position' (in global units) is defined, modify the x,y to match.
+        if 'startEdit' is true, start an edit window and a rubberband widget for this widget.
     '''
-    objParent = getattr(parent, "edmScreen", None)
+    objParent = getattr(parent, "edmScreenRef", None)
     if type(source) == dict:
         obj = edmObject(objParent)
         edmScreen.buildJSONobject(source, obj)
@@ -765,7 +774,17 @@ def buildNewWidget(parent, source, widgetClassRef=None):
         except:
             raise TypeError(f"buildNewWidget: Unknown object type {otype}")
     widget = widgetClassRef(parent)
+    if position != None:
+        pos = widget.edmParent.mapFromGlobal(position)
+        obj.addTag("x", pos.x())
+        obj.addTag("y", pos.y())
     widget.buildFieldList(obj)
     widget.buildFromObject(obj)
+    if startEdit:
+        # start editor, create rubberband
+        parent.rubberband = edmRubberband(widget=widget)
+        parent.selectedWidget = widget
+        parent.edmShowEdit(parent.selectedWidget)
+        parent.editMode(value="move")
     widget.show()
     return widget

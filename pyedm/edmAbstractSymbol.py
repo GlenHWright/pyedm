@@ -9,16 +9,17 @@
 #
 from .edmApp import edmApp, redisplay
 from .edmWidget import edmWidget
+from .edmParentSupport import edmParentSupport
 
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtWidgets import QWidget, QFrame, QScrollArea
 from PyQt5.QtGui import QPalette, QPainter
 
-class symbolWidget(QWidget,edmWidget):
+class symbolWidget(QWidget,edmWidget, edmParentSupport):
     def __init__(self, parent=None, **kw):
         super().__init__(parent, **kw)
 
-class AbstractSymbolClass(QFrame,edmWidget):
+class AbstractSymbolClass(QFrame,edmWidget, edmParentSupport):
     def __init__(self, parent=None, **kw):
         super().__init__(parent, **kw)
         #self.setLineWidth(2)
@@ -33,10 +34,10 @@ class AbstractSymbolClass(QFrame,edmWidget):
         '''
            load the named file, and search out all objects that define groups.
         '''
-        self.edmScreen = edmApp.edmScreen(filename, macroTable, self.findDataPaths() )
+        self.edmScreenRef = edmApp.edmScreen(filename, macroTable, self.findDataPaths() )
         # build a list of items from the file
         self.stateObjects = []
-        for item in self.edmScreen.objectList:
+        for item in self.edmScreenRef.objectList:
             if item.tags["Class"].value == "activeGroupClass":
                 self.stateObjects.append(item)
 

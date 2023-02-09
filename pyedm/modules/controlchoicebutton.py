@@ -4,6 +4,7 @@ from enum import Enum
 from .edmWidget import edmWidget, pvItemClass
 from .edmApp import redisplay, edmApp
 from .edmWindowWidget import mousePressEvent, mouseReleaseEvent, mouseMoveEvent
+from .edmParentSupport import edmParentSupport
 from .edmField import edmField
 from .edmEditWidget import edmEdit
 
@@ -12,7 +13,7 @@ from PyQt5.QtGui import QPalette
 from PyQt5 import QtCore
 from PyQt5.QtCore import pyqtSlot
 
-class activeChoiceButtonClass(QWidget,edmWidget):
+class activeChoiceButtonClass(QWidget,edmWidget,edmParentSupport):
     menuGroup = [ "control", "Choice Button"]
     orientationEnum = Enum("orientation", "vertical horizontal", start=0)
     edmEntityFields = [

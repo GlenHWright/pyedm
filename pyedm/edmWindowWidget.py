@@ -4,6 +4,7 @@
 #
 # This is a high-level module
 # called from __init__ and edmAbstractSymbol
+# referenced by edmWindowWidget
 #
 #
 # Handles top-level EDM windows, and has common routines to support mouse events
@@ -20,7 +21,7 @@ from .edmScreen import edmScreen
 from .edmWidgetSupport import edmWidgetSupport
 from .edmParentSupport import edmParentSupport, showBackgroundMenu
 from .edmWidget import edmWidget
-from .edmEditWidget import edmShowEdit, edmRubberband, edmEdit
+from .edmEditWidget import edmRubberband, edmEdit
 from .edmColors import findColorRule
 from .edmField import edmField, edmTag
 #
@@ -39,16 +40,16 @@ class edmWindowWidget(QtWidgets.QWidget, edmWidgetSupport, edmParentSupport):
         return f"<edmWindowWidget {self.windowTitle()}>"
 
     def getProperty(self, *args, **kw):
-        return self.edmScreen.getProperty(*args, **kw)
+        return self.edmScreenRef.getProperty(*args, **kw)
 
     def checkProperty(self, *args, **kw):
-        return self.edmScreen.checkProperty(*args, **kw)
+        return self.edmScreenRef.checkProperty(*args, **kw)
 
     def updateTags(self, tags):
         ''' updateTags(tags) - rebuild the screens tags from the tag list provided.
         '''
         for tag in tags.values():
-            self.edmScreen.tags[tag.tag] = tag
+            self.edmScreenRef.tags[tag.tag] = tag
         self.setDisplayProperties()
 
 
@@ -58,7 +59,7 @@ class edmWindowWidget(QtWidgets.QWidget, edmWidgetSupport, edmParentSupport):
         if myparent:
             self.edmParent = myparent
         self.dataPaths = dataPaths
-        self.edmScreen = screen
+        self.edmScreenRef = screen
         if myparent != None and macroTable == None:
             self.macroTable = getattr(myparent, "macroTable", None)
         else:
@@ -99,7 +100,7 @@ class edmWindowWidget(QtWidgets.QWidget, edmWidgetSupport, edmParentSupport):
         return self
 
     def saveToFile(self, *args, **kw):
-        self.edmScreen.saveToFile(*args, **kw)
+        self.edmScreenRef.saveToFile(*args, **kw)
 
     def mousePressEvent(self, event):
         mousePressEvent(self, event)
@@ -146,7 +147,7 @@ class edmWindowWidget(QtWidgets.QWidget, edmWidgetSupport, edmParentSupport):
         self.destroy()
 
     def getEditPropertiesList(self):
-        return self.edmScreen.edmFieldList
+        return self.edmScreenRef.edmFieldList
 
     @staticmethod
     def buildNewWindow():
@@ -163,59 +164,30 @@ class edmWindowWidget(QtWidgets.QWidget, edmWidgetSupport, edmParentSupport):
         edmApp.windowList.append(window)
 
 def mousePressEvent(widget, event):
+    # handle mouse press events.
     debug = getattr(widget, "DebugFlag", 0)
 
     if debug > 0: print(f"mousePressEvent({widget},{event},{event.pos()},{widget.editMode()}")
 
-    if not widget.editMode(check="none"):
-        # if right mouse in edit mode, only allow menu selection
-        if event.button() == Qt.RightButton:
-            showBackgroundMenu(widget, event)
-            event.accept()
-            return
+    # if in rubberband mode, pass the event along.
+    if widget.rubberband and widget.editMode(check="none"):
+        if widget.rubberband.mousePressEvent(event) == False:
+            widget.rubberband.inactive()
+            widget.rubberband = None
+            widget.editMode(value="none")
+        event.accept()
+        return
+
+    if event.button() == Qt.LeftButton and not widget.editMode(check="none"):
+        # making a selection in one of the edit modes.
+
         if debug > 0 : print(f"clicked edit={widget.editModeValue} RB={widget.rubberband}")
-        # if in rubberband mode, pass the event along.
-        if widget.rubberband:
-            if widget.rubberband.mousePressEvent(event) == False:
-                widget.rubberband.inactive()
-                widget.rubberband = None
-                widget.editMode(value="none")
-            event.accept()
-            return
         # check if clicking a widget. If so, then bring up the properties window.
         pos = event.pos()
-        widgetlist = findEdmChildren(widget, pos)
-        if debug > 0 : print(f"findEdmChildren({widget}...) returns {widgetlist}")
+        findActionWidget(widget, pos, debug=debug)   # ignore return value; widget.selectedWidget already set
 
-        # opportunity for improvement: 
-        # display a menu of widgets, and allow selection.
-        if len(widgetlist) == 0:
-            print("did not select widget - try again!")
-            event.accept()
-            return
-
-        if len(widgetlist) == 1:
-            if debug > 0: print(f"found widget {widgetlist[0]}")
-            widget.selectedWidget = widgetlist[0]
-        else:
-            widget.selectedWidget = showWidgetMenu(widgetlist, event)
-
-        if widget.selectedWidget == None:
-            print("did not select widget - try again!")
-            event.accept()
-            return
-
-        if widget.editMode(check="edit"):
-            widget.edmShowEdit(widget.selectedWidget)
-            widget.editMode(value="none")
-
-        elif widget.editMode(check="move"):
-            if widget.rubberband == None:
-                widget.rubberband = edmRubberband(widget=widget.selectedWidget)
-            else:
-                widget.rubberband.active(widget.selectedWidget)
-            if widget.selectedWidget.geometry().contains(pos):
-                widget.rubberband.mousePressEvent(event)
+        if widget.selectedWidget == None and not widget.editMode(check="none"):
+            print(f"didn't select widget - try again!")
 
         event.accept()
         return
@@ -255,9 +227,8 @@ def mousePressEvent(widget, event):
     # Potential: evaluate other mouse clicks that didn't get a widget
 
 def mouseReleaseEvent(widget, event):
-    if not widget.editMode(check="none"):
-        if widget.rubberband:
-            widget.rubberband.mouseReleaseEvent(event)
+    if widget.rubberband:
+        widget.rubberband.mouseReleaseEvent(event)
         event.accept()
         return
     pos = event.pos()
@@ -269,7 +240,7 @@ def mouseReleaseEvent(widget, event):
 
 def mouseMoveEvent(widget, event):
     # if we're moving or resizing a widget, the rubberband should take this event
-    if widget.editMode(check="move"):
+    if widget.rubberband != None:
         widget.rubberband.mouseMoveEvent(event)
         event.accept()
         return
@@ -341,6 +312,37 @@ def findEdmChildren(widget, pos):
 
     return widgetlist
 
+def findActionWidget(parent, pos, debug=0):
+    ''' findActionWidget - checks to see if there's a widget under the global position 'pos'
+            that is a child of parent. Uses 'findEdmChildren'.
+    '''
+    widgetlist = findEdmChildren(parent, pos)
+    if debug >= 0 : print(f"findEdmChildren({parent}...) returns {widgetlist}")
+
+    if len(widgetlist) == 0:
+        parent.selectedWidget = None
+        return None
+
+    if len(widgetlist) == 1:
+        if debug > 0: print(f"found widget {widgetlist[0]}")
+        parent.selectedWidget = widgetlist[0]
+    else:
+        parent.selectedWidget = showWidgetMenu(widgetlist, parent.mapToGlobal(pos))
+
+    if parent.selectedWidget == None:
+        return None
+
+    if parent.editMode(check="edit"):
+        parent.edmShowEdit(parent.selectedWidget)
+        parent.editMode(value="none")
+    elif parent.editMode(check="move"):
+        if parent.rubberband == None:
+            parent.rubberband = edmRubberband(widget=parent.selectedWidget)
+        else:
+            parent.rubberband.active(parent.selectedWidget)
+        parent.editMode(value="none")
+
+    return parent.selectedWidget
 
 class edmEditWidgetMenu(QtWidgets.QMenu):
     '''
@@ -363,9 +365,9 @@ class edmEditWidgetMenu(QtWidgets.QMenu):
         self.selected = widget
 
 
-def showWidgetMenu(widgetlist, event):
+def showWidgetMenu(widgetlist, globalPos):
     menu = edmEditWidgetMenu(edmWidgets=widgetlist)
-    menu.exec_(event.globalPos())
+    menu.exec_(globalPos)
     return menu.selected
 
 

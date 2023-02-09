@@ -70,9 +70,9 @@ class edmAppClass:
             dfp = "."
         self.dataPaths = dfp.split(edmApp.delimiter)
 
-        # Note that ';' is used to allow Windows "C:\path" style to be valid.
+        # Note that ';' may be used to allow Windows "C:\path" style to be valid
         if "PYTHONEDMPATH" in os.environ:
-            self.searchPath = os.environ["PYTHONEDMPATH"].split(edmApp.delimiter) + searchPath
+            self.searchPath = os.environ["PYTHONEDMPATH"].split(edmApp.delimiter) + self.searchPath
         
     def addBlink(self, widget):
         if widget not in self.blinkList:
@@ -161,10 +161,6 @@ class edmAppClass:
         raise AttributeError("buildNewWindow must be redefined before use!")
 
 edmApp = edmAppClass()
-
-# general import request from other modules.
-def edmImport(filename):
-    edmApp.edmImport(filename)
     
 # add the widget to the redisplay request queue
 def redisplay(widget, **kw):

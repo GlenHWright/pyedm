@@ -187,6 +187,7 @@ class xAxisClass(pgraph.AxisItem):
         '''
         return strns
 
+
 @dataclass
 class onePVvalue:
     ''' simple tracking for a single value returned from a PV
@@ -194,6 +195,7 @@ class onePVvalue:
     '''
     value : Any
     count : int
+
 
 class xyGraphClass(pgraph.PlotWidget, edmWidget):
     menuGroup = [ "monitor", "XY Plot" ]
@@ -219,7 +221,7 @@ class xyGraphClass(pgraph.PlotWidget, edmWidget):
                 edmField("plotStyle", edmEdit.Enum, defaultValue=0, enumList=plotStyleEnum, array=True),
                 edmField("plotUpdateMode", edmEdit.Enum, defaultValue="y", array=True, enumList=updateModeEnum),    # xAndY, xOrY, x, y, trigger
                 edmField("plotSymbolType", edmEdit.Enum, defaultValue=None, array=True, enumList=plotSymbolEnum ),
-                edmField("opMode", edmEdit.Enum, defaultValue=0, array=True, enumList=plotModeEnum),           # scope, plot
+                edmField("opMode", edmEdit.Enum, defaultValue=0, array=True, enumList=opModeEnum),           # scope, plot
                 edmField("useY2Axis", edmEdit.Bool, defaultValue=False, array=True),         #
                 edmField("xSigned", edmEdit.Bool, defaultValue=False, array=True),           #
                 edmField("ySigned", edmEdit.Bool, defaultValue=False, array=True),           #
@@ -231,9 +233,11 @@ class xyGraphClass(pgraph.PlotWidget, edmWidget):
             edmField("graphTitle", edmEdit.String),
             edmField("nPts", edmEdit.Int, defaultValue=100),
             edmField("updateTimerMs", edmEdit.Int, defaultValue=0),
-            edmField("showXAxis", edmEdit.Bool, defaultValue=1),
             edmField("unused", edmEdit.HList, group= [
+                edmField("showXAxis", edmEdit.Bool, defaultValue=1),
                 edmField("xAxisStyle", edmEdit.Enum, defaultValue="linear", enumList=styleEnum),  # "linear", "log10", "time", "log10(time)"
+            ] ),
+            edmField("unused", edmEdit.HList, group= [
                 edmField("xAxisSrc",  edmEdit.Enum, defaultValue=0, enumList=srcEnum),     # AutoScale, fromUser and fromPv
                 edmField("xAxisFormat",  edmEdit.Enum, defaultValue=0, enumList=formatEnum)        # FFloat, GFloat, ???? - needs to be checked!
             ] ),
@@ -249,11 +253,13 @@ class xyGraphClass(pgraph.PlotWidget, edmWidget):
                 edmField("xMinorsPerMajor", edmEdit.Int, defaultValue=None),
                 edmField("xShowLabelGrid", edmEdit.Bool, defaultValue=False),
                 edmField("xShowMajorGrid", edmEdit.Bool, defaultValue=False),
-                edmField("xShowMinorGrid", edmEdit.Bool, defaultValue=False),
-                edmField("showYAxis", edmEdit.Bool, defaultValue=1)
+                edmField("xShowMinorGrid", edmEdit.Bool, defaultValue=False)
                 ] ),
             edmField("unused", edmEdit.HList, group= [
+                edmField("showYAxis", edmEdit.Bool, defaultValue=1),
                 edmField("yAxisStyle", edmEdit.Enum, defaultValue="linear", enumList=styleEnum),  # "linear", "log10", "time", "log10(time)"
+                ] ),
+            edmField("unused", edmEdit.HList, group= [
                 edmField("yAxisSrc",  edmEdit.Enum, defaultValue=0, enumList=srcEnum),     # AutoScale, fromUser and fromPv
                 edmField("yAxisFormat",  edmEdit.Enum, defaultValue=0, enumList=formatEnum)        # FFloat, GFloat, ???? - needs to be checked!
             ] ),
@@ -267,11 +273,13 @@ class xyGraphClass(pgraph.PlotWidget, edmWidget):
                 edmField("yMinorsPerMajor", edmEdit.Int, defaultValue=None),
                 edmField("yShowLabelGrid", edmEdit.Bool, defaultValue=False),
                 edmField("yShowMajorGrid", edmEdit.Bool, defaultValue=False),
-                edmField("yShowMinorGrid", edmEdit.Bool, defaultValue=False),
-                edmField("showY2Axis", edmEdit.Bool, 0)
+                edmField("yShowMinorGrid", edmEdit.Bool, defaultValue=False)
                 ] ),
             edmField("unused", edmEdit.HList, group = [
+                edmField("showY2Axis", edmEdit.Bool, 0),
                 edmField("y2AxisStyle", edmEdit.Enum, defaultValue="linear", enumList=styleEnum),  # "linear", "log10", "time", "log10(time)"
+            ] ),
+            edmField("unused", edmEdit.HList, group = [
                 edmField("y2AxisSrc",  edmEdit.Enum, defaultValue=None, enumList=srcEnum),     # AutoScale, fromUser and fromPv
                 edmField("y2AxisFormat",  edmEdit.Enum, defaultValue=None, enumList=formatEnum),        # FFloat, GFloat, ???? - needs to be checked!
             ] ),
@@ -308,11 +316,15 @@ class xyGraphClass(pgraph.PlotWidget, edmWidget):
         raise AttributeError(attr)
 
     def edmCleanup(self):
-        for curve in self.curves:
-            if curve.xPv:
-                curve.xPv.del_callback(self)
-            if curve.yPv:
-                curve.yPv.del_callback(self)
+        try:
+            for curve in self.curves:
+                if curve.xPv:
+                    curve.xPv.del_callback(self)
+                if curve.yPv:
+                    curve.yPv.del_callback(self)
+        except TypeError:
+            pass    # self.curves may be None
+
         super().edmCleanup()
 
     @classmethod
@@ -356,7 +368,7 @@ class xyGraphClass(pgraph.PlotWidget, edmWidget):
         self.npts = objectDesc.getProperty("nPts", 100)
         updateTimerMs = objectDesc.getProperty("updateTimerMs", 0)
         if not rebuild:
-            # avoid a race conditin where this isn't set and a callback occurs before the timer start
+            # avoid a race condition where this isn't set and a callback occurs before the timer start
             self.updateTimerMs = updateTimerMs
         self.gridColorInfo = self.findColor( "gridColor", palette=(QPalette.Text,))
         self.gridColorInfo.setColor()
@@ -458,12 +470,36 @@ class xyGraphClass(pgraph.PlotWidget, edmWidget):
         #
         # Build the curves that will be used
         self.curves = [None]*self.numCurves
+        ypen, y2pen = False, False
         for idx in range(0, self.numCurves):
-            self.buildCurve(idx, rebuild=False)
+            self.buildCurve(idx, rebuild=False)     # rebuild not working yet...
+            # check to see if axis text should use this plot color.
+            #
+            if self.showYAxis and self.useY2Axis[idx] == False and ypen == False:
+                self.getAxis("left").setTextPen(self.plotColor[idx].getColor())
+                ypen = True
+            elif self.showY2Axis and self.useY2Axis[idx] == True and y2pen == False:
+                self.getAxis("right").setTextPen(self.plotColor[idx].getColor())
+                y2pen = True
 
         self.xaxisInstance.setTickLabelMode(mode=self.xAxisStyle.value)
-        if self.xAxisStyle.value == 2:    # If we're doing a "time" x-axis, then track seconds since we started.
+        if self.xAxisStyle.value >= 2:      # If we're doing a "time" x-axis, then track seconds since we started.
             self.clockStart = time.time()   # seconds since epoch, count seconds for this display.
+
+        if self.xAxisStyle.value == 1 or self.xAxisStyle.value == 3:    # log(x), log(time)
+            self.getAxis("bottom").setLogMode(True)
+        else:
+            self.getAxis("bottom").setLogMode(False)
+
+        if self.yAxisStyle.value == 1 or self.yAxisStyle.value == 3:
+            self.getAxis("left").setLogMode(True)
+        else:
+            self.getAxis("left").setLogMode(False)
+
+        if self.y2AxisStyle.value == 1 or self.y2AxisStyle.value == 3:
+            self.getAxis("right").setLogMode(True)
+        else:
+            self.getAxis("right").setLogMode(False)
 
         '''
         # definition of updateTimerMs: forces data with time along
@@ -509,10 +545,18 @@ class xyGraphClass(pgraph.PlotWidget, edmWidget):
                 changed = True
         
         if changed:     # original build, or need to replace previous build
-            curve =  pgraph.PlotCurveItem(name=str(curveIdx)+self.yPv[curveIdx])
+            curve =  pgraph.PlotDataItem(name=str(curveIdx)+self.yPv[curveIdx])
             self.curves[curveIdx] = curve
             curve.xPv = None
             curve.yPv = None
+
+        xlog = self.xAxisStyle.value ==1 or self.xAxisStyle.value == 3
+        if self.useY2Axis[curveIdx]:
+            ylog = self.y2AxisStyle.value == 1 or self.y2AxisStyle.value == 3
+        else:
+            ylog = self.yAxisStyle.value == 1 or self.yAxisStyle.value == 3
+
+        curve.setLogMode(xlog, ylog)
 
         curve.updateMode = self.plotUpdateMode[curveIdx]
         curve.lastX = None   # used for xAndY, maybe xOrY(?). If None, no input value
@@ -634,16 +678,16 @@ class xyGraphClass(pgraph.PlotWidget, edmWidget):
                 curve.edmYdata.append(args['value'])
             else:
                 if curve.edmYdata.maxlen < num:
-                    curve.edmYdata = deque(maxlen=num)
-                    curve.edmXdata = deque(maxlen=num)
+                    curve.edmYdata = collections.deque(maxlen=num)
+                    curve.edmXdata = collections.deque(maxlen=num)
                 curve.edmYdata.clear()
                 curve.edmYdata.extend([ float(v) for v in args['value'] ])
 
             if curve.xPv is None:
-                if self.xAxisStyle == self.styleEnum.time:
+                if self.xAxisStyle.value >= 2:  # time, log10(time)
                     # plot against time when the y PV updates
                     curve.edmXdata.append( time.time() )
-                elif self.xAxisStyle.value < 2:
+                elif self.xAxisStyle.value < 2: # x, log(x)
                     # auto-generate some x data: regular x or log(x)
                     curve.edmXdata.clear()
                     curve.edmXdata.extend([ xn for xn in range(0, len(curve.edmYdata))] )
@@ -791,7 +835,7 @@ class xyGraphClass(pgraph.PlotWidget, edmWidget):
             If one or both of the axis is being delayed for update values,
             then add them to the list. 
         '''
-        if curve.lastX is not None:
+        if curve.lastX is not None and curve.lastX.value is not None:
             if curve.lastX.count > 1:
                 curve.edmXdata.clear()
                 curve.edmXdata.extend(curve.lastX.value)
@@ -812,7 +856,8 @@ class xyGraphClass(pgraph.PlotWidget, edmWidget):
     def resetCallback(self, widget, **args):
         '''
             edm 105F has ~300 lines of code to reset limits
-            for the various curves. 
+            for the various curves. Need to determine how much
+            of that is relevant to this widget.
         '''
         if getattr(self, "curves",None) == None:
             return

@@ -60,6 +60,7 @@ class edmTagWidget:
         super().__init__()
         self.label = label
         self.valueWidget = valueWidget
+        valueWidget.setObjectName(label)
 
     def build(self):
         '''
@@ -115,7 +116,7 @@ class edmEditField(QObject):
     newValue = pyqtSignal(str, 'PyQt_PyObject')
     def __init__(self, label, edmfield, widget):
         ''' label is the displayed label on the edit screen
-            field is the field in the defined class to be edited.
+            edmfield is the field in the defined class to be edited.
         '''
         super().__init__()
         self.label = label
@@ -358,6 +359,11 @@ class edmEditSubScreen(edmEditField):
         print(f"buildSubWindow.onNewValue({tag} {value})")
         self.newValue.emit(tag, value)
 
+    '''
+        apply, done, cancel - 30/jan/23 - not implemented properly.
+        the missing information is what tags are potentially updated by this
+        widget, and whether to accept or reject the changes.
+    '''
     def onApply(self):
         pass
 
@@ -376,6 +382,9 @@ class edmEditFontInfo(edmEditField):
         a drop-down menu for the allowed point sizes,
         a check box for bold, and a check box for italic.
     '''
+    def showEditWidget(self, displayValue):
+        return edmTagWidget(None, self.buildOneEditWidget(displayValue))
+
     def buildOneEditWidget(self, displayValue):
         font = displayValue
         self.font = font
@@ -403,6 +412,7 @@ class edmEditFontInfo(edmEditField):
         self.widget.setLayout(toplayout)
         self.saveInfo = { "family": self.fontInfo.family(), "pointSize": self.fontInfo.pointSize(),
                 "bold":self.fontInfo.bold(), "italic":self.fontInfo.italic() }
+        self.busy = False   # used by changeFamily to stop recursive calls
         self.changeFamily()
         # Add connect AFTER setting values
         self.bold.clicked.connect( lambda newstate: self.onNewValue(bold=newstate))
@@ -417,33 +427,41 @@ class edmEditFontInfo(edmEditField):
             try: v = int(x)
             except: v = 0
             return v
-        self.busy = True
-        self.family.setCurrentText(self.saveInfo["family"])
-        weight = QFont.Normal if self.saveInfo["bold"] == False else QFont.Bold
-        self.font = QFont(  self.saveInfo["family"],
-                            safeInt(self.saveInfo["pointSize"]),
-                            weight,
-                            self.saveInfo["italic"])
-        self.fontInfo = QFontInfo(self.font)
-        style = self.fontDB.styleString(self.fontInfo)
-        ps = self.fontDB.pointSizes(self.saveInfo["family"], style)
-        while self.pointsize.count() > 0:
-            self.pointsize.removeItem(0)
-        for point in ps:
-            self.pointsize.addItem(str(point))
-        self.changePointSize(self.fontInfo.pointSize())
-        self.bold.setChecked( self.fontInfo.bold())
-        self.italic.setChecked( self.fontInfo.italic())
-        self.busy = False
+        if self.busy == True:
+            return
 
-    def changePointSize(self, pointSize):
-        ps = self.fontDB.pointSizes(self.family.currentText(), self.fontDB.styleString(self.fontInfo))
-        if pointSize not in ps:
-            pointSize = min(ps, key=lambda val: abs(val - pointSize))
+        self.busy = True
+        try:
+            self.family.setCurrentText(self.saveInfo["family"])
+            weight = QFont.Normal if self.saveInfo["bold"] == False else QFont.Bold
+            self.font = QFont(  self.saveInfo["family"],
+                                safeInt(self.saveInfo["pointSize"]),
+                                weight,
+                                self.saveInfo["italic"])
+            self.fontInfo = QFontInfo(self.font)
+            style = self.fontDB.styleString(self.fontInfo)
+            ps = self.fontDB.pointSizes(self.saveInfo["family"], style)
+            if len(ps) == 0:
+                ps = self.fontDB.standardSizes()
+            while self.pointsize.count() > 0:
+                self.pointsize.removeItem(0)
+            for point in ps:
+                self.pointsize.addItem(str(point))
+            self.changePointSize(self.fontInfo.pointSize(), pointSizeList=ps)
+            self.bold.setChecked( self.fontInfo.bold())
+            self.italic.setChecked( self.fontInfo.italic())
+        finally:
+            self.busy = False
+
+    def changePointSize(self, pointSize, pointSizeList=[]):
+        if len(pointSizeList) == 0:
+            ps = self.fontDB.pointSizes(self.family.currentText(), self.fontDB.styleString(self.fontInfo))
+        if len(pointSizeList) > 0 and pointSize not in pointSizeList:
+            pointSize = min(pointSizeList, key=lambda val: abs(val - pointSize))
+        print(f"changePointSize {pointSizeList} {pointSize}")
         self.pointsize.setCurrentText(str(pointSize))
 
     def onNewValue(self, **kw):
-        if self.busy: return
         changed = False
         for w in kw:
             if kw[w] != self.saveInfo[w]:
@@ -563,6 +581,11 @@ class edmShowEdit(QtWidgets.QWidget):
         if edmApp.debug() : print(f"Saving {value} to {key}")
         self.tags[key] = edmTag(key, value)
 
+    def updateDisplayValue(self, tag, value):
+        ch = self.findChild(QtWidgets.QWidget, tag)
+        if ch != None:
+            ch.setText(str(value))
+
     def onApply(self):
         self.setTagValue()
 
@@ -600,6 +623,7 @@ class edmRubberband(QtWidgets.QRubberBand):
 
     def edmCleanup(self):
         self.edmWidget = None
+        self.winParent = None
         self.destroy()
 
     def active(self, widget=None):
@@ -636,9 +660,12 @@ class edmRubberband(QtWidgets.QRubberBand):
                 "h" : edmTag("h", int(geom.height()/edmApp.rescale)),
                 } )
             self.edmWidget = None
+            self.edmParent = None
         self.hide()
     
     def mousePressEvent(self, event):
+        if event.button() != Qt.LeftButton:
+            return False
         pos = self.parent().mapFromGlobal(event.globalPos())
         if not self.geometry().contains(pos):
             if edmApp.debug(1) : print(f"event inactive pos{pos} geom {self.geometry()}")
@@ -668,7 +695,7 @@ class edmRubberband(QtWidgets.QRubberBand):
         return True
 
     def mouseMoveEvent(self, event):
-        if edmApp.debug(2) : print(f"mouseMove({self} {event}")
+        if edmApp.debug(2) : print(f"mouseMove({self} {event} {event.button()}")
         pos = self.parent().mapFromGlobal(event.globalPos())
         pos = pos - self.location
         if self.movemode:
@@ -688,11 +715,17 @@ class edmRubberband(QtWidgets.QRubberBand):
             self.setGeometry(newgeom)
         
     def mouseReleaseEvent(self, event):
-        print(f"mouseReleaseEvent.rubberband {self} {event.pos()} {self.edmWidget}")
-        if self.edmWidget == None:
+        if event.button() != Qt.LeftButton:
             return
-        self.edmWidget.setGeometry(self.geometry() )
-        return
+        print(f"mouseReleaseEvent.rubberband {self} {event.pos()} {self.edmWidget}")
+        if self.edmWidget != None:
+            geom = self.geometry()
+            self.edmWidget.setGeometry(geom)
+            if self.edmWidget.showEditWindow != None:
+                self.edmWidget.showEditWindow.updateDisplayValue("x", int(geom.x()/edmApp.rescale))
+                self.edmWidget.showEditWindow.updateDisplayValue("y", int(geom.y()/edmApp.rescale))
+                self.edmWidget.showEditWindow.updateDisplayValue("w", int(geom.width()/edmApp.rescale))
+                self.edmWidget.showEditWindow.updateDisplayValue("h", int(geom.height()/edmApp.rescale))
 
 '''
 General support for layout of widgets
@@ -718,19 +751,19 @@ def buildLayout(displayWidget, editWidget, proplist, callback, direction):
                     tagval = editWidget.getProperty(oneprop.tag)
                 else:
                     tagval = ""
-                tagw = oneprop.editClass(oneprop.tag, oneprop, editWidget, **oneprop.editKeywords)
-                w = tagw.showEditWidget(tagval).build()
+                editfield = oneprop.editClass(oneprop.tag, oneprop, editWidget, **oneprop.editKeywords)
+                w = editfield.showEditWidget(tagval).build()
                 layout.addWidget( w )
-                displayWidget.editlist.append(tagw)
-                tagw.newValue.connect(callback)
+                displayWidget.editlist.append(editfield)
+                editfield.newValue.connect(callback)
         else:
             tagval, tagtype = proplist
             fakeProp = edmField("", "", "")
             for tagkey, val in tagval.items():
                 fakeProp.tag = tagkey
-                tagw = edmEditField(tagkey, fakeProp, editWidget)
-                w = tagw.showEditWidget(val).build()
+                editfield = edmEditField(tagkey, fakeProp, editWidget)
+                w = editfield.showEditWidget(val).build()
                 layout.addWidget( w)
-                displayWidget.editlist.append(tagw)
-                tagw.newValue.connect(callback)
+                displayWidget.editlist.append(editfield)
+                editfield.newValue.connect(callback)
         return layout

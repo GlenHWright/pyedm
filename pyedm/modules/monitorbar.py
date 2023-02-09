@@ -45,7 +45,7 @@ class activeBarClass(abstractShape,edmWidget):
         ]
     edmFieldList = abstractShape.edmBaseFields + abstractShape.edmColorFields + \
             edmEntityFields + \
-            abstractShape.edmShapeFields + abstractShape.edmFontFields
+            abstractShape.edmShapeFields + abstractShape.edmFontFields + abstractShape.edmVisFields
 
     V3propTable = {
         "2-1" : [ "indicatorColor", "indicatorAlarm", "fgColor", "fgAlarm", "bgColor", "readPv", "indicatorPv", "label", "labelType", "showScale",
