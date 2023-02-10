@@ -1,26 +1,35 @@
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # Module for generating a widget for a static text display class
 
-import pyedm.edmDisplay as edmDisplay
-from pyedm.edmWidget import edmWidget
+from .edmApp import edmApp
+from .edmWidget import edmWidget
+from .edmField import edmField
+from .edmEditWidget import edmEdit
 
-from PyQt4.QtGui import QPushButton, QPalette
-from PyQt4 import QtCore
-from PyQt4.QtCore import SIGNAL
+from PyQt5.QtWidgets import QPushButton
+from PyQt5.QtGui import QPalette
+from PyQt5 import QtCore
 
 class exitButtonClass(QPushButton, edmWidget):
+    menuGroup = ["control", "Exit Button"]
+    edmEntityFields = [
+            edmField("invisible", edmEdit.Bool, defaultValue=False),
+            edmField("label", edmEdit.String, defaultValue="EXIT"),
+            edmField("iconify", edmEdit.Bool, defaultValue=False),
+            edmField("exitProgram", edmEdit.Bool, defaultValue=False),
+            edmField("controlParent", edmEdit.Bool, defaultValue=False)
+            ] + edmWidget.edmFontFields
     def __init__(self, parent=None):
-        QPushButton.__init__(self, parent)
-        edmWidget.__init__(self, parent)
+        super().__init__(parent)
 
-    def buildFromObject(self, object):
-        edmWidget.buildFromObject(self,object)
-        self.invisible = object.getIntProperty("invisible", 0)
-        self.label = object.getStringProperty("label", "EXIT")
-        self.iconifyFlag = object.getIntProperty("iconify", 0)
-        self.exitProgram = object.getIntProperty("exitProgram", 0)
-        self.controlParent = object.getIntProperty("controlParent", 0)
-        self.connect(self, SIGNAL("clicked(bool)"), self.onClicked)
+    def buildFromObject(self, objectDesc, **kw):
+        super().buildFromObject(objectDesc, **kw)
+        self.invisible = objectDesc.getProperty("invisible")
+        self.label = objectDesc.getProperty("label")
+        self.iconifyFlag = objectDesc.getProperty("iconify")
+        self.exitProgram = objectDesc.getProperty("exitProgram")
+        self.controlParent = objectDesc.getProperty("controlParent")
+        self.clicked.connect(self.onClicked)
         self.fgColorInfo.setColor()
         self.bgColorInfo.setColor()
         self.setText(self.label)
@@ -34,10 +43,11 @@ class exitButtonClass(QPushButton, edmWidget):
 
     # push putton
     def onClicked(self, checked):
+        # To Do - exit screen if exitProgram False, else exit the program
         pass
 
     def redisplay(self):
         self.fgColorInfo.setColor()
         self.bgColorInfo.setColor()
 
-edmDisplay.edmClasses["activeExitButtonClass"] = exitButtonClass
+edmApp.edmClasses["activeExitButtonClass"] = exitButtonClass

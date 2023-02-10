@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # This module runs a shell command.
 
@@ -6,66 +7,77 @@
 # is the management of the macros, so that macro expansion occurs using
 # the correct macro set.
 #
+from builtins import range
 import os
 from threading import Thread
-import pyedm.edmDisplay as edmDisplay
-from pyedm.edmWidget import edmWidget
+from .edmApp import edmApp
+from .edmWidget import edmWidget
+from .edmField import edmField, edmTag
+from .edmEditWidget import edmEdit
 
-from PyQt4.QtGui import QPushButton, QMenu, QPalette
-from PyQt4.QtCore import SIGNAL
+from PyQt5.QtWidgets import QPushButton, QMenu
+from PyQt5.QtGui import QPalette
+#from PyQt5.QtCore import SIGNAL
 
 class popUpMenu(QMenu):
     def __init__(self, parent=None):
-        QMenu.__init__(self, parent)
+        super().__init__(parent)
 
 class shellThread(Thread):
     def __init__(self, cmd):
-        Thread.__init__(self)
+        super().__init__()
         self.cmd = cmd
 
     def run(self):
         os.system(self.cmd)
 
 class shellCmdClass(QPushButton,edmWidget):
+    menuGroup = [ "control", "Shell Command" ]
+    edmEntityFields = [
+            edmField("numCmds", edmEdit.Int, hidden=True),
+            edmField("command", edmEdit.String, array=True),
+            edmField("commandLabel", edmEdit.String, array=True),
+            edmField("buttonLabel", edmEdit.String),
+            edmField("invisible", edmEdit.Bool, defaultValue=False)
+            ] + edmWidget.edmFontFields
+    
     def __init__(self, parent=None):
-        QPushButton.__init__(self, parent)
-        edmWidget.__init__(self, parent)
+        super().__init__(parent)
 
-    def setV3PropertyList(classRef, values, tag):
+    def setV3PropertyList(classRef, values, obj):
         for name in [ "INDEX", "fgColor", "INDEX", "bgColor", "INDEX", "topShadowColor", "INDEX", "botShadowColor",
             "command0", "buttonLabel", "font", "invisible", "closeDisplay", "autoExecPeriod", "multipleInstances",
             "initialDelay", "password", "lock", "label0", "numCmds" ]:
-            tag[name] = values.pop(0)
+            obj.addTag(name, values.pop(0))
 
-        cmd = [tag['command0'] ]
-        label = [tag['label0'] ]
-        for idx in range(1, int(tag['numCmds']) ):
-            cmd.append( value.pop(0))
-            label.append( value.pop(0) )
+        cmd = [obj.tags['command0'].value ]
+        label = [obj.tags['label0'].value ]
+        for idx in range(1, int(tag['numCmds']).value ):
+            cmd.append( values.pop(0))
+            label.append( values.pop(0) )
 
-        tag['commandLabel'] = label
-        tag['command'] = cmd
+        obj.addTag( "commandLabel", label)
+        obj.addTag("command", cmd)
 
-        tag['requiredHostName'] = value.pop(0)
+        obj.addTag( "requiredHostName", values.pop(0))
             
-    def buildFromObject(self, object):
-        edmWidget.buildFromObject(self,object)
-        self.update()
-        name = self.object.getStringProperty("buttonLabel", None)
+    def buildFromObject(self, objectDesc, **kw):
+        super().buildFromObject(objectDesc, **kw)
+        name = self.objectDesc.getProperty("buttonLabel")
         if name != None:
             self.setText(name)
-        if self.object.getIntProperty("invisible",0) == 1:
-            self.transparent = 1
+        if self.objectDesc.getProperty("invisible"):
+            self.transparent = True
             self.setFlat(1)
                                             
-        self.numCmds = object.getIntProperty("numCmds")
-        self.cmdLabel = object.decode("commandLabel", self.numCmds)
-        self.command = object.decode("command", self.numCmds)
+        self.numCmds = objectDesc.getProperty("numCmds")
+        self.cmdLabel = objectDesc.getProperty("commandLabel", arrayCount=self.numCmds)
+        self.command = objectDesc.getProperty("command", arrayCount=self.numCmds)
         self.threads = [None]*self.numCmds
         if self.cmdLabel == None:
             self.cmdLabel = self.command
         if len(self.cmdLabel) == 1:
-            self.connect(self, SIGNAL("pressed()"), self.onPress)
+            self.pressed.connect(self.onPress)
         else:
             self.newmenu = popUpMenu(self)
             self.setMenu(self.newmenu)
@@ -84,8 +96,9 @@ class shellCmdClass(QPushButton,edmWidget):
         self.onMenu(0)
 
     def onMenu(self, idx):
-        print "onMenu(", idx , ")"
-        if self.threads[idx] and self.threads[idx].isAlive():
+        print(f"onMenu({idx}) => {self.command[idx]}")
+        if self.threads[idx] and self.threads[idx].is_alive():
+            print("Unable to run multiple instances of {self.command[idx]}")
             # To Do. Support for multiple "exec's" of a command.
             return
 
@@ -95,8 +108,8 @@ class shellCmdClass(QPushButton,edmWidget):
         self.threads[idx].start()
 
     def lostChild(self, childIdx):
-        print "lost child", childIdx
+        print("lost child", childIdx)
         self.widgets[childIdx] = None
         
-edmDisplay.edmClasses["shellCmdClass"] = shellCmdClass
+edmApp.edmClasses["shellCmdClass"] = shellCmdClass
 

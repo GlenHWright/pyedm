@@ -11,65 +11,157 @@
 # macro list is displayed.
 #       numDsps > 0; displaySource == "menu"
 
-import pyedm.edmDisplay as edmDisplay
-from pyedm.edmApp import redisplay
-from pyedm.edmScreen import edmScreen
-from pyedm.edmWidget import edmWidget
-import pyedm.edmWindowWidget as edmWindowWidget
-import pyedm.edmColors as edmColors
-from pyedm.edmEditWidget import edmEdit
+from enum import Enum
 
-from PyQt4 import QtCore, QtGui
-from PyQt4.QtGui import QWidget, QFrame, QScrollArea
+from .edmApp import redisplay, edmApp
+from .edmWidget import edmWidget, pvItemClass
+from .edmWindowWidget import edmWindowWidget, generateWidget, mousePressEvent, mouseReleaseEvent, mouseMoveEvent
+from . import edmColors
+from .edmField import edmField, edmTag
+from .edmEditWidget import edmEdit, edmEditField
+from .edmProperty import converter
 
-class scrolledWidget(QWidget, edmWidget):
+from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QWidget, QFrame, QScrollArea
+
+class edmEditPIP(edmEdit.SubScreen):
+    def __init__(self, *args, **kw):
+        super().__init__(*args, **kw)
+        self.colvalue = {}
+        self.newtags = {}
+        self.numDsps = self.widget.numDsps
+        for idx, fld in enumerate(self.edmfield.group):
+            self.colvalue[idx] = self.widget.objectDesc.getProperty(fld.tag, arrayCount=self.numDsps).copy()
+
+    def buildLayout(self):
+        layout = QtWidgets.QGridLayout()
+        # add column headers, and create the array of values
+        for idx, fld in enumerate(self.edmfield.group):
+            label = QtWidgets.QLabel(fld.tag)
+            label.setFrameShape(QtWidgets.QFrame.Panel|QtWidgets.QFrame.Sunken)
+            layout.addWidget(label, 0, idx)
+
+        for row in range(self.numDsps):
+            for idx, fld in enumerate(self.edmfield.group):
+                tagw = fld.editClass(fld.tag, fld, self.widget, **fld.editKeywords)
+                w = tagw.showEditWidget(self.colvalue[idx][row]).nolabel()
+                layout.addWidget(w, row+1, idx)
+                tagw.newValue.connect(lambda tag, value, row=row,col=idx:self.onNewValue(tag,value,row,col))
+            remove = QtWidgets.QPushButton("Remove")
+            layout.addWidget(remove, row+1, len(self.edmfield.group))
+            remove.clicked.connect(lambda clicked, rmRow=row: self.removeRow(rmRow))
+        addrow = QtWidgets.QPushButton("Add Display")
+        layout.addWidget(addrow, self.numDsps+1, 0)
+        addrow.clicked.connect(self.addRow)
+
+        return layout
+
+    def removeRow(self, curveNum):
+        ''' removeRow - copy the gridlayout to a new gridlayout,
+            ignoring the row to be deleted.
+        '''
+        print(f"edmEditCurveConfig removeRow {curveNum}")
+        for idx in range(len(self.colvalue)):
+            self.colvalue[idx].pop(curveNum)
+            self.numDsps -= 1
+        layout = self.buildLayout()
+        self.changeLayout(layout)
+        self.newtags["numDsps"] = self.numDsps
+
+
+    def addRow(self):
+        print(f"edmEditCurveConfig {self} addRow")
+        self.numDsps += 1
+        for idx, fld in enumerate(self.edmfield.group):
+            self.colvalue[idx].append(converter(edmTag(fld.tag, fld.defaultValue), fld, None))
+            self.onNewValue(fld.tag, self.colvalue[idx][-1], self.numDsps-1, idx)
+        layout = self.buildLayout()
+        self.changeLayout(layout)
+        self.newtags["numDsps"] = self.numDsps
+
+    def onNewValue(self, tag, value, row, col):
+        print(f"onNewValue {tag} {value} {row} {col}")
+        if tag not in self.newtags.keys():
+            self.newtags[tag] = self.colvalue[col]
+        try:
+            self.newtags[tag][row] = value
+        except IndexError:
+            self.newtags[tag].append(value)
+
+    def onApply(self):
+        print(f"onApply {self.newtags}")
+        for tag,value in self.newtags.items():
+            self.newValue.emit(tag,value)
+
+    def onDone(self):
+        print(f"onDone {self.newtags}")
+        for tag,value in self.newtags.items():
+            self.newValue.emit(tag,value)
+        edmEdit.SubScreen.onDone(self)
+
+class scrolledWidget(edmWindowWidget):
     def __init__(self, parent=None):
-        QWidget.__init__(self, parent)
-        edmWidget.__init__(self, parent)
+        super().__init__(parent)
+        self.edmParent=parent
         self.parentx = 0
         self.parenty = 0
         self.scr = None
         self.buttonInterest = []
-        self.edmParent.buttonInterest.append(self)
+        if parent:
+            self.edmParent.buttonInterest.append(self)
+
+    def edmCleanup(self):
+        try:
+            self.edmParent.buttonInterest.remove(self)
+        except (AttributeError,IndexError):
+            pass    # parents may remove buttonintest
+        self.edmParent = None
+        self.buttonInterest = []
+        super().edmCleanup()
 
     def mousePressEvent(self, event):
-        edmWindowWidget.mousePressEvent(self, event, self.getEditMode() )
-
-    def mouseReleaseEvent(self, event):
-        edmWindowWidget.mouseReleaseEvent(self, event, self.getEditMode() )
+        # strange operation - the scroll widget catches mouse
+        # events before the top-level window. To translate,
+        # the mouse positions have to be rewritten.
+        # Currently, this does NOT capture the mouse events!
+        mousePressEvent(self, event)
 
 class activePipClass(QScrollArea,edmWidget):
+    menuGroup = [ "display", "PIP"]
+    buildPipEnum =   Enum("buildPip", "stringPV file menu", start=0 )
+    buildPipList = {
+                buildPipEnum(0): "buildPipStringPV",
+                buildPipEnum(1): "buildPipFile",
+                buildPipEnum(2): "buildPipMenu" }
+    edmEntityFields = [
+            edmField("topShadowColor", edmEdit.Color),
+            edmField("botShadowColor", edmEdit.Color),
+            edmField("displaySource", edmEdit.Enum, enumList=buildPipEnum, defaultValue="stringPV"),
+            edmField("filePv", edmEdit.PV),
+            edmField("labelPv", edmEdit.PV),
+            edmField("file", edmEdit.String),
+            edmField("center", edmEdit.Int, defaultValue=0),
+            edmField("setSize", edmEdit.Int, defaultValue=0),
+            edmField("sizeOfs", edmEdit.Int, defaultValue=0),
+            edmField("numDsps", edmEdit.Int, defaultValue=0),
+            edmField("edit Menu", edmEditPIP, group = [
+                edmField("displayFileName", edmEdit.String, array=True),
+                edmField("menuLabel", edmEdit.String, array=True),
+                edmField("symbols", edmEdit.String, array=True),
+                edmField("replaceSymbols", edmEdit.Bool, array=True),
+                edmField("propagateMacros", edmEdit.Bool, array=True),
+                edmField("noScroll", edmEdit.Bool),
+                ] ),
+            edmField("ignoreMulitplexors", edmEdit.Bool)
+            ]
     V3propTable = {
         "1-0" : [ "INDEX", "fgColor", "INDEX", "bgColor", "INDEX", "topShadowColor", "INDEX", "botShadowColor",
-            "filePV", "file" ]
+            "filePv", "file" ]
             }
-
-    edmEditList = [
-        edmEdit.Enum(label="Display Source", object="displaySource", enumList=[ "String PV", "Form", "Menu" ] ),
-        edmEdit.StringPV("PV", "filePV.getTrueName"),
-        edmEdit.StringPV("Label PV", "labelPV.getTrueName"),
-        edmEdit.String("Display File Name", "file"),
-        edmEdit.CheckButton("Center", "center"),
-        edmEdit.CheckButton("Set Size", "setSize"),
-        edmEdit.Int("Size Ofs", "numDsps") ,
-
-        edmEdit.SubScreen("Menu Info",
-            [
-                [ lambda: edmEdit.String( "Label", defValue="", getter=lambda widget, index, **kw: widget.getLabel(index=index, **kw)),
-                  lambda: edmEdit.String( "File", defValue="", getter=lambda widget,index, **kw: widget.getFile(index=index, **kw )),
-                  lambda: edmEdit.String( "Macros", defValue="", getter=lambda widget, index, **kw: widget.getSymbols(index=index, **kw )) ],
-                [ lambda: edmEdit.Enum(label="Mode", defValue="Append", getter=lambda widget, index, **kw: widget.getReplaceSymbols(index=index, **kw), enumList=[ "Append", "Replace" ] ) ,
-                  lambda: edmEdit.CheckButton("Propagate", defValue=0, getter=lambda widget, index, **kw: widget.getPropagate(index=index, **kw)) ]
-            ], count=20 ),
-        edmEdit.FgColor(),
-        edmEdit.BgColor()
-        ]
-
     def __init__(self, parent=None):
-        QScrollArea.__init__(self, parent)
-        edmWidget.__init__(self, parent)
-        self.pvItem["filePv"] = [ "PVname", "filePV", 0 ]
-        self.pvItem["labelPv"] = [ "PVlabel", "labelPV", 0 ]
+        super().__init__(parent)
+        self.pvItem["filePv"] = pvItemClass( "PVname", "filePV")
+        self.pvItem["labelPv"] = pvItemClass( "PVlabel", "labelPV")
         self.setLineWidth(2)
         self.setFrameShape(QFrame.Panel|QFrame.Sunken)
         self.parentx = 0
@@ -79,55 +171,73 @@ class activePipClass(QScrollArea,edmWidget):
         self.buttonInterest = []
         self.edmParent.buttonInterest.append(self)
 
-    def cleanup(self):
+    def edmCleanup(self):
         '''remove references to other items.'''
-        edmWidget.cleanup(self)
+        scrollable =  self.scrollable
+        self.scrollable = None
+        if scrollable:
+            scrollable.edmCleanup()
+            self.buttonInterest.clear()
+            try:
+                self.edmParent.buttonInterest.remove(self)
+            except ValueError:
+                pass    # widgets may clear buttonInterest before calling child edmCleanup()
+        super().edmCleanup()
 
-    def buildFromObject(self, object):
-        # object.tagValue["bgColor"] = "builtin:transparent"  # edm PIP uses parent's background color.
-        edmWidget.buildFromObject(self, object,attr=None)
+    def buildFromObject(self, objectDesc, **kw):
+        rebuild = kw.get('rebuild', False)
+        if not rebuild:
+            objectDesc.addTag("bgColor", "builtin:transparent")  # edm PIP uses parent's background color - not quite the same...
+        kw['attr'] = None
+        super().buildFromObject( objectDesc, **kw)
 
         self.scrollable = scrolledWidget(self)
-        self.displaySource = object.getStringProperty("displaySource", "stringPV")
-        self.numDsps = object.getIntProperty("numDsps", 0)
-        if self.displaySource in buildPipList:
-            getattr(self,buildPipList[self.displaySource])()
+        self.displaySource = objectDesc.getProperty("displaySource", "stringPV")
+        self.numDsps = objectDesc.getProperty("numDsps", 0)
+        if self.displaySource in self.buildPipList:
+            getattr(self,self.buildPipList[self.displaySource])()
 
     def setupScreen(self, filename, mt):
         '''setupScreen is called each time a file is selected for display'''
-        self.scr = edmScreen( filename, mt, self.findDataPaths() )
+        print(f"pip opening {filename}")
+        self.scr = edmApp.edmScreen( filename, mt, self.findDataPaths() )
         if len(self.scr.objectList) == 0:
             return
         self.scrollable.macroTable = mt
-        edmDisplay.generateWidget(self.scr, self.scrollable)
-        self.scrollable.setGeometry(0,0, int(self.scr.tagValue["w"]), int(self.scr.tagValue["h"]) )
+        generateWidget(self.scr, self.scrollable)
+        self.scrollable.edmScreen = self.scr
+        w,h = int(self.scr.tags["w"].value), int(self.scr.tags["h"].value)
+        self.scrollable.setGeometry(0,0, int(w*edmApp.rescale), int(h*edmApp.rescale) )
         self.setWidget(self.scrollable)
         # over-ride the widget's color info with what the screen has available.
         pal = self.scrollable.palette()
         try:
-            self.scrollable.fgColor = edmColors.findColorRule(self.scr.tagValue["fgColor"])
-            pal.setColor( self.foregroundRole(), self.scrollable.fgColor.getColor())
+            self.fgColor = edmColors.findColorRule(self.scr.tags["fgColor"].value)
+            pal.setColor( self.foregroundRole(), self.fgColor.getColor())
         except:
             pass
         try:
-            self.scrollable.bgColor = edmColors.findColorRule(self.scr.tagValue["bgColor"])
-            pal.setColor( self.backgroundRole(), self.scrollable.bgColor.getColor())
+            self.bgColor = edmColors.findColorRule(self.scr.tags["bgColor"].value)
+            pal.setColor( self.backgroundRole(), self.bgColor.getColor())
         except:
             pass
         self.scrollable.setPalette(pal)
-
+        pal = self.palette()
+        pal.setColor( self.backgroundRole(), self.bgColor.getColor())
+        self.setPalette(pal)
         self.scrollable.show()
         self.scrollable.update()
 
     def buildPipFile(self):
-        self.setupScreen( self.macroExpand(self.object.getStringProperty("file")), self.findMacroTable())
+        self.setupScreen( self.macroExpand(self.objectDesc.getProperty("file")), self.findMacroTable())
 
     def buildPipMenu(self):
         '''build screens based on a menu selection'''
-        self.filenames = self.object.decode("displayFileName",self.numDsps, "")
+        self.filenames = self.objectDesc.getProperty("displayFileName", arrayCount=self.numDsps, defValue="")
         if self.filenames == None:
             return
-        self.symbollist = self.object.decode("symbols",self.numDsps, "")
+        self.symbollist = self.objectDesc.getProperty("symbols", arrayCount=self.numDsps, defValue="")
+        self.menuLabels = self.objectDesc.getProperty("menuLabel", arrayCount=self.numDsps, defValue="")
         basemt = self.findMacroTable()
         self.filenames = [ basemt.expand(fn) for fn in self.filenames]
         if self.symbollist == None:
@@ -174,64 +284,18 @@ class activePipClass(QScrollArea,edmWidget):
             self.setVisible(self.visible)
         if self.fileFromPV == "":
             return
+        # PIP has changed - remove old screen
         self.scrollable.hide()
         for child in self.scrollable.children():
-            if self.DebugFlag > 0 : print "redisplay: cleanup", child
+            if self.debug() : print("redisplay: cleanup", child)
             if not child.isWidgetType() : continue
-            child.cleanup()
+            child.edmCleanup()
             child.edmParent = None
             child.setParent(None)
             child.deleteLater()
         self.scrollable.buttonInterest = []
         self.setupScreen( self.fileFromPV, self.selectMt)
 
-    def getFile(self, index=None, defValue=None):
-        try:
-            return self.rawFileList[index]
-        except:
-            if self.DebugFlag > 0 : print "return default", defValue
-            return defValue
 
-    def getLabel(self, index=None, defValue=None):
-        try:
-            return self.rawMenuLabel[index]
-        except:
-            return defValue
-
-    def getSymbols(self, index=None, defValue=None):
-        try:
-            return self.rawSymbols[index]
-        except:
-            return defValue
-
-    def getReplaceSymbols(self, index=None, defValue=None):
-        try:
-            return self.replaceSymbols[index]
-        except:
-            return defValue
-
-    def getPropagate(self, index=None, defValue=None):
-        try:
-            return self.propagateMacros[index]
-        except:
-            return defValue
-
-    def setEditMode(self, filter):
-        self.rawFileList = self.object.decode("displayFileName",self.numDsps, "")
-        self.rawMenuLabel = self.object.decode("menuLabel",self.numDsps, "")
-        self.rawSymbols = self.object.decode("symbols",self.numDsps, "")
-        self.replaceSymbols = self.object.decode("replaceSymbols",self.numDsps, "Append")
-        self.propagateMacros = self.object.decode("propagateMacros",self.numDsps, 0)
-        self.scrollable.setDisabled(True)
-        self.scrollable.installEventFilter(filter)
-        self.setDisabled(True)
-        self.installEventFilter(filter)
-
-    def setExecuteMode(self):
-        self.scrollable.setEnabled(True)
-        self.setEnabled(True)
-
-buildPipList = {  "stringPV":"buildPipStringPV",  "file": "buildPipFile", "menu": "buildPipMenu" }
-
-edmDisplay.edmClasses["activePipClass"] = activePipClass
+edmApp.edmClasses["activePipClass"] = activePipClass
 

@@ -1,92 +1,193 @@
-# Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
-from PyQt4 import QtGui, QtCore
-from PyQt4.QtCore import Qt, QEvent, QObject
-from PyQt4.Qt import QApplication, QClipboard
-from PyQt4.QtGui import QMenu
-from edmWidgetSupport import edmWidgetSupport
-from edmWidget import edmWidget
-from edmEditWidget import edmEditWidget
-# from __future__ import print_function
-# A simple top-level widget, and support for managing mouse buttons.
+# Copyright 2022 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
+#
+# MODULE LEVEL: high
+#
+# This is a high-level module
+# called from __init__ and edmAbstractSymbol
+# referenced by edmWindowWidget
+#
+#
+# Handles top-level EDM windows, and has common routines to support mouse events
 #
 
-class edmWindowWidget(QtGui.QWidget, edmWidgetSupport):
-    '''Widget that manages mouse clicks on behalf of children'''
-    def __init__(self, parent=None):
-        QtGui.QWidget.__init__(self, parent)
-        edmWidgetSupport.__init__(self)
-        self.editMode = False            # edit mode might be able to work 'better' in pyEdm, but need to support saving embedded windows!
-        self.selectedWidget = []      # set to the edmWidget entry that's been selected in edit mode; must be a descendant of this widget.
-        self.focusedWidget = None       # if hovering over a widget, check that we're still over the same widget.
-        self.propertyWindow = None      # the propertyWindow for selectedWidget
-        self.buttonInterest = []
-        self.backgroundMenuEdit = edmBackgroundMenuHandler(parent=self, edit=True)
-        self.backgroundMenuRun = edmBackgroundMenuHandler(parent=self, edit=False)
+from enum import Enum
+
+from PyQt5 import QtGui, QtCore, QtWidgets
+from PyQt5.QtCore import Qt
+from PyQt5.Qt import QApplication, QClipboard
+
+from .edmApp import edmApp
+from .edmScreen import edmScreen
+from .edmWidgetSupport import edmWidgetSupport
+from .edmParentSupport import edmParentSupport, showBackgroundMenu
+from .edmWidget import edmWidget
+from .edmEditWidget import edmRubberband, edmEdit
+from .edmColors import findColorRule
+from .edmField import edmField, edmTag
+#
+# A simple top-level widget, and support for managing mouse buttons.
+# This module also contains generic mouse support routines that
+# are called from numerous different widgets.
+#
+
+class edmWindowWidget(QtWidgets.QWidget, edmWidgetSupport, edmParentSupport):
+    '''edmWindowWidget - top-level window widget for an edm screen.
+        manage mouse clicks on behalf of children'''
+    def __init__(self, parent=None, **kwargs):
+        super().__init__(parent, **kwargs)
+
+    def __repr__(self):
+        return f"<edmWindowWidget {self.windowTitle()}>"
+
+    def getProperty(self, *args, **kw):
+        return self.edmScreenRef.getProperty(*args, **kw)
+
+    def checkProperty(self, *args, **kw):
+        return self.edmScreenRef.checkProperty(*args, **kw)
+
+    def updateTags(self, tags):
+        ''' updateTags(tags) - rebuild the screens tags from the tag list provided.
+        '''
+        for tag in tags.values():
+            self.edmScreenRef.tags[tag.tag] = tag
+        self.setDisplayProperties()
+
+
+    def generateWindow(self, screen, *, myparent=None, macroTable=None, dataPaths=None):
+        '''generateWindow - fill in self with widgets from objects in 'screen' list'''
+        if edmApp.debug() : print("generateWindow", screen, "Parent:", myparent, "macroTable:", macroTable)
+        if myparent:
+            self.edmParent = myparent
+        self.dataPaths = dataPaths
+        self.edmScreenRef = screen
+        if myparent != None and macroTable == None:
+            self.macroTable = getattr(myparent, "macroTable", None)
+        else:
+            self.macroTable = macroTable
+        # To Do: get "x y w h " here
+        #
+        self.setDisplayProperties()
+        self.parentx = 0
+        self.parenty = 0
+        generateWidget(screen, self)
+        self.show()
+        if edmApp.debug() : print("done generateWindow")
+        return self
+    
+    def setDisplayProperties(self):
+        pal = self.palette()
+        self.fgRule = self.getProperty("fgColor")
+        if self.fgRule:
+                pal.setColor( self.foregroundRole(), self.fgRule.getColor() )
+
+        self.bgRule = self.getProperty("bgColor")
+        if self.bgRule:
+                pal.setColor( self.backgroundRole(), self.bgRule.getColor() )
+
+        title = self.getProperty("title")
+        if title != "":
+            self.setWindowTitle("PyEdm - " + self.macroExpand(title))
+        else:
+            self.setWindowTitle("PyEdm - " + self.getProperty("Filename"))
+        self.setPalette(pal)
+
+    def getParentScreen(self):
+        try:
+            return self.edmParent.getParentScreen()
+        except AttributeError:
+            # this can be no edmParent or None edmParent
+            pass
+        return self
+
+    def saveToFile(self, *args, **kw):
+        self.edmScreenRef.saveToFile(*args, **kw)
 
     def mousePressEvent(self, event):
-        mousePressEvent(self, event, editMode=self.editMode)
+        mousePressEvent(self, event)
 
     def mouseReleaseEvent(self, event):
-        mouseReleaseEvent(self, event, editMode=self.editMode)
+        mouseReleaseEvent(self, event)
 
     def mouseMoveEvent(self, event):
-        # in edit mode, if selectedWidget set, then adjust the widget's position
-        if self.editMode:
-            if len(self.selectedWidget) == 0: return
-            event.accept()
-            return
-        # in normal mode, check hover possibilities
-        pass
-        event.accept()
+        mouseMoveEvent(self, event)
 
-    def getEditMode(self):
-        return self.editMode
-
-    def setEditMode(self, filter=None):
-        '''don't install filter on 'self', as the mouse event is used to trigger
-           the menu for switching to execute mode
+    def closeEvent(self, event):
+        ''' before closing a window, give all
+            widgets a chance to clean up.
         '''
-        self.editMode = True
-        self.filter = edmEditMouseFilter()
-        for ch in self.children():
-            ch.setEditMode(self.filter)
+        if edmApp.debug(1) : print(f"closeEvent: cleaning up {self}")
+        self.edmCleanup()
+        event.accept()
+        if edmApp.debug() : print("done closeEvent")
 
-    def setExecuteMode(self):
-        self.editMode = False
-        for ch in self.children():
-            ch.setExecuteMode()
-        self.filter = None
+    def edmCleanup(self):
+        # To Do: add check for unsaved changes
+        #
+        if edmApp.debug(1) : print(f"edmCleanup {self}")
+        try:
+            self.edmParent.edmCleanupChild(self)
+        except AttributeError:
+            pass
+        self.edmParent = None
+        self.selectedWidget = None
+        self.focusedWidget = None
+        self.buttonInterest.clear()
+        self.edmEditList.clear()
 
-# NOTE: this is code that is also called from classes that don't inherit edmWindowWidget
-# if it could be made to work properly in edmWidgetSupport (I didn't have success with that)
-# then it could be moved there.
-#
-def mousePressEvent(widget, event, editMode=False):
+        for child in self.children():
+            try:
+                child.edmCleanup()
+            except AttributeError as exc:
+                print(f"WindowWidget closeEvent: child {child} lacking edmCleanup! {exc}")
+        try:
+            edmApp.windowList.remove(self)
+        except ValueError as exc:
+            if edmApp.debug() : print(f"Unable to remove windowWidget {self} from window list -- already gone!")
+
+        self.destroy()
+
+    def getEditPropertiesList(self):
+        return self.edmScreenRef.edmFieldList
+
+    @staticmethod
+    def buildNewWindow():
+        ''' buildNewWindow - create a new empty window.
+        '''
+        screen = edmScreen()
+        parent = edmWindowWidget()
+        for field in edmScreen.edmFieldList:
+            screen.addTag(field.tag, field.defaultValue)
+
+        screen.addTag("Filename", "**NEW**")
+        screen.addTag("Class", "Screen")
+        window = generateWindow(screen, macroTable=edmApp.macroTable)
+        edmApp.windowList.append(window)
+
+def mousePressEvent(widget, event):
+    # handle mouse press events.
     debug = getattr(widget, "DebugFlag", 0)
 
+    if debug > 0: print(f"mousePressEvent({widget},{event},{event.pos()},{widget.editMode()}")
 
-    if editMode:
-        if not hasattr(widget, "selectedWidget"):
-            return  # don't accept the event, this should punt the request to a different widget
-        # if right mouse in edit mode, only allow menu selection
-        if event.button() == Qt.RightButton:
-            widget.backgroundMenuEdit.displayMenu(widget, event)
-            event.accept()
-            return
-        # check if clicking a selected widget. If so, then bring up the properties window.
+    # if in rubberband mode, pass the event along.
+    if widget.rubberband and widget.editMode(check="none"):
+        if widget.rubberband.mousePressEvent(event) == False:
+            widget.rubberband.inactive()
+            widget.rubberband = None
+            widget.editMode(value="none")
+        event.accept()
+        return
+
+    if event.button() == Qt.LeftButton and not widget.editMode(check="none"):
+        # making a selection in one of the edit modes.
+
+        if debug > 0 : print(f"clicked edit={widget.editModeValue} RB={widget.rubberband}")
+        # check if clicking a widget. If so, then bring up the properties window.
         pos = event.pos()
-        search = True
-        if len(widget.selectedWidget) > 0:
-            if widget.selectedWidget[0].geometry().contains(pos):
-               widget.propertyWindow = widget.selectedWidget[0].edmEditWidget(widget)
-               widget.propertyWindow.show()
-               search = False
-        if search:
-            widget.selectedWidget = []
-            for ch in widget.children():
-                if isinstance(ch, edmWidget) and not ch.isWindow() and ch.geometry().contains(pos):
-                    widget.selectedWidget.append(ch)
+        findActionWidget(widget, pos, debug=debug)   # ignore return value; widget.selectedWidget already set
 
+        if widget.selectedWidget == None and not widget.editMode(check="none"):
+            print(f"didn't select widget - try again!")
 
         event.accept()
         return
@@ -96,40 +197,60 @@ def mousePressEvent(widget, event, editMode=False):
             event.accept()
             return
 
-
     found = False
     # need a list of widgets that might be interested in mouse clicks.
     pos = event.pos()
     # additional code needed here for Mac systems. See childAt_helper() in gui/kernel/qwidget.cpp
     for ch in widget.buttonInterest:
-        if ch.isWidgetType() and not ch.isWindow() and not ch.isHidden() and ch.geometry().contains(pos):
+        if ch.isWindow() or ch.isHidden():  # ignore these children
+            continue
+        if ch.isWidgetType() and ch.geometry().contains(pos):
             point = ch.mapFromParent(pos)
             if ch.focusPolicy() != Qt.NoFocus:
-                if debug>0 : print "Changing focus to:", ch
+                if debug>0 : print("Changing focus to:", ch)
                 ch.setFocus()
-            ch.mousePressEvent( QtGui.QMouseEvent(event.type(), point, event.globalPos(), event.button(), event.buttons(), event.modifiers() ) )
-            found = True
+            chEvent =  QtGui.QMouseEvent(event.type(), point, event.globalPos(), event.button(), event.buttons(), event.modifiers() ) 
+            ch.mousePressEvent( chEvent)
+            if chEvent.isAccepted():
+                found = True
+                break
 
+    if debug > 0 : print(f"found:{found} accepted:{event.isAccepted()} button:{event.button()}")
     if found:
         event.accept()
         return
-    # if a right button click, generate an "edm" menu
+    # if a right button click, and not otherwise taken by a child widget, generate an "edm" menu
     if event.button() == Qt.RightButton:
-        try:
-            widget.backgroundMenuRun.displayMenu(widget, event)
-            event.accept()
-        except:
-            pass
+        showBackgroundMenu(widget, event)
+        event.accept()
         return
     # Potential: evaluate other mouse clicks that didn't get a widget
 
-def mouseReleaseEvent(widget, event, editMode=False):
-        pos = event.pos()
-        for ch in widget.buttonInterest:
-            if ch.isWidgetType() and not ch.isWindow() and not ch.isHidden() and ch.geometry().contains(pos):
-                point = ch.mapFromParent(pos)
-                ch.mouseReleaseEvent( QtGui.QMouseEvent(event.type(), point, event.globalPos(), event.button(), event.buttons(), event.modifiers() ) )
+def mouseReleaseEvent(widget, event):
+    if widget.rubberband:
+        widget.rubberband.mouseReleaseEvent(event)
         event.accept()
+        return
+    pos = event.pos()
+    for ch in widget.buttonInterest:
+        if ch.isWidgetType() and not ch.isWindow() and not ch.isHidden() and ch.geometry().contains(pos):
+            point = ch.mapFromParent(pos)
+            ch.mouseReleaseEvent( QtGui.QMouseEvent(event.type(), point, event.globalPos(), event.button(), event.buttons(), event.modifiers() ) )
+    event.accept()
+
+def mouseMoveEvent(widget, event):
+    # if we're moving or resizing a widget, the rubberband should take this event
+    if widget.rubberband != None:
+        widget.rubberband.mouseMoveEvent(event)
+        event.accept()
+        return
+    pos = event.pos()
+    for ch in widget.buttonInterest:
+        if ch.isWidgetType() and not ch.isWindow() and not ch.isHidden() and ch.geometry().contains(pos):
+            point = ch.mapFromParent(pos)
+            ch.mouseMoveEvent( QtGui.QMouseEvent(event.type(), point, event.globalPos(), event.button(), event.buttons(), event.modifiers() ) )
+    # TODO: in normal mode, check hover possibilities
+    event.accept()
 
 # If a middle button click, then try and find a child under the mouse pointer.
 # if the child has "buttonInterest" attribute, then recurse
@@ -139,17 +260,25 @@ def findDragName(widget, pos):
     for ch in childlist:
         if not ch.isWidgetType() or ch.isWindow() or ch.isHidden() or ch.geometry().contains(pos) == 0:
             continue
-        if hasattr(ch, "buttonInterest"):
-            if findDragName(ch, ch.mapFromParent(pos)):
-                return True
-        if hasattr(ch, "pvItem") == False:
-            continue
+        try:
+            if hasattr(ch, "buttonInterest"):
+                if findDragName(ch, ch.mapFromParent(pos)):
+                    return True
+            if hasattr(ch, "pvItem") == False:
+                continue
+        except AttributeError:
+            # some reimplementations of getattr make a recursive call to hasattr
+            pass
         for item in ch.pvItem.values():
-            pv = getattr(ch, item[1], None)
+            # This tests whether a particular PV was assigned when creating the widget.
+            pv = getattr(ch, item.attributePV, None)
             if pv == None:
                 continue
 
-            name = QtCore.QString(pv.getPVname())
+            # Note - this returns the name used for the connection, not the name
+            # before any macro expansion. This allows the name to be used directly
+            # in copy and paste.
+            name = pv.getPVname()
             QApplication.clipboard().setText(name, QClipboard.Clipboard);
             QApplication.clipboard().setText(name, QClipboard.Selection);
 
@@ -172,82 +301,104 @@ def findDragName(widget, pos):
             return True
     return False
 
-class edmBackgroundMenuHandler(QMenu):
-    def __init__(self, parent, edit=False):
-        QMenu.__init__(self)
-        self.parent = parent
-        if edit:
-            self.setEditActions()
-        else:
-            self.setRunActions()
+def findEdmChildren(widget, pos):
+    '''return a list of edm children at all levels of this widget'''
+    widgetlist = []
+    for ch in widget.children():
+        if edmApp.debug() : print(f"check widget {widget} child {ch} point {pos} geometry {getattr(ch, 'geometry', lambda:'-')()}")
+        if isinstance(ch, edmWidget) and not ch.isWindow() and ch.geometry().contains(pos):
+            widgetlist.append(ch)
+            widgetlist += findEdmChildren(ch, ch.mapFrom(widget,pos))
 
-    def setEditActions(self):
-        self.addAction("Execute", self.onExecute)
-        self.addAction("Save", self.onExecute)
-        self.addAction("Save To Current Path", self.onExecute)
-        self.addAction("Save As...", self.onExecute)
-        self.addAction("Select All", self.onExecute)
-        self.addAction("Paste (v)", self.onExecute)
-        self.addAction("Paste in Place (V)", self.onExecute)
-        self.addAction("Display Properties", self.onExecute)
-        self.addAction("Close", self.onExecute)
-        self.addAction("Open...", self.onExecute)
-        self.addAction("Load Display Scheme...", self.onExecute)
-        self.addAction("Save Display Scheme...", self.onExecute)
-        self.addAction("Auto Make Symbol", self.onExecute)
-        self.addAction("Edit Outliers", self.onExecute)
-        self.addAction("Find Main Window", self.onExecute)
-        self.addAction("Undo (z)", self.onExecute)
-        self.addAction("Print...", self.onExecute)
-        self.addAction("Refresh", self.onExecute)
-        self.addAction("Help", self.onExecute)
+    return widgetlist
 
-    def setRunActions(self):
-        self.addAction("Edit", self.onEdit)
-        self.addAction("Open...", self.onEdit)
-        self.addAction("Close", self.onEdit)
-        self.addAction("Toggle Title", self.onEdit)
-        self.addAction("Find Main Window", self.onEdit)
-        self.addAction("Print...", self.onEdit)
-        self.addAction("Refresh", self.onEdit)
-
-    def displayMenu(self, widget=None, event=None):
-        self.exec_(event.globalPos() )
-
-    def onExecute(self):
-            self.parent.setExecuteMode()
-
-    def onEdit(self):
-            self.parent.setEditMode()
-
-
-#
-# The challenge: mouse clicks almost always get eaten by the child, and not propogated to the parent. This is the expected result in "execute" mode,
-# but not in "edit". This takes a captured mouse event and propogates the Press and Release events to the highest object.
-#
-class edmEditMouseFilter(QObject):
-    '''when installed, throws away all mouse events
+def findActionWidget(parent, pos, debug=0):
+    ''' findActionWidget - checks to see if there's a widget under the global position 'pos'
+            that is a child of parent. Uses 'findEdmChildren'.
     '''
-    def __init__(self):
-        QObject.__init__(self)
+    widgetlist = findEdmChildren(parent, pos)
+    if debug >= 0 : print(f"findEdmChildren({parent}...) returns {widgetlist}")
 
-    def eventFilter(self, obj, event):
-        if event.type() in [ QEvent.MouseButtonPress, QEvent.MouseButtonRelease] :
-            parent = getattr(obj,"edmParent", None)
-            nextObj = None
-            while parent:
-                nextObj = parent
-                parent = getattr(nextObj, "edmParent", None)
+    if len(widgetlist) == 0:
+        parent.selectedWidget = None
+        return None
 
-            if nextObj != None:
-                newEvent = QtGui.QMouseEvent(event.type(), nextObj.mapFromGlobal(event.globalPos()), event.button(), event.buttons(), event.modifiers() )
-                if event.type() == QEvent.MouseButtonPress:
-                    nextObj.mousePressEvent( newEvent)
-                else:
-                    nextObj.mouseReleaseEvent( newEvent)
-            return True
+    if len(widgetlist) == 1:
+        if debug > 0: print(f"found widget {widgetlist[0]}")
+        parent.selectedWidget = widgetlist[0]
+    else:
+        parent.selectedWidget = showWidgetMenu(widgetlist, parent.mapToGlobal(pos))
 
-        if event.type() in [QEvent.MouseButtonPress, QEvent.MouseButtonRelease, QEvent.MouseMove, QEvent.MouseTrackingChange]:
-            return True
+    if parent.selectedWidget == None:
+        return None
 
-        return False
+    if parent.editMode(check="edit"):
+        parent.edmShowEdit(parent.selectedWidget)
+        parent.editMode(value="none")
+    elif parent.editMode(check="move"):
+        if parent.rubberband == None:
+            parent.rubberband = edmRubberband(widget=parent.selectedWidget)
+        else:
+            parent.rubberband.active(parent.selectedWidget)
+        parent.editMode(value="none")
+
+    return parent.selectedWidget
+
+class edmEditWidgetMenu(QtWidgets.QMenu):
+    '''
+        edmEditWidgetMenu
+        Takes a list of widgets, and displays a list
+        allowing selection of a single entry.
+    '''
+    def __init__(self, *args, edmWidgets=[], **kw):
+        super().__init__(*args, **kw)
+        self.selected = None
+        for widget in edmWidgets:
+            self.setMenuAction(widget.__str__(), lambda flag,w=widget:self.displayWidget(w), widget)
+
+    def setMenuAction(self, name, perform, widget):
+        action = self.addAction(name)
+        action.widget = widget
+        action.triggered.connect(perform)
+
+    def displayWidget(self, widget):
+        self.selected = widget
+
+
+def showWidgetMenu(widgetlist, globalPos):
+    menu = edmEditWidgetMenu(edmWidgets=widgetlist)
+    menu.exec_(globalPos)
+    return menu.selected
+
+
+def generateWidget(screen, parent):
+    '''
+     generate widgets based on the screen description. The expectation is that 'parent'
+     is a container widget and the widgets generated from screen.objectList will be
+     built within parent.
+    '''
+    if edmApp.debug(1) : print("generateWidget", screen, parent, getattr(parent,"macroTable", None))
+    for obj in screen.objectList:
+        otype =  obj.tags["Class"].value
+        if edmApp.debug() :  print("checking object type", otype)
+        if otype in edmApp.edmClasses:
+            widget = edmApp.edmClasses[otype](parent)
+            widget.buildFieldList(obj)
+            widget.buildFromObject(obj)
+        else:
+            if edmApp.debug() : print("Unknown object type", otype, "in", edmApp.edmClasses)
+    if edmApp.debug() : print("Done generateWidget")
+    
+def generateWindow(screen, **kw):
+    '''
+    generateWindow(screen, myparent, macroTable, dataPaths)
+    create an 'edmWindowWidget' as a parent window and populate it with widgets from
+    the screen description.
+    '''
+    parent = edmWindowWidget()
+    parent.generateWindow(screen, **kw)
+    return parent
+
+edmApp.generateWindow = generateWindow
+edmApp.generateWidget = generateWidget
+edmApp.buildNewWindow = edmWindowWidget.buildNewWindow

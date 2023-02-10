@@ -1,21 +1,23 @@
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # this module displays a simple slider
-import pyedm.edmDisplay as edmDisplay
+from . import edmImport
+from .edmApp import edmApp
 
-# from pyedm.controlbar import activeSliderClass
-controlbar = __import__("controlbar", globals(), locals(), 1)
+controlbar = edmImport("controlbar")
 activeSliderClass = controlbar.activeSliderClass
 
-
 class activeMotifSliderClass(activeSliderClass):
+    menuGroup = ["control", "Motif Slider"]
     def __init__(self, parent):
-        activeSliderClass.__init__(self,parent)
-    def buildFromObject(self, object):
-        activeSliderClass.buildFromObject(self, object)
+        super().__init__(parent)
+
+    def buildFromObject(self, objectDesc, **kw):
+        super().buildFromObject(objectDesc, **kw)
     def showScale(self):
         return 0    # this class never displays a scale
     def findReadonly(self):
-        self.setReadOnly(0)
+        pass
+        #self.setReadOnly(0)
 
-edmDisplay.edmClasses["activeMotifSliderClass"] = activeMotifSliderClass
+edmApp.edmClasses["activeMotifSliderClass"] = activeMotifSliderClass
 

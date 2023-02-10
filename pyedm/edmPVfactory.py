@@ -1,18 +1,20 @@
-# Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
+# Copyright 2022 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 #
 # PV factory support
 #
-# from __future__ import print_function
+# MODULE LEVEL: Low
+#
+import traceback
+from . import edmApp
 
 class edmPVbase:
     typeNames = [ "unknown", "int", "float", "string", "enum" ]
-    typeUnknown, typeInt, typeFloat, typeString, typeEnum = range(0,5)
-    def __init__(self, truename=None, name=None, connectCallback=None, connectCallbackArg=None, **kwargs):
-        ''' name is the name used for connecting. "truename" is the name before macro expansion.
-        '''
+    typeUnknown, typeInt, typeFloat, typeString, typeEnum = list(range(0,5))
+    def __init__(self, name=None, connectCallback=None, connectCallbackArg=None, *args, **kw):
         self.callbackList = []
         self.value = None
         self.char_value = None
+        self.count = 1
         self.severity = 3
         self.isValid = False
         self.chid = 0
@@ -24,25 +26,30 @@ class edmPVbase:
         self.prefix = "base\\"
         self.units = ""
 
-        self.truename = truename
         if name != None:
             self.setPVname(name)
         else:
             self.name = None
 
-    def __del__(self):
-        if self.DebugFlag > 0 : print "edmPVbase: deleting", self.name
+    def edmCleanup(self):
+        if self.debug() : print("edmPVbase: cleanup", self.name)
+        self.connectCallback = None
+        self.connectCallbackArg = None
+        self.callbackList.clear()
+
+    def debug(self, level=1, *, mesg=None, setDebug=None):
+        if setDebug != None:
+            self.DebugFlag = setDebug
+        flag = self.DebugFlag >= level
+        if flag and (mesg != None):
+            print(mesg)
+        return flag
 
     def setPVname(self, name):
         self.name = name
 
     def getPVname(self):
         return self.prefix + self.name
-
-    def getTrueName(self):
-        if self.prefix != "EPICS\\":
-            return self.prefix+ self.truename
-        return self.truename
 
     def getStatus(self):
         pass
@@ -87,15 +94,23 @@ class edmPVbase:
         return convText( self.value, self.pvType, Fmt=fmt, Precision=precision, Enums=enums)
 
     def add_callback(self, fn_name, widget=None, userArgs=None):
-        if self.DebugFlag > 0 : print "Add callback", self.name, widget
+        if self.debug() : print("Add callback", self.name, widget)
         self.callbackList.append((fn_name,widget,userArgs))
         if self.isValid:
-            fn_name(widget, pvname=self.name, chid=self.chid, pv=self, value=self.value, severity=self.severity, userArgs=userArgs)
+            fn_name(widget, pvname=self.name, chid=self.chid, pv=self,
+                    value=self.value, count=self.count,
+                    severity=self.severity, userArgs=userArgs)
 
-    def del_callback(self, widget):
-        if self.DebugFlag > 0 : print "del_callback: before:", self.callbackList, widget
-        self.callbackList = [ idx for idx in self.callbackList if idx[1] != widget ]
-        if self.DebugFlag > 0 : print "del_callback: after:", self.callbackList
+    def del_callback(self, widget=None, *, callback=None):
+        ''' delete all callbacks for this PV associated with 'widget'.
+            if callback set, look for explicit instances of 'callback'
+        '''
+        if self.debug(2) : print("del_callback: before:", widget, callback, self.callbackList)
+        if callback != None:
+            self.callbackList = [ idx for idx in self.callbackList if idx[0] != callback ]
+        if widget != None:
+            self.callbackList = [ idx for idx in self.callbackList if idx[1] != widget ]
+        if self.debug(2) : print("del_callback: after:", self.callbackList)
 
     def add_redisplay(self, widget, userArgs=None):
         self.callbackList.append((edmApp.redisplay, widget, userArgs))
@@ -107,7 +122,7 @@ def convText(Value, PvType, Fmt='%.*f', Precision=None, Enums=None):
         If the precision is supplied, use that, otherwise use a default precision'''
         if PvType == edmPVbase.typeFloat:
             if Precision != None:
-                return Fmt%(Precision, Value)
+                return Fmt%(Precision, float(Value))
 
         if PvType == edmPVbase.typeEnum and Enums != None:
             idx = int(Value)
@@ -118,22 +133,30 @@ def convText(Value, PvType, Fmt='%.*f', Precision=None, Enums=None):
 def expandPVname(name, macroTable=None):
     if macroTable != None:
         name = macroTable.expand(name)
-    prefix = name.split("\\\\", 1)
+    prefix = name.split('\\', 1)
     if len(prefix) == 1:
         return "EPICS", prefix[0]
     else:
         return prefix
     
-def buildPV(name,**kw):
+def buildPV(pvname, *, macroTable=None, **kw):
     '''takes a PV name with an optional PV factory indicator prefix, and
-    builds and returns a class instance which should inherit from edmPVbase.
+    builds returns a class instance which should inherit from edmPVbase.
     macroTable is used to expand the name, all arguments are passed to the factory method with
     identical parameter names'''
-    if edmApp.DebugFlag > 0: print "buildPV(", name, kw, ")"
-    prefix, expandedname = expandPVname(name, kw.get("macroTable"))
-    return pvClassDict[prefix.upper()](name=expandedname, truename=name, **kw)
+    if edmApp.debug(): print("buildPV(", pvname, macroTable, kw, ")")
+    prefix, name = expandPVname(pvname, macroTable)
+    if name == None or name == "":
+        raise ValueError(f"illegal PV name {pvname}")
+    try:
+        return pvClassDict[prefix.upper()](name=name, macroTable=macroTable, **kw)
+    except KeyError:
+        print("Unknown PV type", prefix.upper() , name)
+        traceback.print_exc()
+    except:
+        print("buildPV failed for", prefix, name)
+        traceback.print_exc()
 
-
-from pyedm.edmApp import edmApp
+    return pvClassDict["LOC"](name="UNKNOWN TYPE", **kw)
 
 pvClassDict = {}

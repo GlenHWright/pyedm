@@ -3,15 +3,69 @@
 # This class uses PV's to compute and index, and redisplays the "subset" with the
 # computed entry.
 #
-import pyedm.edmDisplay as edmDisplay
-from pyedm.edmPVfactory import buildPV
-from pyedm.edmApp import redisplay
-from pyedm.edmWidget import edmWidget
-import pyedm.edmWindowWidget as edmWindowWidget
-from pyedm.edmAbstractSymbol import AbstractSymbolClass
+from .edmPVfactory import buildPV
+from .edmApp import redisplay, edmApp
+from .edmWidget import edmWidget
+from . import edmWindowWidget
+from .edmAbstractSymbol import AbstractSymbolClass
+from .edmField import edmField
+from .edmEditWidget import edmEdit, edmEditField, edmTagWidget
 
-from PyQt4 import QtCore, QtGui
-from PyQt4.QtGui import QWidget, QFrame, QScrollArea, QPalette, QPainter
+from PyQt5 import Qt, QtCore, QtGui, QtWidgets
+from PyQt5.QtGui import QPalette, QPainter, QFontMetrics
+from PyQt5.QtWidgets import QWidget, QFrame, QScrollArea, QGridLayout
+
+class QIntEdit(QtWidgets.QLineEdit):
+    def __init__(self, value=None, *args, minval=None, maxval=None, width=None, **kw):
+        if type(value) == int:
+            value = str(value)
+        super().__init__(value, *args, **kw)
+        self.intValidator = QtGui.QIntValidator(self)
+        if minval != None:
+            self.intValidator.setBottom(minval)
+        if maxval != None:
+            self.intValidator.setTop(maxval)
+        if width != None:
+            self.setMaximumWidth(width)
+        self.setValidator(self.intValidator)
+
+class edmEditPVNAMES(edmEditField):
+    def showEditWidget(self, *args, **kw):
+        widget = QWidget()
+        fm = QFontMetrics(widget.font())
+        width = fm.boundingRect("000000").width()
+        layout = QGridLayout()
+        for idx in range(0,5):
+            row = int(idx*2)
+            layout.addWidget(QtWidgets.QLabel("PV name"), row, 0 )
+            layout.addWidget(QtWidgets.QLineEdit(self.widget.controlPvs[idx]), row, 1, 1, -1)
+            layout.addWidget(QtWidgets.QLabel("AND"), row+1, 0)
+            layout.addWidget(QIntEdit(self.widget.andMask[idx], minval=0,  maxval=255, width=width), row+1, 1)
+            layout.addWidget(QtWidgets.QLabel("XOR"), row+1, 2)
+            layout.addWidget(QIntEdit(self.widget.xorMask[idx], minval=0, maxval=255, width=width), row+1, 3)
+            layout.addWidget(QtWidgets.QLabel("Shift"), row+1, 4)
+            layout.addWidget(QIntEdit(self.widget.shiftCount[idx], minval=-8, maxval=8, width=width), row+1, 5)
+        widget.setLayout(layout)
+        return edmTagWidget(None, widget)
+
+class edmEditItems(edmEditField):
+    def __init__(self, *args, **kw):
+        super().__init__(*args,**kw)
+        self.itemNumber = 0
+
+    def showEditWidget(self,  *args, **kw):
+        layout = QGridLayout()
+        layout.addWidget(QtWidgets.QLabel("Number of Items"), 0, 0, 1, 2)
+        layout.addWidget(QIntEdit(self.widget.numStates, minval=0), 0, 2)
+        layout.addWidget(QtWidgets.QLabel("Item Number"), 1, 0, 1, 2)
+        layout.addWidget(QIntEdit(self.itemNumber+1), 1, 2 )
+        layout.addWidget(QtWidgets.QLabel(">="), 2, 0)
+        layout.addWidget(QIntEdit(self.widget.minValues[self.itemNumber]), 2, 1, 1, 2)
+        layout.addWidget(QtWidgets.QLabel("<"), 3, 0)
+        layout.addWidget(QIntEdit(self.widget.maxValues[self.itemNumber]), 3, 1, 1, 2)
+        widget = QWidget()
+        widget.setLayout(layout)
+        return edmTagWidget(None, widget)
 
 class symbolState:
     def __init__(self, min=0, max=1):
@@ -29,6 +83,26 @@ class symbolPV:
         self.shift = shift
 
 class activeSymbolClass(AbstractSymbolClass):
+    menuGroup = [ "display", "Dynamic Symbol" ]
+    edmEntityFields = [
+        edmField("file", edmEdit.String),
+        edmField("truthTable", edmEdit.Bool),
+        # PV information
+        edmField("PVNAMES", edmEditPVNAMES),
+        edmField("numPvs", edmEdit.Int, hidden=True),    # Filled in behind the scenes
+        edmField("controlPvs", edmEdit.PV, array=True, defaultValue=None),
+        edmField("andMask", edmEdit.Int, array=True, defaultValue=0),
+        edmField("xorMask", edmEdit.Int, array=True, defaultValue=0),
+        edmField("shiftCount", edmEdit.Int, array=True, defaultValue=0),
+        # State information
+        edmField("RANGES", edmEditItems),
+        edmField("numStates", edmEdit.Int, hidden=True, defaultValue=0),    # needs extra management!
+        edmField("minValues", edmEdit.Int, array=True, defaultValue=0),
+        edmField("maxValues", edmEdit.Int, array=True, defaultValue=1)
+        ]
+    edmFieldList =  \
+        AbstractSymbolClass.edmBaseFields + AbstractSymbolClass.edmColorFields + \
+        edmEntityFields + AbstractSymbolClass.edmVisFields
     '''selects a "group" from an edm symbol file based on a calculated value'''
     V3propTable = {
         "1-5" : [   "file", "gateUpPv", "gateDownPv", "gateDownValue", "continuous", "rate", "numStates", "useOriginalSize",
@@ -36,33 +110,28 @@ class activeSymbolClass(AbstractSymbolClass):
     }
         
     def __init__(self, parent=None):
-        AbstractSymbolClass.__init__(self,parent)
+        super().__init__(parent)
 
-    def cleanup(self):
-        AbstractSymbolClass.cleanup(self)
+    def edmCleanup(self):
+        AbstractSymbolClass.edmCleanup(self)
         for pv in self.pvList:
             pv.pv.del_callback(self)
 
-    def buildFromObject(self, object):
-        edmWidget.buildFromObject(self, object)
-        self.file = object.getStringProperty("file", "")
-        self.truthTable = object.getIntProperty("truthTable", 0)
+    def buildFromObject(self, objectDesc, **kw):
+        super().buildFromObject(objectDesc, **kw)
+        self.file = objectDesc.getProperty("file", "")
+        self.truthTable = objectDesc.getProperty("truthTable")
         # PV information
-        self.numPvs = object.getIntProperty("numPvs", 0)
-        self.controlPvs = object.decode("controlPvs", self.numPvs, None)
-        self.andMask = object.decode("andMask", self.numPvs, 0)
-        self.xorMask = object.decode("xorMask", self.numPvs, 0)
-        self.shiftCount = object.decode("shiftCount", self.numPvs, 0)
+        self.numPvs = objectDesc.getProperty("numPvs")
+        self.controlPvs = objectDesc.getProperty("controlPvs", arrayCount=5)
+        self.andMask = objectDesc.getProperty("andMask", arrayCount=5)
+        self.xorMask = objectDesc.getProperty("xorMask", arrayCount=5)
+        self.shiftCount = objectDesc.getProperty("shiftCount", arrayCount=5)
         # State information
         self.statelist = []
-        self.numStates = object.getIntProperty("numStates", 0)
-        self.minValues = object.decode("minValues", self.numStates, 0)
-        self.maxValues = object.decode("maxValues", self.numStates, 1)
-
-        if(self.minValues == None):
-            self.minValues = [0,0]
-        if(self.maxValues == None):
-            self.maxValues = [1,1]
+        self.numStates = objectDesc.getProperty("numStates")
+        self.minValues = objectDesc.getProperty("minValues", arrayCount=self.numStates)
+        self.maxValues = objectDesc.getProperty("maxValues", arrayCount=self.numStates)
 
         if self.numStates > 0:
             self.statelist = [ symbolState(item[0], item[1]) for item in zip(self.minValues, self.maxValues) ]
@@ -76,18 +145,9 @@ class activeSymbolClass(AbstractSymbolClass):
         for idx in range(0,self.numPvs):
             pv = symbolPV(self.controlPvs[idx], mt, idx)
             self.pvList.append(pv)
-            try:
-                pv.andMask = self.andMask[idx]
-            except:
-                pv.andMask = 0
-            try:
-                pv.xorMask = self.xorMask[idx]
-            except:
-                pv.xorMask = 0
-            try:
-                pv.shiftCount = self.shiftCount[idx]
-            except:
-                pv.shiftCount = 0
+            pv.andMask = self.andMask[idx]
+            pv.xorMask = self.xorMask[idx]
+            pv.shiftCount = self.shiftCount[idx]
             pv.pv.add_callback(self.calcState, self, pv)
             
     def calcState(self, item, **kw):
@@ -108,13 +168,13 @@ class activeSymbolClass(AbstractSymbolClass):
             istate = thispv.ival
         else:
             ival = thispv.ival
-            if self.andMask[idx]:
-                ival = ival & self.andMask[idx]
-            ival = ival ^ self.xorMask[idx]
-            if self.shiftCount[idx] < 0:
-                ival = ival >> (-self.shiftCount[idx])
+            if self.andMask[thispv.idx]:
+                ival = ival & self.andMask[thispv.idx]
+            ival = ival ^ self.xorMask[thispv.idx]
+            if self.shiftCount[thispv.idx] < 0:
+                ival = ival >> (-self.shiftCount[thispv.idx])
             else:
-                ival = ival << self.shiftCount[idx]
+                ival = ival << self.shiftCount[thispv.idx]
             thispv.ival = ival
             istate = 0
             for pv in self.pvList:
@@ -125,7 +185,7 @@ class activeSymbolClass(AbstractSymbolClass):
                 self.curState = item
                 redisplay(self)
                 return
-        print "No state selected: istate=%d, count=%d/%d" % (istate, len(self.statelist),self.numStates)
+        print(f"No state selected: istate={istate}, count={len(self.statelist)}/{self.numStates}")
 
     def mousePressEvent(self, event):
         edmWindowWidget.mousePressEvent(self, event)
@@ -133,6 +193,9 @@ class activeSymbolClass(AbstractSymbolClass):
     def mouseReleaseEvent(self, event):
         edmWindowWidget.mouseReleaseEvent(self, event)
 
-edmDisplay.edmClasses["activeSymbolClass"] = activeSymbolClass
+    def mouseMoveEvent(self, event):
+        edmWindowWidget.mouseMoveEvent(self, event)
+
+edmApp.edmClasses["activeSymbolClass"] = activeSymbolClass
 
 

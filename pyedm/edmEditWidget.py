@@ -1,387 +1,769 @@
+# Copyright 2022 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 #
 # Classes to manage EDM-style edit field for widgets
 #
+# MODULE LEVEL: low
+# This is a low-level module, and must only call base level pyedm modules
+#
+## OPPORTUNITY FOR IMPROVEMENT -
+##  there's a number of places where a widget is simply a container for a layout
+##  that gets inserted into another layout - this can be optimized to return a
+##  layout in many cases.
 
-from PyQt4.QtGui import QWidget, QBoxLayout, QAbstractButton, QPushButton, QGridLayout, QLineEdit, QLabel, QCheckBox, QMenu, QFrame, QPainter, QTextEdit, QScrollArea, QFont, QListWidget
-from PyQt4.QtCore import Qt, SIGNAL
-from edmColors import colorTable, findColorRule
-# from __future__ import print_function
+from typing import Any
+from dataclasses import dataclass
+from enum import Enum
 
-class edmEditField:
+from PyQt5 import QtWidgets
+from PyQt5.QtCore import pyqtSignal, QObject, Qt, QPoint
+from PyQt5.QtGui import QFontDatabase,QFont,QFontInfo,QPalette,QIntValidator,QDoubleValidator,QRegExpValidator
+
+from .edmField import edmField, edmTag
+from .edmApp import redisplay, edmApp
+from .edmColors import edmColor
+
+
+fontAlignEnum = Enum("align", "left center right", start=0)
+
+class ColorWindow(QtWidgets.QWidget):
+    '''
+        draw a window with a grid of colors,
+        Different from edm, this is a pop-up window at
+        the point of button push, and disappears when
+        used or focus is lost (?)
+    '''
+    def __init__(self,*args, callback=None, **kw):
+        super().__init__(*args, **kw)
+
+        self.callback = callback
+        layout = QtWidgets.QGridLayout()
+        ncol = 5
+        self.group = QtWidgets.QButtonGroup(self)
+        for idx,cr in enumerate(edmColor.colorNames.values()):
+            row, col = divmod(idx, ncol)
+            color = QColorButton(mycolor=cr)
+            color
+            self.group.addButton(color)
+            layout.addWidget(color, row, col)
+        self.setLayout(layout)
+        self.group.buttonClicked.connect(self.notify)
+
+    def notify(self, colorButton):
+        print(f"ColorWindow notify {colorButton} color {colorButton.buttonColor}")
+        self.callback(colorButton.buttonColor)
+
+
+
+# a simple widget that adds a label to anything.
+class edmTagWidget:
+    def __init__(self, label, valueWidget):
+        super().__init__()
+        self.label = label
+        self.valueWidget = valueWidget
+        valueWidget.setObjectName(label)
+
+    def build(self):
+        '''
+        construct a widget with a label and a widget
+        '''
+        if self.label == None:
+            return self.valueWidget
+        self.widget = QtWidgets.QWidget()
+        layout = QtWidgets.QHBoxLayout()
+        labelwidget = QtWidgets.QLabel(self.label)
+        labelwidget.setContentsMargins(0,0,10,0)
+        layout.addWidget(labelwidget)
+        layout.setAlignment(labelwidget, Qt.AlignRight)
+        layout.addWidget(self.valueWidget)
+        layout.setSpacing(1)
+        layout.setContentsMargins( 1, 4, 1, 4)
+        self.widget.setLayout(layout)
+        size = self.widget.sizeHint()
+        self.widget.setFixedHeight(size.height())
+        return self.widget
+
+    def nolabel(self):
+        return self.valueWidget
+
+# a class for displaying an unlabeled color box
+#
+class QColorButton(QtWidgets.QPushButton):
+    def __init__(self, parent=None, mycolor=None):
+        ''' QColorButton - QPushButton that changes
+            color according to the edmColorRule 'mycolor'
+        '''
+        super().__init__(parent)
+        self.buttonColor = mycolor
+        self.setFlat(True)
+        self.newColor(mycolor)
+
+    def newColor(self, newcolor):
+        self.buttonColor = newcolor
+        color = newcolor.getColor()
+        palette = self.palette()
+        palette.setColor(QPalette.Button, color)
+        palette.setColor(QPalette.Window, color)
+        palette.setColor(QPalette.WindowText, color)
+        self.setAutoFillBackground(True)
+        self.setPalette(palette)
+        self.setToolTip(str(newcolor))
+        self.update()
+
+class edmEditField(QObject):
     ''' base class for the edit fields. Derived classes
         handle generating a specific widget set to display,
     '''
-    def __init__(self, label=None, object=None, setter=None, defValue=None, getter=None, **kw):
+    newValue = pyqtSignal(str, 'PyQt_PyObject')
+    def __init__(self, label, edmfield, widget):
         ''' label is the displayed label on the edit screen
-            object is the property or method within the class to retrieve the value
-            getter is a method used when a simple reference is insufficient
-            setter is the property or method within the class to save the value
+            edmfield is the field in the defined class to be edited.
         '''
+        super().__init__()
         self.label = label
-        self.objectID = object
-        self.getter = getter
-        self.setter = setter
-        self.defValue = defValue
+        self.edmfield = edmfield
+        self.widget = widget
 
-    def showEditWidget(self, widget, index=None):
-        ''' returns the label to be applied to this field and
-            a Qt widget that contains the correct fields
-            with the values for this edm widget
+    def showEditWidget(self, displayValue):
+        ''' return a Qt widget that contains
+            a label and a widget as returned from buildOneEditWidget.
+            the correct fields with the values for this edm widget.
+            Inheriting classes can over-ride buildOneEditWidget to
+            use the label or over-ride showEditWidget to display
+            the label in a different manner.
         '''
-        return self.label, QLabel("unimplemented")
+        editWidget = self.buildOneEditWidget(displayValue)
+        return edmTagWidget(self.label, editWidget)
 
-    def getval(self, widget, index=None, **kw):
-        defValue = kw.get("defValue", self.defValue)
-        property = kw.get("object", self.objectID)
-        if property == None:
-            try:
-                getter = kw.get("getter", self.getter)
-                prop = getter(widget, index, defValue=defValue)
-                return prop
+    def buildOneEditWidget(self, displayValue):
+        lineedit = QtWidgets.QLineEdit(str(displayValue))
+        lineedit.editingFinished.connect( lambda widget=lineedit: self.onNewValue(widget) )
+        return lineedit
 
-            except:
-                print "getval property fail", getter, index, defValue
-                return defValue
+    def onNewValue(self, widget):
+        if edmApp.debug(0) : print(f"onNewValue({self}, {widget})")
+        self.onValueUpdate(widget.text())
 
-        # parse a widget property: "a[.b[.c]]"
-        try:
-            if widget.DebugFlag > 0 : print "getval look for", property, index
-            prop = widget
-            items = property.split(".")
-            for ps in items[:-1] :
-                prop = getattr(prop, ps)
-            prop = getattr(prop, items[-1], defValue)
-            if callable(prop):
-                prop = prop()
-            if index != None:
-                prop = prop[index]
-            if widget.DebugFlag > 0 : print "getval return", prop
-        except:
-            #
-            if widget.DebugFlag > 0: print "getval fail: prop, return", property, defValue
-            return defValue
-        return prop
+    def onValueUpdate(self, newValue):
+        self.newValue.emit(self.edmfield.tag, newValue)
 
-    def getSval(self, widget, **kw):
-        return str(self.getval(widget, **kw))
-
-    def getIval(self, widget, **kw):
-        val = self.getval(widget, **kw)
-        if val != None:
-            val = int(val)
-        return val
-
-    def setval(self, widget, value, index=None):
-        pass
-
-
-    def setObject(self):
-        ''' at the end of the edit, save the values
-        '''
-        pass
-
-def __makeMenuButton__(name, items):
-    button = QPushButton(name)
-    menu = QMenu()
-    button.setMenu(menu)
-    for label in items: menu.addAction(label)
-    return button, menu
-
-class edmEdit:
-    '''container for related class instances
+class edmEditInt(edmEditField):
     '''
-    class String(edmEditField):
-        def showEditWidget(self, widget, index=None):
-            val = self.getSval(widget, index=index)
-            text = QLineEdit( val )
-            return self.label, text
+        widget to edit an integer field
+    '''
+    def buildOneEditWidget(self, displayValue):
+        if displayValue == None:
+            displayValue = ""
+        intedit = edmEditField.buildOneEditWidget(self, displayValue)
+        # add validity checking on input
+        self.validator = QIntValidator()
+        intedit.setValidator(self.validator)
+        return intedit
 
-    class Int(edmEditField):
-        def showEditWidget(self, widget, index=None):
-            val = self.getIval(widget, index=index)
-            if val == None:
-                val = ""
-            else:
-                val = str(val)
-            text = QLineEdit( val )
-            return self.label, text
+class edmEditClass(edmEditField):
+    '''
+        displays the class name as a read-only title.
+    '''
+    def showEditWidget(self, displayValue):
+        return edmTagWidget(None, QtWidgets.QLabel(displayValue))
 
-    class Enum(edmEditField):
-        def __init__(self, **kw):
-            edmEditField.__init__(self, **kw)
-            self.enumList = kw.get("enumList", [])
-            
-        def showEditWidget(self, widget, index=None):
-            val = self.getSval(widget, index=index, defValue=self.enumList[0])
-            # widget.object.getStringProperty(self.objectID, self.enumList[0])
-            button, menu = __makeMenuButton__(val, self.enumList)
-            button.edmTrigger = lambda action: button.setText(action.text())
-            menu.connect(menu,SIGNAL("triggered(QAction*)"), button.edmTrigger)
-            return self.label, button
+class edmEditString(edmEditField):
+    '''
+        widget to edit a string field.
+        this currently is no different than the base class.
+    '''
+    def buildOneEditWidget(self, displayValue):
+        if displayValue == None:
+            displayValue = ""
+        return edmEditField.buildOneEditWidget(self, displayValue)
 
-    class LineThick(Enum):
-        def __init__(self, label="Line Thk", object="lineWidth", **kw):
-            edmEdit.Enum.__init__(self, label=label, object=object, enumList=[str(x) for x in range(0,11)], **kw)
+class edmEditEnum(edmEditField):
+    ''' edmEditEnum
+        make a button with a menu of all choices. If there's a potentially large list (e.g. fonts)
+        recommend finding a smarter way.
+    '''
+    def buildOneEditWidget(self, value):
+        ''' expectation is that value will be of type Enum'''
+        menu = QtWidgets.QMenu()
+        for item in self.edmfield.enumList:
+            action = menu.addAction(item.name, lambda select=item,notify=self: self.onNewValue(select))
+        self.button = QtWidgets.QPushButton()
+        self.setLabel(value)
+        self.button.setMenu(menu)
+        return self.button
 
-    class CheckButton(edmEditField):
-        def showEditWidget(self, widget, index=None):
-            val = self.getIval(widget, index=index)
-            cb = QCheckBox( self.label)
-            if val:
-                cb.setCheckState(1)
-            return "", cb
+    def setLabel(self, value):
+        try:
+            value = value.name
+        except AttributeError:
+            value = ""
+        self.button.setText(f"{value}")
 
-    class Color(edmEditField):
-        def showEditWidget(self, widget, index=None):
-            val = self.getSval(widget, index=index)
-            self.colorRect = colorRectangle(val, self.clickedGridCallback)
-            self.button = QPushButton(val)
-            self.button.connect(self.button, SIGNAL("clicked()"), self.clickedListCallback)
-            layout = QBoxLayout(QBoxLayout.LeftToRight)
-            layout.addWidget(self.colorRect)
-            layout.addWidget(self.button)
-            newwidget = QWidget()
-            newwidget.setLayout(layout)
-            return self.label, newwidget
+    def onNewValue(self, value):
+        print(f"edmEditEnum: value {value}")
+        self.setLabel(value)
+        self.onValueUpdate(value)
 
-        def clickedGridCallback(self, ignore=None):
-            ColorGrid.getColorTable(callback=self.colorSelect)
+class edmEditCheckButton(edmEditField):
+    def buildOneEditWidget(self, displayValue):
+        checkbox = QtWidgets.QCheckBox()
+        checkbox.setChecked( displayValue in ["1", "True", True, 1 ])
+        checkbox.stateChanged.connect(lambda state,widget=checkbox: self.onNewValue(widget, state))
+        return checkbox
 
-        def clickedListCallback(self, ignore=None):
-            ColorList.getColorList(callback=self.colorSelect)
+    def onNewValue(self, widget, state):
+        self.newValue.emit(self.edmfield.tag, state!=0)
 
-        def colorSelect(self, newColor):
-            ''' called when the color grid or list has a new color selected'''
-            self.colorRect.recolor(newColor)
-            self.button.setText(newColor)
+class edmEditBool(edmEditCheckButton):
+    pass
 
-    class FgColor(Color):
-        def __init__(self, label="FG Color", object="fgColorInfo.getName", defValue="black-14", **kw):
-            edmEdit.Color.__init__(self, label=label, object=object, defValue=defValue, **kw)
-        
-    class BgColor(Color):
-        def __init__(self, label="BG Color", object="bgColorInfo.getName", defValue="Disconn/Invalid", **kw):
-            edmEdit.Color.__init__(self, label=label, object=object, defValue=defValue, **kw)
-        
-    class StringPV(edmEditField):
-        def showEditWidget(self, widget, index=None):
-            val = self.getSval(widget, defValue="")
-            text = QLineEdit( val )
-            return self.label, text
+class edmEditColor(edmEditField):
+    '''
+        edmEditColor - change the color rule being used
+        display a clickable color button, and the text description of the color rule
+    '''
+    def buildOneEditWidget(self, displayValue):
+        self.colorScreen = None
+        try:
+            name = displayValue.name
+            numeric = displayValue.numeric
+        except AttributeError as exc:
+            print(f"edmEditColor not displaying color rule {displayValue}")
+            name = "Not Found"
+            numeric = -1
 
-    class Real(edmEditField):
-        pass
+        self.button = QColorButton(mycolor=displayValue)
+        self.name = QtWidgets.QLabel(name)
+        layout = QtWidgets.QBoxLayout(QtWidgets.QBoxLayout.LeftToRight)
+        layout.setSpacing(0)
+        layout.setContentsMargins(0,4,0,4)
+        fm = self.name.fontMetrics()
+        self.button.setFixedWidth(fm.height())
+        layout.addWidget(self.button)
+        layout.addWidget(self.name)
+        self.widget = QtWidgets.QWidget()
+        self.widget.setLayout(layout)
+        self.button.clicked.connect(self.showColorScreen)
+        return self.widget
 
-    class TextBox(edmEditField):
-        def showEditWidget(self, widget, index=None):
-            val = self.getval(widget, defValue="")
-            try:
-                val = '\n'.join(val)
-            except:
-                pass
-            newwidget = QTextEdit()
-            newwidget.setPlainText(val)
-            return self.label, newwidget
+    def showColorScreen(self):
+        if self.colorScreen:
+            self.colorScreen.show()
+            return
+        self.colorScreen = ColorWindow(callback=self.onNewValue)
+        self.colorScreen.show()
 
-    class SubScreen(edmEditField):
-        def __init__(self, label=None, buildEntry=None, count=1, **kw):
-            edmEditField.__init__(self, label, **kw)
-            self.buildEntry = buildEntry
-            self.count = count
+    def onNewValue(self, colorRule):
+        self.colorScreen.hide()
+        self.colorScreen.destroy()
+        self.colorScreen = None
+        self.button.newColor(colorRule)
+        self.name.setText(colorRule.name)
+        self.onValueUpdate(colorRule)
 
-        def showEditWidget(self, widget, index=None):
-            self.subWindow = buildSubWindow(widget, self.buildEntry, self.count)
-            self.subWindow.hide()
-            button = QPushButton("...")
-            button.connect(button, SIGNAL("clicked()"), lambda: self.subWindow.show() )
-            return self.label, button
+class edmEditPV(edmEditString):
+    pass
 
-    class Font(edmEditField):
-        convAlign = { "left":"L", "0":"L", 0:"L", "None": "L",
-                        "center": "C", "1":"C", 1:"C",
-                        "right": "R", "2":"R", 2:"R" }
-        def __init__(self, label="Font", object="font", **kw):
-            edmEditField.__init__(self, label=label, object=object, **kw)
+class edmEditReal(edmEditField):
+    ''' edmEditReal - returns a widget for editing a floating point number
+    '''
+    def builddOneEditWidget(self, displayValue):
+        if displayValue == None:
+            displayValue = ""
+        floatedit = edmEditField.buildOneEditWidget(self, displayValue)
+        # add validity checking on input string
+        self.validator = QDoubleValidator()
+        floatedit.setValidator(self.validator)
+        return floatedit
 
-        def showEditWidget(self, widget, index=None):
-            font = self.getval(widget)
-            layout = QGridLayout()
-            button, menu = __makeMenuButton__(font.family(), [ "utopia", "courier", "helvetica", "new century schoolbook", "times" ] )
-            layout.addWidget(button, 0, 0, 1, 4)
-            button, menu = __makeMenuButton__( str(font.pointSizeF()), [ "8.0", "10.0", "12.0", "14.0", "18.0", "72.0" ] )
-            layout.addWidget(button, 1, 0)
-            checkbox = QCheckBox( "B")
-            checkbox.setCheckState( font.weight() == QFont.Bold)
-            layout.addWidget( checkbox , 1, 1)
-            checkbox = QCheckBox( "I")
-            checkbox.setCheckState( font.italic())
-            layout.addWidget( checkbox , 1, 2)
-            # the top-level widget that contains the font contains the alignment in a different property.
-            #
-            # WOW DOES THIS VERSION OF PYQT4 SEEM FUBAR!
-            # The "alignment" set for text is only returned as a class that doesn't have any way to decode what
-            # the alignment is except for possibly creating new alignment objects of each type and doing
-            # a comparison. Ouch.
-            button, menu = __makeMenuButton__(edmEdit.Font.convAlign[widget.align], [ "L", "C", "R"] )
-            layout.addWidget(button, 1, 3)
-            newwidget = QWidget()
-            newwidget.setLayout(layout)
-            return self.label, newwidget
+class edmEditTextBox(edmEditField):
+    def buildOneEditWidget(self, displayValue):
+        print(f"edmEditTextBox {displayValue}")
+        self.textedit = QtWidgets.QPlainTextEdit()
+        for line in displayValue:
+            self.textedit.appendPlainText(line)
+        self.textedit.textChanged.connect(self.onNewValue)
+        return self.textedit
 
-    class Filename(edmEditField):
-        pass
-
-    class StripchartCurve(edmEditField):
-        pass
-
-    class SymbolItem(edmEditField):
-        pass
-
-    class SymbolItemSelect(edmEditField):
-        pass
-
-    visibleList = [
-        StringPV("Visibility PV", object="visPV.getTrueName"),
-        Enum( object="visInvert", enumList=[ "Not Visible if", "Visible if" ] ),
-        Int(">=", "visMin"),
-        Int("and <", "visMax")
-        ]
+    def onNewValue(self):
+        doc = self.textedit.document()
+        value = [ doc.findBlockByNumber(blockno).text() for blockno in range(doc.blockCount())]
+        self.onValueUpdate(value)
 
 #
-#
-#
+# Unusual entry - build a button that activates a sub-screen. The sub-screen is built
+# using "group" attribute of edmEditField, which lists the fields to be displayed.
+# Best use is to inherit this for a custom screen for the widget being edited.
+class edmEditSubScreen(edmEditField):
+    def showEditWidget(self, *unused, buttonLabel=None):
+        self.subwindow = None
+        self.arraysize = 1
+        if buttonLabel is None:
+            buttonLabel = self.label
+        button = QtWidgets.QPushButton(buttonLabel)
+        button.clicked.connect(self.buildSubWindow)
+        return edmTagWidget(None, button)
 
-#
-# Class to display a window containing the editable fields of an edm widget.
-#
-#
-class edmEditWidget(QWidget):
-    def __init__(self, widget):
-        QWidget.__init__(self)
-        grid = QGridLayout()
-        row = 0
-        for oneprop in widget.edmEditPre + widget.edmEditList + widget.edmEditPost:
-            #try:
-                name, subwidget = oneprop.showEditWidget(widget)
-                grid.addWidget( QLabel(name), row, 0)
-                grid.addWidget( subwidget, row, 1)
-                row += 1
-            #except:
-                #print "unable to add edit element", oneprop
+    def buildSubWindow(self, *args, **kw):
+        print(f"buildSubWindow {self} arraysize {self.arraysize} {args} {kw}")
+        self.editlist = []
+        if self.subwindow:
+            self.subwindow.show()
+            return
 
-        buttons = QBoxLayout(QBoxLayout.LeftToRight)
+        layout = self.buildLayout()
+
+        self.subwindow = QtWidgets.QWidget()
+        scrollWidget = QtWidgets.QWidget()
+        scrollWidget.setLayout(layout)
+        self.scrollArea = QtWidgets.QScrollArea()
+        self.scrollArea.setWidget(scrollWidget)
+
+        # build the top level of scroll area and buttons.
+        topLayout = QtWidgets.QBoxLayout(QtWidgets.QBoxLayout.TopToBottom)
+        topLayout.addWidget(self.scrollArea)
+
+        buttons = QtWidgets.QBoxLayout(QtWidgets.QBoxLayout.LeftToRight)
         buttons.addWidget( MakeButton("Apply", self.onApply) )
         buttons.addWidget( MakeButton("Save", self.onDone) )
         buttons.addWidget( MakeButton("Cancel", self.onCancel)  )
-        grid.addLayout(buttons, row, 0, 1, 2)
-        self.setLayout(grid)
 
+        buttonWidget = QtWidgets.QWidget()
+        buttonWidget.setLayout(buttons)
+
+        topLayout.addWidget(buttonWidget)
+
+        self.subwindow.setLayout(topLayout)
+        self.subwindow.show()
+
+    def buildLayout(self):
+        return buildVerticalLayout( self, self.widget, self.edmfield.group, self.onNewValue)
+
+    def buildVerticalLayout(self):
+        return buildVerticalLayout( self, self.widget, self.edmfield.group, self.onNewValue)
+
+    def buildHorizontalLayout(self):
+        return buildHorizontalLayout( self, self.widget, self.edmfield.group, self.onNewValue)
+
+    def changeLayout(self, newlayout):
+        ''' changeLayout - change the layout used in the scrolling area by destroying the
+            old widget and adding a new widget.
+        '''
+        scrollWidget = QtWidgets.QWidget()
+        scrollWidget.setLayout(newlayout)
+        self.scrollArea.takeWidget()
+        self.scrollArea.setWidget(scrollWidget)
+        scrollWidget.show()
+        self.subwindow.show()
+
+    def onNewValue(self, tag, value):
+        print(f"buildSubWindow.onNewValue({tag} {value})")
+        self.newValue.emit(tag, value)
+
+    '''
+        apply, done, cancel - 30/jan/23 - not implemented properly.
+        the missing information is what tags are potentially updated by this
+        widget, and whether to accept or reject the changes.
+    '''
     def onApply(self):
         pass
 
     def onDone(self):
-        self.close()
+        self.subwindow.hide()
+        self.subwindow = None
 
     def onCancel(self):
-        self.close()
+        self.subwindow.hide()
+        self.subwindow = None
 
-class buildSubWindow(QScrollArea):
-    '''builds a window callable from an edit widget window. "entry" is the prototype for
-        building a single entry from multiple widgets, and "count" is the number of elements
-        of "entry" to build.
+
+class edmEditFontInfo(edmEditField):
+    '''
+        display a drop-down menu for the font family,
+        a drop-down menu for the allowed point sizes,
+        a check box for bold, and a check box for italic.
+    '''
+    def showEditWidget(self, displayValue):
+        return edmTagWidget(None, self.buildOneEditWidget(displayValue))
+
+    def buildOneEditWidget(self, displayValue):
+        font = displayValue
+        self.font = font
+        self.fontInfo = QFontInfo(font)
+        print(f"buildOneEditWidget {font}, use {self.fontInfo.family()} {self.fontInfo.pointSize()} {self.fontInfo.weight()} {self.fontInfo.bold()}")
+        self.fontDB = QFontDatabase()
+        self.family = QtWidgets.QComboBox()
+        self.family.addItems(self.fontDB.families())
+        toplayout = QtWidgets.QBoxLayout(QtWidgets.QBoxLayout.TopToBottom)
+        layout = QtWidgets.QBoxLayout(QtWidgets.QBoxLayout.LeftToRight)
+        self.pointsize = QtWidgets.QComboBox()
+        self.bold = QtWidgets.QCheckBox("B")
+        self.italic = QtWidgets.QCheckBox("I")
+        layout.addWidget(self.pointsize)
+        layout.addWidget(self.bold)
+        layout.addWidget(self.italic)
+        margin = layout.contentsMargins()
+        margin.setTop(margin.top()//3)
+        margin.setBottom(margin.bottom()//3)
+        layout.setContentsMargins(margin)
+        toplayout.addWidget(self.family)
+        toplayout.addLayout(layout)
+        toplayout.setContentsMargins(0, 0, 0, 0)
+        self.widget = QtWidgets.QWidget()
+        self.widget.setLayout(toplayout)
+        self.saveInfo = { "family": self.fontInfo.family(), "pointSize": self.fontInfo.pointSize(),
+                "bold":self.fontInfo.bold(), "italic":self.fontInfo.italic() }
+        self.busy = False   # used by changeFamily to stop recursive calls
+        self.changeFamily()
+        # Add connect AFTER setting values
+        self.bold.clicked.connect( lambda newstate: self.onNewValue(bold=newstate))
+        self.italic.clicked.connect( lambda newstate: self.onNewValue(italic=newstate))
+        self.pointsize.currentTextChanged.connect(lambda newPS: self.onNewValue(pointSize=newPS))
+        self.family.currentTextChanged.connect( lambda newFamily: self.onNewValue( family=newFamily))
+
+        return self.widget
+
+    def changeFamily(self):
+        def safeInt(x):
+            try: v = int(x)
+            except: v = 0
+            return v
+        if self.busy == True:
+            return
+
+        self.busy = True
+        try:
+            self.family.setCurrentText(self.saveInfo["family"])
+            weight = QFont.Normal if self.saveInfo["bold"] == False else QFont.Bold
+            self.font = QFont(  self.saveInfo["family"],
+                                safeInt(self.saveInfo["pointSize"]),
+                                weight,
+                                self.saveInfo["italic"])
+            self.fontInfo = QFontInfo(self.font)
+            style = self.fontDB.styleString(self.fontInfo)
+            ps = self.fontDB.pointSizes(self.saveInfo["family"], style)
+            if len(ps) == 0:
+                ps = self.fontDB.standardSizes()
+            while self.pointsize.count() > 0:
+                self.pointsize.removeItem(0)
+            for point in ps:
+                self.pointsize.addItem(str(point))
+            self.changePointSize(self.fontInfo.pointSize(), pointSizeList=ps)
+            self.bold.setChecked( self.fontInfo.bold())
+            self.italic.setChecked( self.fontInfo.italic())
+        finally:
+            self.busy = False
+
+    def changePointSize(self, pointSize, pointSizeList=[]):
+        if len(pointSizeList) == 0:
+            ps = self.fontDB.pointSizes(self.family.currentText(), self.fontDB.styleString(self.fontInfo))
+        if len(pointSizeList) > 0 and pointSize not in pointSizeList:
+            pointSize = min(pointSizeList, key=lambda val: abs(val - pointSize))
+        print(f"changePointSize {pointSizeList} {pointSize}")
+        self.pointsize.setCurrentText(str(pointSize))
+
+    def onNewValue(self, **kw):
+        changed = False
+        for w in kw:
+            if kw[w] != self.saveInfo[w]:
+                changed = True
+        if not changed:
+            return
+        self.saveInfo.update(kw)
+        self.changeFamily()
+        self.onValueUpdate(self.font)
+
+class edmEditFontAlign(edmEditEnum):
+    pass
+
+class edmEditFilename(edmEditField):
+    pass
+
+class edmEditSymbolItem(edmEditField):
+    pass
+
+class edmEditSymbolItemSelect(edmEditField):
+    pass
+
+# special class: ignore the displayValue, and build a horizontal layout widget
+# containing the other widgets.
+
+class edmEditHList(edmEditField):
+
+    def showEditWidget(self, *unused):
+        return edmTagWidget(None, self.buildOneEditWidget())
+
+    def buildOneEditWidget(self, *unused):
+        self.editlist = []
+        layout = buildHorizontalLayout( self, self.widget, self.edmfield.group, self.onNewValue)
+        layout.setSpacing(15)
+        margin = layout.contentsMargins()
+        margin.setTop(margin.top()//2)
+        margin.setBottom(margin.bottom()//2)
+        layout.setContentsMargins(margin)
+        widget = QtWidgets.QWidget()
+        widget.setLayout(layout)
+        return widget
+
+    def onNewValue(self, tag, value):
+        self.newValue.emit(tag, value)
+
+    def edmCleanup(self):
         '''
-    def __init__(self, widget, entry, count):
-        QScrollArea.__init__(self)
-        self.scrollable = QWidget()
-        grid = QGridLayout()
-        row = 0
-        for num in range(0,count):  # build a set of widgets for each repeated entry
-            for calls in entry:     # for each row of a single entry
-                col = 0
-                for single in calls:
-                    builder = single()
-                    label, w = builder.showEditWidget(widget, index=num)
-                    grid.addWidget(QLabel(label), row, col)
-                    grid.addWidget(w, row, col+1)
-                    col = col + 2
-                row = row+1
-        self.scrollable.setLayout(grid)
-        self.setWidget(self.scrollable)
+            called when planning to delete an object, and need to
+            undo the __init__ and buildOneEditWidget
+        '''
+        self.editlist = None
+
+class edmEdit:
+    # class for simplifying importing this module
+    Class = edmEditClass
+    Int = edmEditInt
+    String = edmEditString
+    Enum = edmEditEnum
+    CheckButton = edmEditCheckButton
+    Bool = edmEditBool
+    Color = edmEditColor
+    PV = edmEditPV
+    Real = edmEditReal
+    TextBox = edmEditTextBox
+    SubScreen = edmEditSubScreen
+    FontInfo = edmEditFontInfo
+    FontAlign = edmEditFontAlign
+    Filename = edmEditFilename
+    HList = edmEditHList
+
+#
+# Class to display a window containing the editable fields of an edm widget.
+# Objective:
+# Parent widget.
+#   part 1: Scrollable area
+#       list of widgets built by the edmField entries for the widget, as
+#       returned by getEditPropertiesList()
+#       There is support here for tagval/tagtype lists being returned for
+#       widgets not yet updated to current code, but they will only be able
+#       to edit the fields that were loaded from the .edl file.
+#   part 2: Cancel/Apply/OK buttons
+#
+#
+class edmShowEdit(QtWidgets.QWidget):
+    def __init__(self, widget, parent):
+        super().__init__()
+        print(f"editing {widget} in {parent}")
+        self.editWidget = widget
+        self.parentWindow = parent
+        self.scrollWidget = QtWidgets.QWidget()
+        self.editlist = []
+        props = widget.getEditPropertiesList()
+        # Set the layout for the scrolling area
+        layout = buildVerticalLayout(self, self.editWidget, props, self.onNewValue)
+        self.scrollWidget.setLayout(layout)
+        self.scrollArea = QtWidgets.QScrollArea()
+        self.scrollArea.setWidget(self.scrollWidget)
+        # build the top level of scroll area and buttons.
+        topLayout = QtWidgets.QBoxLayout(QtWidgets.QBoxLayout.TopToBottom)
+        topLayout.addWidget(self.scrollArea)
+        buttons = QtWidgets.QBoxLayout(QtWidgets.QBoxLayout.LeftToRight)
+        buttons.addWidget( MakeButton("Apply", self.onApply) )
+        buttons.addWidget( MakeButton("Save", self.onDone) )
+        buttons.addWidget( MakeButton("Cancel", self.onCancel)  )
+        buttonWidget = QtWidgets.QWidget()
+        buttonWidget.setLayout(buttons)
+        topLayout.addWidget(buttonWidget)
+        self.setLayout(topLayout)
+
+        self.tags = {}
+        self.show()
+
+    def setTagValue(self):
+        self.editWidget.updateTags(self.tags)
+
+    def onNewValue(self, key, value):
+        if edmApp.debug() : print(f"Saving {value} to {key}")
+        self.tags[key] = edmTag(key, value)
+
+    def updateDisplayValue(self, tag, value):
+        ch = self.findChild(QtWidgets.QWidget, tag)
+        if ch != None:
+            ch.setText(str(value))
+
+    def onApply(self):
+        self.setTagValue()
+
+    def onDone(self):
+        self.setTagValue()
+        self.parentWindow.edmHideEdit(self.editWidget)
+        self.parentWindow = None
+        self.editWidget = None
+        self.destroy()
+
+    def onCancel(self):
+        self.parentWindow.edmHideEdit(self.editWidget)
+        self.parentWindow = None
+        self.editWidget = None
+        self.destroy()
+
+    def closeEvent(self, event):
+        self.onCancel()
+        event.accept()
 
 def MakeButton(label, callback):
-    button = QPushButton(label)
-    button.connect(button, SIGNAL("clicked()"), callback)
+    button = QtWidgets.QPushButton(label)
+    button.released.connect(callback)
     return button
 
+class edmRubberband(QtWidgets.QRubberBand):
+    '''
+        edmRubberband = manage a widget overlay that allows moving and resizing.
+    '''
+    def __init__(self, *args, widget, **kw):
+        super().__init__(QtWidgets.QRubberBand.Rectangle, widget.edmParent, *args, **kw)
+        if widget is None:
+            raise ValueError("edmRubberband needs non-None widget")
+        self.active(widget)
 
-class colorRectangle(QAbstractButton):
-    def __init__(self, colorName, callback=None):
-        QAbstractButton.__init__(self)
-        self.setGeometry(0,0, 20, 20)
-        self.setMinimumSize(25,25)
+    def edmCleanup(self):
+        self.edmWidget = None
+        self.winParent = None
+        self.destroy()
 
-        self.color = findColorRule(colorName)
-        self.callback = callback
-        self.connect(self, SIGNAL("clicked()"), self.onClicked)
+    def active(self, widget=None):
+        ''' active(widget) - set widget to manage
+            active() - return whether managing widget
+        '''
+        self.movemode = False       # True - moving, False - resizing
+        self.edges = 0              # bits 0x01 left, 0x02 top, 0x04 right, 0x08 bottom
+        if widget == None:
+            return self.edmWidget != None
+        self.winParent = widget.getParentScreen()
+        geom = widget.geometry()
+        pos = widget.edmParent.mapTo(self.winParent, geom.topLeft())
+        if edmApp.debug(1) : print(f"mapTo{geom} {geom.topLeft()} => {pos} -> {self.mapFrom(self.winParent,pos)}") # debugging note - this part makes sense
+        geom.setTopLeft(self.mapFrom(self.winParent,pos))
+        self.setGeometry(geom)
+        if edmApp.debug(1) : print(f"edmRubberband.active: {self}, {widget}, geom {geom} {geom.topLeft()}")
+        self.edmWidget = widget
+        self.show()
+        return True
 
-    def recolor(self, colorName):
-        self.color = findColorRule(str(colorName) )
+    def inactive(self):
+        if edmApp.debug(1) : print(f"edmRubberband.inactive({self},{self.edmWidget}")
+        if self.edmWidget:
+            geom = self.geometry()
+            pos = self.mapToGlobal(QPoint(0,0))     # get top-left of rubber band position in global units
+            pos = self.winParent.mapFromGlobal(pos) # change global position to parent's units.
 
-    def paintEvent(self, event=None):
-        painter = QPainter(self)
-        painter.fillRect(0,0,20,20, self.color.getColor() )
+            if edmApp.debug(0) :  print(f"   map from RB {self.pos()} to parent {self.winParent} pos {pos}")
+            self.edmWidget.updateTags( {
+                "x" : edmTag("x", int(pos.x()/edmApp.rescale)),
+                "y" : edmTag("y", int(pos.y()/edmApp.rescale)),
+                "w" : edmTag("w", int(geom.width()/edmApp.rescale)),
+                "h" : edmTag("h", int(geom.height()/edmApp.rescale)),
+                } )
+            self.edmWidget = None
+            self.edmParent = None
+        self.hide()
+    
+    def mousePressEvent(self, event):
+        if event.button() != Qt.LeftButton:
+            return False
+        pos = self.parent().mapFromGlobal(event.globalPos())
+        if not self.geometry().contains(pos):
+            if edmApp.debug(1) : print(f"event inactive pos{pos} geom {self.geometry()}")
+            self.inactive()
+            return False
+        if edmApp.debug() : print(f"edmRubberband.mousePress {self} event:{event.pos()} pos:{pos} geom:{self.geometry()}")
+        # decide if we're in a corner(resize) or not (move)
+        width = self.width()
+        height = self.height()
+        self.location = pos
+        self.startat = self.geometry()
+        where = self.location - self.startat.topLeft()
+        self.movemode = (where.x() > width/5 and where.x() < width*4/5) or \
+                    (where.y() > height/5 and where.y() < height*4/5)
 
-    def onClicked(self):
-        self.callback(self.color.getName() )
-
-class ColorList:
-    myColorList = None
-    myCallback = None
-    def __init__(self):
-        pass
-
-    @classmethod
-    def getColorList(cls, callback=None):
-        cls.myCallback = callback
-        if cls.myColorList == None:
-            cl = QListWidget()
-            cls.myColorList = cl
-            for color in colorTable.colorIndex:
-                if color != None:
-                    cl.addItem(color)
-            cls.myColorList.connect(cls.myColorList, SIGNAL("itemActivated(QListWidgetItem*)"), cls.onAction)
-        cls.myColorList.show()
-
-    @classmethod
-    def onAction(cls, item):
-        try: cls.myCallback(item.text())
-        except: pass
-        cls.myColorList.hide()
+        self.edges = 0
+        if not self.movemode:
+            if where.x() <= width/5:
+                self.edges = self.edges | 1
+            else:
+                self.edges = self.edges | 4
+            if where.y() <= height/5:
+                self.edges = self.edges | 2
+            else:
+                self.edges = self.edges | 8
         
-class ColorGrid:
-    myColorTable = None
-    myCallback = None
-    def __init__(self):
-        pass
+        return True
 
-    @classmethod
-    def getColorTable(cls, callback=None):
-        cls.myCallback = callback
-        if cls.myColorTable == None:
-            cg = QWidget()
-            cls.myColorTable = cg
-            grid = QGridLayout()
-            grid.setSpacing(0)
-            for num, color in enumerate(colorTable.colorIndex):
-                if color != None:
-                    grid.addWidget( colorRectangle(color, cls.onNewColor), int(num/5), int(num%5) )
-            cg.setLayout(grid)
+    def mouseMoveEvent(self, event):
+        if edmApp.debug(2) : print(f"mouseMove({self} {event} {event.button()}")
+        pos = self.parent().mapFromGlobal(event.globalPos())
+        pos = pos - self.location
+        if self.movemode:
+            self.move(self.startat.topLeft() + pos)
+        else:
+            newgeom = self.geometry()
+            if self.edges & 1:
+                newgeom.setX(self.startat.x() + pos.x())
+                newgeom.setWidth(self.startat.width() - pos.x())
+            if self.edges & 2:
+                newgeom.setY(self.startat.y() + pos.y())
+                newgeom.setHeight(self.startat.height() - pos.y())
+            if self.edges & 4:
+                newgeom.setWidth(self.startat.width() + pos.x())
+            if self.edges & 8:
+                newgeom.setHeight(self.startat.height() + pos.y())
+            self.setGeometry(newgeom)
+        
+    def mouseReleaseEvent(self, event):
+        if event.button() != Qt.LeftButton:
+            return
+        print(f"mouseReleaseEvent.rubberband {self} {event.pos()} {self.edmWidget}")
+        if self.edmWidget != None:
+            geom = self.geometry()
+            self.edmWidget.setGeometry(geom)
+            if self.edmWidget.showEditWindow != None:
+                self.edmWidget.showEditWindow.updateDisplayValue("x", int(geom.x()/edmApp.rescale))
+                self.edmWidget.showEditWindow.updateDisplayValue("y", int(geom.y()/edmApp.rescale))
+                self.edmWidget.showEditWindow.updateDisplayValue("w", int(geom.width()/edmApp.rescale))
+                self.edmWidget.showEditWindow.updateDisplayValue("h", int(geom.height()/edmApp.rescale))
 
-        cls.myColorTable.show()
+'''
+General support for layout of widgets
+'''
+def buildVerticalLayout(displayWidget, editWidget, proplist, callback):
+    return buildLayout(displayWidget, editWidget, proplist, callback, direction=QtWidgets.QBoxLayout.TopToBottom)
 
+def buildHorizontalLayout(displayWidget, editWidget, proplist, callback):
+    return buildLayout(displayWidget, editWidget, proplist, callback, direction=QtWidgets.QBoxLayout.LeftToRight)
 
-    @classmethod
-    def onNewColor(cls, newColor):
-        try: cls.myCallback(newColor)
-        except: pass
-        cls.myColorTable.hide()
+def buildLayout(displayWidget, editWidget, proplist, callback, direction):
+        layout = QtWidgets.QBoxLayout(direction)
+
+        layout.setSpacing(1)
+        # build the list of widgets for the layout area
+        if isinstance(proplist[0], edmField):
+            for oneprop in proplist:
+                if oneprop.hidden is True:
+                    continue
+                if oneprop.array is True and oneprop.editClass != edmEditTextBox:
+                    continue
+                if oneprop.tag != "":
+                    tagval = editWidget.getProperty(oneprop.tag)
+                else:
+                    tagval = ""
+                editfield = oneprop.editClass(oneprop.tag, oneprop, editWidget, **oneprop.editKeywords)
+                w = editfield.showEditWidget(tagval).build()
+                layout.addWidget( w )
+                displayWidget.editlist.append(editfield)
+                editfield.newValue.connect(callback)
+        else:
+            tagval, tagtype = proplist
+            fakeProp = edmField("", "", "")
+            for tagkey, val in tagval.items():
+                fakeProp.tag = tagkey
+                editfield = edmEditField(tagkey, fakeProp, editWidget)
+                w = editfield.showEditWidget(val).build()
+                layout.addWidget( w)
+                displayWidget.editlist.append(editfield)
+                editfield.newValue.connect(callback)
+        return layout

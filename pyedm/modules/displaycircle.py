@@ -1,32 +1,32 @@
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # This module draw an ellipse
 
-import pyedm.edmDisplay as edmDisplay
-from pyedm.edmWidget import edmWidget
-from pyedm.edmAbstractShape import abstractShape
-from pyedm.edmEditWidget import edmEdit
+from .edmApp import edmApp
+from .edmWidget import edmWidget
+from .edmAbstractShape import abstractShape
 
-from PyQt4.QtGui import QFrame, QPainter
+from PyQt5.QtWidgets import QFrame
+from PyQt5.QtGui import QPainter
 
 class activeCircleClass(abstractShape):
+    menuGroup = ["display", "Draw Circle"]
+    edmFieldList = abstractShape.edmBaseFields + abstractShape.edmShapeFields + abstractShape.edmVisFields
+
     V3propTable = {
-        "2-0" : [ "lineColor", "lineAlarm", "fill", "fillColor", "fillAlarm", "controlPv", "visPv", "visInvert", "visMin", "visMax", "lineWidth", "lineStyle" ],
-        "2-1" : [ "INDEX", "lineColor", "lineAlarm", "fill", "INDEX", "fillColor", "fillAlarm", "controlPv", "visPv", "visInvert", "visMin", "visMax", "lineWidth", "lineStyle" ]
+        "2-0" : [ "lineColor", "lineAlarm", "fill", "fillColor", "fillAlarm", "alarmPv", "visPv", "visInvert", "visMin", "visMax", "lineWidth", "lineStyle" ],
+        "2-1" : [ "INDEX", "lineColor", "lineAlarm", "fill", "INDEX", "fillColor", "fillAlarm", "alarmPv", "visPv", "visInvert", "visMin", "visMax", "lineWidth", "lineStyle" ]
             }
-
-    edmEditList = [
-        edmEdit.LineThick(),
-        edmEdit.Enum(label="Line Style", object="lineStyle", enumList=[ "Solid", "Dash" ] ),
-        edmEdit.FgColor("Line Color", "lineColorInfo.getName"),
-        edmEdit.CheckButton("Alarm Sensitive", "lineColorInfo.alarmSensitive"),
-        edmEdit.CheckButton("Fill", "fill"),
-        edmEdit.BgColor("Fill Color", "fillColorInfo.getName"),
-        edmEdit.CheckButton("Alarm Sensitive", "fillColorInfo.alarmSensitive"),
-        edmEdit.StringPV( "Color PV", "alarmPV.getPVname", None),
-    ] + edmEdit.visibleList
-
     def __init__(self, parent=None):
-        abstractShape.__init__(self,parent)
+        super().__init__(parent)
+
+    def buildFromObject(self, objectDesc, **kw):
+        super().buildFromObject( objectDesc, **kw)
+        self.linewidth = objectDesc.getProperty("lineWidth")
+        w2 = self.linewidth
+        w = int(self.linewidth//2)
+
+        self.setGeometry(self.x(), self.y(),
+            self.width()+w2, self.height()+w2)
 
     def paintEvent(self, event=None):
         painter = QPainter(self)
@@ -38,7 +38,9 @@ class activeCircleClass(abstractShape):
             painter.eraseRect(0, 0, self.width(), self.height() )
         if self.fillColorInfo != None:
             painter.setBrush( self.fillColorInfo.setColor() )
-        painter.drawEllipse( 0, 0, self.width()-2, self.height()-2 )
+        lw2 = self.linewidth
+        lw = int(lw2//2)
+        painter.drawEllipse( lw, lw, self.width()-lw2, self.height()-lw2 )
         
-edmDisplay.edmClasses["activeCircleClass"] = activeCircleClass
+edmApp.edmClasses["activeCircleClass"] = activeCircleClass
 

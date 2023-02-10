@@ -1,0 +1,148 @@
+4 0 1
+beginScreenProperties
+major 4
+minor 0
+release 1
+x 833
+y 162
+w 785
+h 600
+font "helvetica-medium-r-18.0"
+ctlFont "helvetica-medium-r-18.0"
+btnFont "helvetica-medium-r-18.0"
+fgColor index 14
+bgColor index 5
+textColor index 14
+ctlFgColor1 index 14
+ctlFgColor2 index 0
+ctlBgColor1 index 0
+ctlBgColor2 index 14
+topShadowColor index 0
+botShadowColor index 14
+endScreenProperties
+
+# (X-Y Graph)
+object xyGraphClass
+beginObjectProperties
+major 4
+minor 9
+release 0
+# Geometry
+x 35
+y 43
+w 415
+h 224
+# Appearance
+border
+plotAreaBorder
+graphTitle "plotTitle"
+xLabel "x Label"
+yLabel "y Label"
+y2Label "y2 Label"
+fgColor index 14
+bgColor index 11
+gridColor index 14
+font "helvetica-medium-r-18.0"
+# Operating Modes
+plotMode "plotLastNPts"
+nPts 50
+updateTimerMs 2000
+# X axis properties
+showXAxis
+xAxisSrc "AutoScale"
+xMax 1
+# Y axis properties
+showYAxis
+yAxisSrc "AutoScale"
+yMax 1
+# Y2 axis properties
+showY2Axis
+y2AxisStyle "log10"
+y2AxisSrc "AutoScale"
+y2Min 1
+y2Max 2
+# Trace Properties
+numTraces 2
+xPv {
+  0 "TRG2400:cycles"
+  1 "TRG2400:cycles"
+}
+yPv {
+  0 "$(P)ReadbackPV"
+  1 "$(P)ReadbackPV2"
+}
+plotStyle {
+  1 "point"
+}
+lineThickness {
+  1 2
+}
+lineStyle {
+  1 "dash"
+}
+plotUpdateMode {
+  0 "x"
+  1 "x"
+}
+plotSymbolType {
+  1 "circle"
+}
+useY2Axis {
+  1 1
+}
+plotColor {
+  0 index 21
+  1 index 26
+}
+endObjectProperties
+
+# (Slider)
+object activeSliderClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 56
+y 325
+w 390
+h 108
+fgColor index 14
+bgColor index 6
+2ndBgColor index 14
+controlColor index 15
+indicatorColor index 0
+font "helvetica-medium-r-18.0"
+controlPv "$(P)ControlPV"
+controlLabelType "pvName"
+readLabelType "pvName"
+incMultiplier 1
+limitsFromDb
+displayFormat "FFloat"
+endObjectProperties
+
+# (Slider)
+object activeSliderClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 53
+y 448
+w 390
+h 108
+fgColor index 14
+bgColor index 6
+2ndBgColor index 14
+controlColor index 15
+indicatorColor index 0
+font "helvetica-medium-r-18.0"
+controlPv "$(P)ControlPV2"
+controlLabelType "pvName"
+readLabelType "pvName"
+incMultiplier 1
+precision 2
+scaleMin 0
+scaleMax 100
+displayFormat "FFloat"
+endObjectProperties
+

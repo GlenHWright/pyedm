@@ -1,3 +1,4 @@
+from __future__ import division
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # This module manages the displaying of a rectangle.
 # Where This Differs From EDM:
@@ -7,35 +8,35 @@
 # width and height as the center of the box, and the line goes on the outside
 # of this - mostly.
 
-import pyedm.edmDisplay as edmDisplay
-from pyedm.edmAbstractShape import abstractShape
-from pyedm.edmEditWidget import edmEdit
+from .edmApp import edmApp
+from .edmAbstractShape import abstractShape
 
-from PyQt4.QtGui import QFrame, QPainter
+from PyQt5.QtWidgets import QFrame
+from PyQt5.QtGui import QPainter
 
 class activeRectangleClass(abstractShape):
+    menuGroup = [ "display", "Draw Rectangle"]
     V3propTable = {
         "2-0" : [ "lineColor", "lineAlarm", "fill", "fillColor", "fillAlarm",
-                    "alarmPV", "visPV", "visInvert", "visMin", "visMax", "lineWidth", "lineStyle", "invisible" ],
+                    "alarmPv", "visPv", "visInvert", "visMin", "visMax", "lineWidth", "lineStyle", "invisible" ],
         "2-1" : [ "INDEX", "lineColor", "lineAlarm", "fill", "INDEX", "fillColor", "fillAlarm",
-                    "alarmPV", "visPV", "visInvert", "visMin", "visMax", "lineWidth", "lineStyle", "invisible" ]
+                    "alarmPv", "visPv", "visInvert", "visMin", "visMax", "lineWidth", "lineStyle", "invisible" ]
                     }
 
-    edmEditList = [
-        edmEdit.LineThick(),
-        edmEdit.Enum(label="Line Style", object="lineStyle", enumList= [ "Solid", "Dash" ] ),
-        edmEdit.FgColor("Line Color", "lineColor"),
-        edmEdit.CheckButton("Alarm Sensitive", "fgAlarm"),
-        edmEdit.CheckButton("Fill", "fill"),
-        edmEdit.BgColor("Fill Color", "fillColor"),
-        edmEdit.CheckButton("Alarm Sensitive", "bgAlarm"),
-        edmEdit.CheckButton("Invisible", "invisible"),
-        edmEdit.StringPV("Color PV", "colorPv")
-    ] + edmEdit.visibleList
+    edmFieldList = abstractShape.edmBaseFields + abstractShape.edmShapeFields + abstractShape.edmVisFields
 
     def __init__(self, parent=None):
-        abstractShape.__init__(self,parent)
+        super().__init__(parent)
 
+    def buildFromObject(self, objectDesc, **kw):
+        super().buildFromObject(objectDesc, **kw)
+        self.linewidth = objectDesc.getProperty("lineWidth", 1)
+        if self.fillColorInfo == None:
+            w2 = self.linewidth
+            w = int(self.linewidth//2)
+            self.setGeometry(self.x()-w, self.y()-w,
+                self.width()+w2, self.height()+w2)
+            
     def paintEvent(self, event=None):
         painter = QPainter(self)
         w,h = self.width(), self.height()
@@ -46,13 +47,15 @@ class activeRectangleClass(abstractShape):
         pen.setColor( self.lineColorInfo.setColor())
         pen.setWidth(self.linewidth)
         painter.setPen(pen)
+        if self.debug() : print("paintRect ", x, y, w, h, self.linewidth, self.fillColorInfo != None)
         if self.fillColorInfo != None:
             painter.setBrush( self.fillColorInfo.setColor() )
+            painter.drawRect( x, y, w, h)
         else:
-            x,y = x+int(self.linewidth/2), y+int(self.linewidth/2)
-            w,h = w-self.linewidth, h-self.linewidth
-            
-        painter.drawRect( x, y, w, h)
+            #w,h = w-self.linewidth, h-self.linewidth
+            lw = self.linewidth
+            hlw = int(lw//2)
+            painter.drawRect( x+hlw, y+hlw, w-lw, h-lw)
         
-edmDisplay.edmClasses["activeRectangleClass"] = activeRectangleClass
+edmApp.edmClasses["activeRectangleClass"] = activeRectangleClass
 

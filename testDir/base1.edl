@@ -1,0 +1,78 @@
+4 0 0
+beginScreenProperties
+major 4
+minor 0
+release 0
+x 703
+y 320
+w 562
+h 398
+font "helvetica-medium-r-18.0"
+ctlFont "helvetica-medium-r-18.0"
+btnFont "helvetica-medium-r-18.0"
+fgColor index 14
+bgColor index 3
+textColor index 14
+ctlFgColor1 index 14
+ctlFgColor2 index 0
+ctlBgColor1 index 0
+ctlBgColor2 index 14
+topShadowColor index 0
+botShadowColor index 14
+endScreenProperties
+
+# (Textentry)
+object TextentryClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 69
+y 46
+w 237
+h 34
+controlPv "LOC\\filename=s:m1.edl"
+fgColor index 14
+fgAlarm
+bgColor index 5
+fill
+font "helvetica-medium-r-14.0"
+endObjectProperties
+
+# (Embedded Window)
+object activePipClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 21
+y 120
+w 503
+h 238
+fgColor index 14
+bgColor index 35
+topShadowColor index 0
+botShadowColor index 14
+filePv "LOC\\filename=s:m1.edl"
+sizeOfs 5
+numDsps 0
+endObjectProperties
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 332
+y 43
+w 183
+h 34
+controlPv "LOC\\filename=s:m1.edl"
+fgColor index 14
+fgAlarm
+bgColor index 5
+fill
+font "helvetica-medium-r-18.0"
+endObjectProperties
+

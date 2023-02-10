@@ -198,7 +198,7 @@ oddColBgColor index 0
 evenColBgColor index 14
 topShadowColor index 0
 botShadowColor index 14
-pv "testPV"
+pv "$(P)testPV"
 font "helvetica-medium-r-18.0"
 endObjectProperties
 

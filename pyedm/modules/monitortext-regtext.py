@@ -1,19 +1,30 @@
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # This module generates a widget for monitoring the text value of a PV
 
-# from  pyedm.monitortext import TextupdateClass
-monitortext = __import__("monitortext", globals(), locals(), 1)
+
+from . import edmImport
+from .edmApp import edmApp
+from .edmField import edmField
+from .edmEditWidget import edmEdit
+
+monitortext = edmImport("monitortext")
 TextupdateClass = monitortext.TextupdateClass
 
-import pyedm.edmDisplay as edmDisplay
-import copy
 
 class RegTextupdateClass(TextupdateClass):
-    def __init__(self, parent=None):
-        TextupdateClass.__init__(self, parent)
+    menuGroup = [ "monitor", "Reg Text" ]
+    edmEntityFields = [
+            edmField("regExpr", edmEdit.String)
+            ]
+    edmFieldList = TextupdateClass.edmBaseFields + TextupdateClass.edmColorFields + \
+            edmEntityFields + TextupdateClass.edmEntityFields +  \
+            TextupdateClass.edmFontFields + TextupdateClass.edmVisFields
 
-    def buildFromObject(self, object):
-        TextupdateClass.buildFromObject(self, object)
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+    def buildFromObject(self, objectDesc, **kw):
+        super().buildFromObject(objectDesc, **kw)
 
     def redisplay(self, **kw):
         self.checkVisible()
@@ -24,5 +35,5 @@ RegTextupdateClass.V3propTable = {}
 for idx in TextupdateClass.V3propTable:
     RegTextupdateClass.V3propTable[idx] = TextupdateClass.V3propTable[idx] + [ "regExpr" ]
 
-edmDisplay.edmClasses["RegTextupdateClass"] = RegTextupdateClass
+edmApp.edmClasses["RegTextupdateClass"] = RegTextupdateClass
 

@@ -1,26 +1,33 @@
-# Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
+# Copyright 2011-2022 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # This module displays a widget that allows text entry.
 
-import pyedm.edmDisplay as edmDisplay
-from pyedm.edmWidget import edmWidget
+from . import edmImport
+from .edmApp import edmApp
+from .edmWidget import edmWidget, pvItemClass
+from .edmEditWidget import edmEdit
+from .edmField import edmField
 
-from PyQt4.QtGui import QLineEdit, QPalette
-from PyQt4.QtCore import SIGNAL, Qt
-from edmEditWidget import edmEdit
+from PyQt5.QtWidgets import QLineEdit
+from PyQt5.QtGui import QPalette
+from PyQt5.QtCore import Qt
 
-monitortext = __import__("monitortext", globals(), locals(), 1)
+# relative execution of "from monitortext import TextupdateClass"
+monitortext = edmImport("monitortext")
 TextupdateClass = monitortext.TextupdateClass
 
-
 class TextentryClass(TextupdateClass):
+    menuGroup = [ "control", "Text Entry" ]
+
+    edmEntityFields = [
+            ] + TextupdateClass.edmEntityFields
 
     V3propTable = {
-        "7-0" : [ "controlPv", "displayMode", "precision", "INDEX", "fgColor", "fgAlarm", "INDEX", "fillColor", "filled", "colorPv",
+        "7-0" : [ "controlPv", "displayMode", "precision", "INDEX", "fgColor", "fgAlarm", "INDEX", "fillColor", "colorPv", "filled",
             "font", "alignment", "lineWidth", "lineAlarm" ]
             }
                 
     def __init__(self, parent=None):
-        TextupdateClass.__init__(self, parent)
+        super().__init__(parent)
 
     def findBgColor(self):
         edmWidget.findBgColor( self, palette=(QPalette.Base,))
@@ -28,11 +35,11 @@ class TextentryClass(TextupdateClass):
     def findFgColor(self):
         edmWidget.findFgColor( self, palette=(QPalette.Text,))
 
-    def buildFromObject(self, object):
-        TextupdateClass.buildFromObject(self, object)
+    def buildFromObject(self, objectDesc, **kw):
+        super().buildFromObject(objectDesc, **kw)
         self.setReadOnly(0) # override the  "display only" settings
         self.setFocusPolicy(Qt.StrongFocus)
-        self.setFrame(1)    # override the  "display only" settings
+        self.setFrame(1)    # use the QFrame border ability
         self.edmParent.buttonInterest.append(self)
 
     # over-ride the focus events - simplification, because we really
@@ -44,18 +51,21 @@ class TextentryClass(TextupdateClass):
             if self.controlPV.units != "" and value.endswith(self.controlPV.units):
                 value = value[:-len(self.controlPV.units)]
             self.controlPV.put(value)
-            self.haveFocus = 0
+            self.haveFocus = False
             # self.controlPV.char_value = value
             event.accept()
             self.redisplay()
             return
 
         QLineEdit.keyPressEvent(self, event)
-        self.haveFocus = 1
+        self.haveFocus = True
 
     def focusOutEvent(self, event):
         QLineEdit.focusOutEvent(self, event)
-        self.haveFocus = 0
+        self.haveFocus = False
         self.redisplay()
 
-edmDisplay.edmClasses["TextentryClass"] = TextentryClass
+
+TextentryClass.buildFieldListClass("edmEntityFields", "edmFontFields")
+
+edmApp.edmClasses["TextentryClass"] = TextentryClass

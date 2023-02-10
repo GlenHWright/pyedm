@@ -1,0 +1,1494 @@
+4 0 0
+beginScreenProperties
+major 4
+minor 0
+release 0
+x 1942
+y 386
+w 557
+h 514
+font "helvetica-bold-r-12.0"
+ctlFont "helvetica-bold-r-12.0"
+btnFont "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 50
+textColor index 14
+ctlFgColor1 index 14
+ctlFgColor2 index 0
+ctlBgColor1 index 30
+ctlBgColor2 index 14
+topShadowColor index 3
+botShadowColor index 4
+title "$(PREFIX) Configure"
+endScreenProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 44
+y 76
+w 16
+h 17
+font "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 30
+useDisplayBg
+value {
+  "Up"
+}
+autoSize
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 112
+y 77
+w 26
+h 14
+font "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 30
+useDisplayBg
+value {
+  "Hold"
+}
+autoSize
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 180
+y 76
+w 34
+h 14
+font "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 30
+useDisplayBg
+value {
+  "Down"
+}
+autoSize
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 317
+y 69
+w 30
+h 28
+font "helvetica-bold-r-12.0"
+fontAlign "center"
+fgColor index 14
+bgColor index 30
+useDisplayBg
+value {
+  "Set"
+  "Point"
+}
+autoSize
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 238
+y 74
+w 54
+h 14
+font "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 30
+useDisplayBg
+value {
+  "Elapsed"
+}
+autoSize
+endObjectProperties
+
+# (Textentry)
+object TextentryClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 17
+y 103
+w 62
+h 34
+controlPv "$(PREFIX):SSR1:Up:Hr"
+fgColor index 14
+fgAlarm
+bgColor index 30
+fill
+font "helvetica-bold-r-12.0"
+endObjectProperties
+
+# (Textentry)
+object TextentryClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 17
+y 142
+w 62
+h 34
+controlPv "$(PREFIX):SSR2:Up:Hr"
+fgColor index 14
+fgAlarm
+bgColor index 30
+fill
+font "helvetica-bold-r-12.0"
+endObjectProperties
+
+# (Textentry)
+object TextentryClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 17
+y 181
+w 62
+h 34
+controlPv "$(PREFIX):SSR3:Up:Hr"
+fgColor index 14
+fgAlarm
+bgColor index 30
+fill
+font "helvetica-bold-r-12.0"
+endObjectProperties
+
+# (Textentry)
+object TextentryClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 17
+y 220
+w 62
+h 34
+controlPv "$(PREFIX):SSR4:Up:Hr"
+fgColor index 14
+fgAlarm
+bgColor index 30
+fill
+font "helvetica-bold-r-12.0"
+endObjectProperties
+
+# (Textentry)
+object TextentryClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 17
+y 259
+w 62
+h 34
+controlPv "$(PREFIX):SSR5:Up:Hr"
+fgColor index 14
+fgAlarm
+bgColor index 30
+fill
+font "helvetica-bold-r-12.0"
+endObjectProperties
+
+# (Textentry)
+object TextentryClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 17
+y 299
+w 62
+h 34
+controlPv "$(PREFIX):SSR6:Up:Hr"
+fgColor index 14
+fgAlarm
+bgColor index 30
+fill
+font "helvetica-bold-r-12.0"
+endObjectProperties
+
+# (Textentry)
+object TextentryClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 17
+y 338
+w 62
+h 34
+controlPv "$(PREFIX):SSR7:Up:Hr"
+fgColor index 14
+fgAlarm
+bgColor index 30
+fill
+font "helvetica-bold-r-12.0"
+endObjectProperties
+
+# (Textentry)
+object TextentryClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 17
+y 377
+w 62
+h 34
+controlPv "$(PREFIX):SSR8:Up:Hr"
+fgColor index 14
+fgAlarm
+bgColor index 30
+fill
+font "helvetica-bold-r-12.0"
+endObjectProperties
+
+# (Textentry)
+object TextentryClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 17
+y 417
+w 62
+h 34
+controlPv "$(PREFIX):SSR9:Up:Hr"
+fgColor index 14
+fgAlarm
+bgColor index 30
+fill
+font "helvetica-bold-r-12.0"
+endObjectProperties
+
+# (Textentry)
+object TextentryClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 84
+y 142
+w 77
+h 33
+controlPv "$(PREFIX):SSR2:Hold:S"
+fgColor index 14
+fgAlarm
+bgColor index 30
+fill
+font "helvetica-bold-r-12.0"
+endObjectProperties
+
+# (Textentry)
+object TextentryClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 84
+y 103
+w 77
+h 33
+controlPv "$(PREFIX):SSR1:Hold:S"
+fgColor index 14
+fgAlarm
+bgColor index 30
+fill
+font "helvetica-bold-r-12.0"
+endObjectProperties
+
+# (Textentry)
+object TextentryClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 84
+y 181
+w 77
+h 33
+controlPv "$(PREFIX):SSR3:Hold:S"
+fgColor index 14
+fgAlarm
+bgColor index 30
+fill
+font "helvetica-bold-r-12.0"
+endObjectProperties
+
+# (Textentry)
+object TextentryClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 84
+y 220
+w 77
+h 33
+controlPv "$(PREFIX):SSR4:Hold:S"
+fgColor index 14
+fgAlarm
+bgColor index 30
+fill
+font "helvetica-bold-r-12.0"
+endObjectProperties
+
+# (Textentry)
+object TextentryClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 84
+y 259
+w 77
+h 33
+controlPv "$(PREFIX):SSR5:Hold:S"
+fgColor index 14
+fgAlarm
+bgColor index 30
+fill
+font "helvetica-bold-r-12.0"
+endObjectProperties
+
+# (Textentry)
+object TextentryClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 84
+y 299
+w 77
+h 33
+controlPv "$(PREFIX):SSR6:Hold:S"
+fgColor index 14
+fgAlarm
+bgColor index 30
+fill
+font "helvetica-bold-r-12.0"
+endObjectProperties
+
+# (Textentry)
+object TextentryClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 84
+y 338
+w 77
+h 33
+controlPv "$(PREFIX):SSR7:Hold:S"
+fgColor index 14
+fgAlarm
+bgColor index 30
+fill
+font "helvetica-bold-r-12.0"
+endObjectProperties
+
+# (Textentry)
+object TextentryClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 84
+y 377
+w 77
+h 33
+controlPv "$(PREFIX):SSR8:Hold:S"
+fgColor index 14
+fgAlarm
+bgColor index 30
+fill
+font "helvetica-bold-r-12.0"
+endObjectProperties
+
+# (Textentry)
+object TextentryClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 84
+y 417
+w 77
+h 33
+controlPv "$(PREFIX):SSR9:Hold:S"
+fgColor index 14
+fgAlarm
+bgColor index 30
+fill
+font "helvetica-bold-r-12.0"
+endObjectProperties
+
+# (Textentry)
+object TextentryClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 167
+y 102
+w 62
+h 34
+controlPv "$(PREFIX):SSR1:Dn:Hr"
+fgColor index 14
+fgAlarm
+bgColor index 30
+fill
+font "helvetica-bold-r-12.0"
+endObjectProperties
+
+# (Textentry)
+object TextentryClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 167
+y 141
+w 62
+h 34
+controlPv "$(PREFIX):SSR2:Dn:Hr"
+fgColor index 14
+fgAlarm
+bgColor index 30
+fill
+font "helvetica-bold-r-12.0"
+endObjectProperties
+
+# (Textentry)
+object TextentryClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 167
+y 180
+w 62
+h 34
+controlPv "$(PREFIX):SSR3:Dn:Hr"
+fgColor index 14
+fgAlarm
+bgColor index 30
+fill
+font "helvetica-bold-r-12.0"
+endObjectProperties
+
+# (Textentry)
+object TextentryClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 167
+y 219
+w 62
+h 34
+controlPv "$(PREFIX):SSR4:Dn:Hr"
+fgColor index 14
+fgAlarm
+bgColor index 30
+fill
+font "helvetica-bold-r-12.0"
+endObjectProperties
+
+# (Textentry)
+object TextentryClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 167
+y 258
+w 62
+h 34
+controlPv "$(PREFIX):SSR5:Dn:Hr"
+fgColor index 14
+fgAlarm
+bgColor index 30
+fill
+font "helvetica-bold-r-12.0"
+endObjectProperties
+
+# (Textentry)
+object TextentryClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 167
+y 298
+w 62
+h 34
+controlPv "$(PREFIX):SSR6:Dn:Hr"
+fgColor index 14
+fgAlarm
+bgColor index 30
+fill
+font "helvetica-bold-r-12.0"
+endObjectProperties
+
+# (Textentry)
+object TextentryClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 167
+y 337
+w 62
+h 34
+controlPv "$(PREFIX):SSR7:Dn:Hr"
+fgColor index 14
+fgAlarm
+bgColor index 30
+fill
+font "helvetica-bold-r-12.0"
+endObjectProperties
+
+# (Textentry)
+object TextentryClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 167
+y 376
+w 62
+h 34
+controlPv "$(PREFIX):SSR8:Dn:Hr"
+fgColor index 14
+fgAlarm
+bgColor index 30
+fill
+font "helvetica-bold-r-12.0"
+endObjectProperties
+
+# (Textentry)
+object TextentryClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 167
+y 416
+w 62
+h 34
+controlPv "$(PREFIX):SSR9:Dn:Hr"
+fgColor index 14
+fgAlarm
+bgColor index 30
+fill
+font "helvetica-bold-r-12.0"
+endObjectProperties
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 234
+y 107
+w 58
+h 24
+controlPv "$(PREFIX):SSR1:H:ET:S"
+fgColor index 14
+fgAlarm
+bgColor index 50
+fill
+font "helvetica-bold-r-12.0"
+endObjectProperties
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 234
+y 146
+w 58
+h 24
+controlPv "$(PREFIX):SSR2:H:ET:S"
+fgColor index 14
+fgAlarm
+bgColor index 50
+fill
+font "helvetica-bold-r-12.0"
+endObjectProperties
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 234
+y 185
+w 58
+h 24
+controlPv "$(PREFIX):SSR3:H:ET:S"
+fgColor index 14
+fgAlarm
+bgColor index 50
+fill
+font "helvetica-bold-r-12.0"
+endObjectProperties
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 234
+y 224
+w 58
+h 24
+controlPv "$(PREFIX):SSR4:H:ET:S"
+fgColor index 14
+fgAlarm
+bgColor index 50
+fill
+font "helvetica-bold-r-12.0"
+endObjectProperties
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 234
+y 263
+w 58
+h 24
+controlPv "$(PREFIX):SSR5:H:ET:S"
+fgColor index 14
+fgAlarm
+bgColor index 50
+fill
+font "helvetica-bold-r-12.0"
+endObjectProperties
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 234
+y 303
+w 58
+h 24
+controlPv "$(PREFIX):SSR6:H:ET:S"
+fgColor index 14
+fgAlarm
+bgColor index 50
+fill
+font "helvetica-bold-r-12.0"
+endObjectProperties
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 234
+y 342
+w 58
+h 24
+controlPv "$(PREFIX):SSR7:H:ET:S"
+fgColor index 14
+fgAlarm
+bgColor index 50
+fill
+font "helvetica-bold-r-12.0"
+endObjectProperties
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 234
+y 381
+w 58
+h 24
+controlPv "$(PREFIX):SSR8:H:ET:S"
+fgColor index 14
+fgAlarm
+bgColor index 50
+fill
+font "helvetica-bold-r-12.0"
+endObjectProperties
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 234
+y 421
+w 58
+h 24
+controlPv "$(PREFIX):SSR9:H:ET:S"
+fgColor index 14
+fgAlarm
+bgColor index 50
+fill
+font "helvetica-bold-r-12.0"
+endObjectProperties
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 374
+y 106
+w 44
+h 25
+controlPv "$(PREFIX):TM0001:SP"
+fgColor index 14
+fgAlarm
+bgColor index 50
+fill
+font "helvetica-bold-r-12.0"
+fontAlign "center"
+endObjectProperties
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 374
+y 145
+w 44
+h 25
+controlPv "$(PREFIX):TM0002:SP"
+fgColor index 14
+fgAlarm
+bgColor index 50
+fill
+font "helvetica-bold-r-12.0"
+fontAlign "center"
+endObjectProperties
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 374
+y 184
+w 44
+h 25
+controlPv "$(PREFIX):TM0003:SP"
+fgColor index 14
+fgAlarm
+bgColor index 50
+fill
+font "helvetica-bold-r-12.0"
+fontAlign "center"
+endObjectProperties
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 374
+y 223
+w 44
+h 25
+controlPv "$(PREFIX):TM0004:SP"
+fgColor index 14
+fgAlarm
+bgColor index 50
+fill
+font "helvetica-bold-r-12.0"
+fontAlign "center"
+endObjectProperties
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 374
+y 262
+w 44
+h 25
+controlPv "$(PREFIX):TM0005:SP"
+fgColor index 14
+fgAlarm
+bgColor index 50
+fill
+font "helvetica-bold-r-12.0"
+fontAlign "center"
+endObjectProperties
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 374
+y 301
+w 44
+h 25
+controlPv "$(PREFIX):TM0006:SP"
+fgColor index 14
+fgAlarm
+bgColor index 50
+fill
+font "helvetica-bold-r-12.0"
+fontAlign "center"
+endObjectProperties
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 374
+y 341
+w 44
+h 25
+controlPv "$(PREFIX):TM0007:SP"
+fgColor index 14
+fgAlarm
+bgColor index 50
+fill
+font "helvetica-bold-r-12.0"
+fontAlign "center"
+endObjectProperties
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 374
+y 380
+w 44
+h 25
+controlPv "$(PREFIX):TM0008:SP"
+fgColor index 14
+fgAlarm
+bgColor index 50
+fill
+font "helvetica-bold-r-12.0"
+fontAlign "center"
+endObjectProperties
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 374
+y 419
+w 44
+h 25
+controlPv "$(PREFIX):TM0009:SP"
+fgColor index 14
+fgAlarm
+bgColor index 50
+fill
+font "helvetica-bold-r-12.0"
+fontAlign "center"
+endObjectProperties
+
+# (Textentry)
+object TextentryClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 298
+y 102
+w 71
+h 34
+controlPv "$(PREFIX):SSR1:Up:SP"
+fgColor index 14
+fgAlarm
+bgColor index 30
+fill
+font "helvetica-bold-r-12.0"
+endObjectProperties
+
+# (Textentry)
+object TextentryClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 298
+y 141
+w 71
+h 34
+controlPv "$(PREFIX):SSR2:Up:SP"
+fgColor index 14
+fgAlarm
+bgColor index 30
+fill
+font "helvetica-bold-r-12.0"
+endObjectProperties
+
+# (Textentry)
+object TextentryClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 298
+y 180
+w 71
+h 34
+controlPv "$(PREFIX):SSR3:Up:SP"
+fgColor index 14
+fgAlarm
+bgColor index 30
+fill
+font "helvetica-bold-r-12.0"
+endObjectProperties
+
+# (Textentry)
+object TextentryClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 298
+y 219
+w 71
+h 34
+controlPv "$(PREFIX):SSR4:Up:SP"
+fgColor index 14
+fgAlarm
+bgColor index 30
+fill
+font "helvetica-bold-r-12.0"
+endObjectProperties
+
+# (Textentry)
+object TextentryClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 298
+y 258
+w 71
+h 34
+controlPv "$(PREFIX):SSR5:Up:SP"
+fgColor index 14
+fgAlarm
+bgColor index 30
+fill
+font "helvetica-bold-r-12.0"
+endObjectProperties
+
+# (Textentry)
+object TextentryClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 298
+y 297
+w 71
+h 34
+controlPv "$(PREFIX):SSR6:Up:SP"
+fgColor index 14
+fgAlarm
+bgColor index 30
+fill
+font "helvetica-bold-r-12.0"
+endObjectProperties
+
+# (Textentry)
+object TextentryClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 298
+y 336
+w 71
+h 34
+controlPv "$(PREFIX):SSR7:Up:SP"
+fgColor index 14
+fgAlarm
+bgColor index 30
+fill
+font "helvetica-bold-r-12.0"
+endObjectProperties
+
+# (Textentry)
+object TextentryClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 298
+y 375
+w 71
+h 34
+controlPv "$(PREFIX):SSR8:Up:SP"
+fgColor index 14
+fgAlarm
+bgColor index 30
+fill
+font "helvetica-bold-r-12.0"
+endObjectProperties
+
+# (Textentry)
+object TextentryClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 298
+y 415
+w 71
+h 34
+controlPv "$(PREFIX):SSR9:Up:SP"
+fgColor index 14
+fgAlarm
+bgColor index 30
+fill
+font "helvetica-bold-r-12.0"
+endObjectProperties
+
+# (Textentry)
+object TextentryClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 9
+y 32
+w 73
+h 34
+controlPv "$(PREFIX):SSRa:Up:S"
+fgColor index 14
+fgAlarm
+bgColor index 30
+fill
+font "helvetica-bold-r-12.0"
+endObjectProperties
+
+# (Textentry)
+object TextentryClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 88
+y 32
+w 69
+h 34
+controlPv "$(PREFIX):SSRa:Hold:S"
+fgColor index 14
+fgAlarm
+bgColor index 30
+fill
+font "helvetica-bold-r-12.0"
+endObjectProperties
+
+# (Textentry)
+object TextentryClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 163
+y 32
+w 69
+h 34
+controlPv "$(PREFIX):SSRa:Down:S"
+fgColor index 14
+fgAlarm
+bgColor index 30
+fill
+font "helvetica-bold-r-12.0"
+endObjectProperties
+
+# (Textentry)
+object TextentryClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 297
+y 33
+w 75
+h 34
+controlPv "$(PREFIX):SSRall:Up:SP"
+fgColor index 14
+fgAlarm
+bgColor index 30
+fill
+font "helvetica-bold-r-12.0"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 7
+y 3
+w 138
+h 25
+font "helvetica-bold-r-18.0"
+fgColor index 14
+bgColor index 30
+useDisplayBg
+value {
+  "$(PREFIX)"
+}
+endObjectProperties
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 435
+y 106
+w 53
+h 25
+controlPv "$(PREFIX):SSR1:TC:ID"
+fgColor index 14
+fgAlarm
+bgColor index 50
+fill
+font "helvetica-bold-r-12.0"
+fontAlign "center"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 376
+y 75
+w 39
+h 14
+font "helvetica-bold-r-12.0"
+fontAlign "center"
+fgColor index 14
+bgColor index 30
+useDisplayBg
+value {
+  "Target"
+}
+autoSize
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 423
+y 73
+w 83
+h 14
+font "helvetica-bold-r-12.0"
+fontAlign "center"
+fgColor index 14
+bgColor index 30
+useDisplayBg
+value {
+  "Thermocouple"
+}
+autoSize
+endObjectProperties
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 435
+y 145
+w 53
+h 25
+controlPv "$(PREFIX):SSR2:TC:ID"
+fgColor index 14
+fgAlarm
+bgColor index 50
+fill
+font "helvetica-bold-r-12.0"
+fontAlign "center"
+endObjectProperties
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 435
+y 184
+w 53
+h 25
+controlPv "$(PREFIX):SSR3:TC:ID"
+fgColor index 14
+fgAlarm
+bgColor index 50
+fill
+font "helvetica-bold-r-12.0"
+fontAlign "center"
+endObjectProperties
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 435
+y 223
+w 53
+h 25
+controlPv "$(PREFIX):SSR4:TC:ID"
+fgColor index 14
+fgAlarm
+bgColor index 50
+fill
+font "helvetica-bold-r-12.0"
+fontAlign "center"
+endObjectProperties
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 435
+y 262
+w 53
+h 25
+controlPv "$(PREFIX):SSR5:TC:ID"
+fgColor index 14
+fgAlarm
+bgColor index 50
+fill
+font "helvetica-bold-r-12.0"
+fontAlign "center"
+endObjectProperties
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 435
+y 301
+w 53
+h 25
+controlPv "$(PREFIX):SSR6:TC:ID"
+fgColor index 14
+fgAlarm
+bgColor index 50
+fill
+font "helvetica-bold-r-12.0"
+fontAlign "center"
+endObjectProperties
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 435
+y 340
+w 53
+h 25
+controlPv "$(PREFIX):SSR7:TC:ID"
+fgColor index 14
+fgAlarm
+bgColor index 50
+fill
+font "helvetica-bold-r-12.0"
+fontAlign "center"
+endObjectProperties
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 435
+y 379
+w 53
+h 25
+controlPv "$(PREFIX):SSR8:TC:ID"
+fgColor index 14
+fgAlarm
+bgColor index 50
+fill
+font "helvetica-bold-r-12.0"
+fontAlign "center"
+endObjectProperties
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 435
+y 418
+w 53
+h 25
+controlPv "$(PREFIX):SSR9:TC:ID"
+fgColor index 14
+fgAlarm
+bgColor index 50
+fill
+font "helvetica-bold-r-12.0"
+fontAlign "center"
+endObjectProperties
+
+# (Button)
+object activeButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 427
+y 37
+w 49
+h 27
+fgColor index 14
+onColor index 30
+offColor index 31
+inconsistentColor index 14
+topShadowColor index 3
+botShadowColor index 4
+controlPv "$(PREFIX):testWiring"
+onLabel "Test"
+offLabel "Test"
+labelType "literal"
+buttonType "push"
+3d
+font "helvetica-bold-r-12.0"
+objType "controls"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 187
+y 475
+w 64
+h 14
+font "helvetica-bold-r-12.0"
+fgColor index 14
+bgColor index 30
+useDisplayBg
+value {
+  "High Alarm"
+}
+autoSize
+endObjectProperties
+
+# (Textentry)
+object TextentryClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 255
+y 465
+w 56
+h 34
+controlPv "$(PREFIX):Hi:Alarm:SP"
+fgColor index 14
+fgAlarm
+bgColor index 30
+fill
+font "helvetica-bold-r-12.0"
+endObjectProperties
+
+# (Textupdate)
+object TextupdateClass
+beginObjectProperties
+major 10
+minor 0
+release 0
+x 323
+y 470
+w 36
+h 25
+controlPv "$(PREFIX):Hi:Alarm:SP:fbk"
+fgColor index 14
+fgAlarm
+bgColor index 50
+fill
+font "helvetica-bold-r-12.0"
+fontAlign "center"
+endObjectProperties
+

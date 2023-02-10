@@ -1,32 +1,47 @@
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # This module generates a widget to set a PV to a value on press or release
 # from pyedm.controlbutton import activeButtonClass
-controlbutton = __import__("controlbutton", globals(), locals(), 1)
+#
+#
+from pyedm import edmImport
+controlbutton = edmImport("controlbutton")
 activeButtonClass = controlbutton.activeButtonClass
 
-import pyedm.edmDisplay as edmDisplay
+from .edmField import edmField
+from .edmWidget import pvItemClass
+from .edmEditWidget import edmEdit
+from .edmApp import edmApp
 
 class activeMessageButtonClass (activeButtonClass):
 
+    menuGroup = [ "control", "Message Button"]
+    edmEntityFields = [
+            edmField("pressValue", edmEdit.String),
+            edmField("releaseValue", edmEdit.String),
+            edmField("toggle", edmEdit.Bool, defaultValue=False),
+            ] + activeButtonClass.edmEntityFields
+
     V3propTable = {
+        "2-1" : [ "fgColor", "onColor", "offColor", "topShadowColor", "botShadowColor",
+            "controlPv", "PressValue", "ReleaseValue", "onLabel", "offLabel", "toggle", "pressAction", "releaseAction", "3D", "invisible", "font",
+            "password", "lock", "visPv", "visInvert", "visMin", "visMax", "colorPv", "useEnumNumeric" ] ,
         "2-5" : [ "INDEX", "fgColor", "INDEX", "onColor", "INDEX", "offColor", "INDEX", "topShadowColor", "INDEX", "botShadowColor",
             "controlPv", "PressValue", "ReleaseValue", "onLabel", "offLabel", "toggle", "pressAction", "releaseAction", "3D", "invisible", "font",
             "password", "lock", "visPv", "visInvert", "visMin", "visMax", "colorPv", "useEnumNumeric" ]
         }
 
     def __init__(self, parent=None):
-        activeButtonClass.__init__(self, parent)
+        super().__init__(parent)
         self.PressedState = 0
 
-    def buildFromObject(self, object):
-        activeButtonClass.buildFromObject(self, object)
-        self.pushValue = object.getStringProperty("pressValue")
-        self.releaseValue = object.getStringProperty("releaseValue")
+    def buildFromObject(self, objectDesc, **kw):
+        super().buildFromObject(objectDesc, **kw)
+        self.pushValue = objectDesc.getProperty("pressValue")
+        self.releaseValue = objectDesc.getProperty("releaseValue")
 
     # toggle type is determined by "toggle" property
     def getToggleType(self):
-        ty = self.object.getIntProperty("toggle")
-        return ty==1
+        return self.objectDesc.getProperty("toggle")
 
     # change the onPress() callback to set the label value
     def onPress(self):
@@ -61,4 +76,6 @@ class activeMessageButtonClass (activeButtonClass):
         else:
             self.onRelease()
 
-edmDisplay.edmClasses["activeMessageButtonClass"] = activeMessageButtonClass
+activeMessageButtonClass.buildFieldListClass("edmEntityFields", "edmFontFields")
+
+edmApp.edmClasses["activeMessageButtonClass"] = activeMessageButtonClass

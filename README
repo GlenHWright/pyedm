@@ -19,22 +19,19 @@ If an edm class has not been implemented, pyedm will still run, but will
 leave a blank area for that class.
 
 It is possible to use the module to embed an EDM window within a QT application.
-I don't have a generic example, but I include a specific piece of working code:
-
+This particular example is from PyQt4 using the epicsConnectLib, being shared
+with the python or C or C++ application. Recommendation is that pyedm should
+be embedded by design and not by afterthought, and that the application uses
+the pyedm PV library - this allows use of CALC and LOC process variables in
+the application!
  - - - - - - - - - -
 import pyedm
 from PyQt4.QtCore import QTimer, SIGNAL
 from pyedm.edmWindowWidget import edmWindowWidget
-from epicsConnect import epicsConnectLib
 
 ecl = epicsConnectLib()
 
-# Macros, macros, everywhere!
-# There are two macro packages in play:
-# the first is the "EpicsConnect" macro package, used mostly
-# for setting PV name components but also used generally through IDA
-# for configuration options. This is what gets used with the "--macro"
-# command line arguments.
+# Updated to only use a built-in macro package.
 # The second macro package is embedded in the edm support layer. The macros
 # at this layer support individual screen groups, but are not affected by
 # other screens or by the epicsConnect package, except here, where the edm
@@ -65,10 +62,3 @@ def showdim(p, depth):
 
 pyedm.edmApp.startTimer()
 # pyedm.edmApp.DebugFlag = 1
-
- - - - - - - - - - -
-
-The epicsConnectLib is not necessary to load a screen - it provided macro expansion
-for the specific app. The app was also using 'setCurrentWidget()' to embed the returned
-widget before displaying it. Hopefully, a general embedded test app will be available
-in the near future.

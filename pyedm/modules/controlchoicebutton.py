@@ -1,38 +1,52 @@
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # This module generates a widget containing one button per state for a PV
-import pyedm.edmDisplay as edmDisplay
-from pyedm.edmWidget import edmWidget
-from pyedm.edmApp import redisplay
-from pyedm.edmWindowWidget import mousePressEvent, mouseReleaseEvent
+from enum import Enum
+from .edmWidget import edmWidget, pvItemClass
+from .edmApp import redisplay, edmApp
+from .edmWindowWidget import mousePressEvent, mouseReleaseEvent, mouseMoveEvent
+from .edmParentSupport import edmParentSupport
+from .edmField import edmField
+from .edmEditWidget import edmEdit
 
-from PyQt4.QtGui import QWidget, QLayout, QVBoxLayout, QHBoxLayout, QButtonGroup, QPushButton, QPalette
-from PyQt4 import QtCore
-from PyQt4.QtCore import SIGNAL
+from PyQt5.QtWidgets import QWidget, QLayout, QVBoxLayout, QHBoxLayout, QButtonGroup, QPushButton
+from PyQt5.QtGui import QPalette
+from PyQt5 import QtCore
+from PyQt5.QtCore import pyqtSlot
 
-class activeChoiceButtonClass(QWidget,edmWidget):
+class activeChoiceButtonClass(QWidget,edmWidget,edmParentSupport):
+    menuGroup = [ "control", "Choice Button"]
+    orientationEnum = Enum("orientation", "vertical horizontal", start=0)
+    edmEntityFields = [
+            edmField("controlPv", edmEdit.PV),
+            edmField("orientation", edmEdit.Enum, defaultValue=0, enumList=orientationEnum),
+            edmField("selectColor", edmEdit.Color, defaultValue=0)
+            ] + edmWidget.edmFontFields
     def __init__(self,parent=None):
-        QWidget.__init__(self,parent)
-        edmWidget.__init__(self,parent)
+        super().__init__(parent)
         self.ready = 0
-        self.pvItem["controlPv"] = [ "controlName", "controlPV", 1, None, None , onConnect, (self, ) ]
+        self.pvItem["controlPv"] = pvItemClass( "controlName", "controlPV", redisplay=True, conCallback=self.onConnect  )
 
-    def cleanup(self):
-        edmWidget.cleanup(self)
-        self.selectColorInfo.cleanup()
+    def edmCleanup(self):
+        super().edmCleanup()
+        self.selectColorInfo.edmCleanup()
 
-    def buildFromObject(self, object):
-        edmWidget.buildFromObject(self,object)
-        self.orientation = object.getStringProperty("orientation", "vertical")
-        self.layout = QVBoxLayout() if self.orientation == "vertical" else QHBoxLayout()
-        self.setLayout(self.layout)
-        self.layout.setSpacing(0)
-        self.layout.setMargin(0)
-        self.group = QButtonGroup(self)
+    def buildFromObject(self, objectDesc, **kw):
+        super().buildFromObject(objectDesc, **kw)
+        rebuild = kw.get("rebuild", False)
+        self.orientation = objectDesc.getProperty("orientation")
+        if rebuild == False:
+            self.layout = QVBoxLayout() if self.orientation == self.orientationEnum.vertical else QHBoxLayout()
+            self.setLayout(self.layout)
+            self.layout.setSpacing(0)
+            #self.layout.setMargin(0)
+            self.layout.setContentsMargins(0,0,0,0)
+            self.group = QButtonGroup(self)
+            self.group.buttonClicked.connect(self.gotNewValue)
+            self.edmParent.buttonInterest.append(self)
+            self.buttonInterest = []
         self.lastSelect = -2
-        self.group.connect( self.group, SIGNAL("buttonClicked(int)"), self.gotNewValue)
+
         self.selectColorInfo = self.findColor("selectColor",(QPalette.Button,) )
-        self.buttonInterest = []
-        self.edmParent.buttonInterest.append(self)
         # Race conditions: if using a preemptive callback environment, the test and set of 'ready' can have
         # the onConnect callback occur in the middle, meaning the menu never gets set. Need to reevaluate
         # the use of 'ready' and the potential for fully correct implementation.
@@ -42,16 +56,25 @@ class activeChoiceButtonClass(QWidget,edmWidget):
 
     # override the palette and the display request.
     def findFgColor(self):
-        self.fgColorInfo = self.findColor( "fgColor", (QPalette.ButtonText,), "FGalarm", "fgAlarm")
+        self.fgColorInfo = self.findColor( "fgColor", (QPalette.ButtonText,), alarmName="fgAlarm")
 
     # override the palette and the display request.
     def findBgColor(self):
-        self.bgColorInfo = self.findColor( "bgColor", (QPalette.Button,), "FGalarm", "fgAlarm")
+        self.bgColorInfo = self.findColor( "bgColor", (QPalette.Button,), alarmName="bgAlarm")
 
-    def gotNewValue(self, value):
+    def onConnect(self, pv, *args, **kw):
+        self.menu = pv.getEnumStrings()
+        if self.menu != None and len(self.menu) > 0:
+            self.ready = -1
+            redisplay(self)
+
+    @pyqtSlot()
+    def gotNewValue(self):
+        button = self.group.checkedId()
         if self.controlPV == None or getattr(self, 'menu', None) == None:
             return
-        self.controlPV.put( value)
+        self.controlPV.put( button )
+        self.redisplay()
 
     def redisplay(self):
         # called when the control PV changes
@@ -59,10 +82,11 @@ class activeChoiceButtonClass(QWidget,edmWidget):
         self.checkVisible()
         if self.ready < 0:
             self.rebuildList()
-        bt = self.group.button(self.controlPV.value)
+        bid = int(self.controlPV.value)
+        bt = self.group.button(bid)
         if bt != None:
             bt.setChecked(True)
-        self.setButtonColors( self.controlPV.value)
+        self.setButtonColors( bid)
         self.update()
 
     def setButtonColors(self, checkVal):
@@ -95,12 +119,12 @@ class activeChoiceButtonClass(QWidget,edmWidget):
         width = self.width()
         height = self.height()
         num = len(self.menu)
-        if self.orientation == "horizontal":
-            width = width / num
+        if self.orientation == self.orientationEnum.horizontal:
+            width = width// num
             xIncr = width
             yIncr = 0
         else:
-            height = height / num
+            height = height// num
             xIncr = 0
             yIncr = height
 
@@ -127,11 +151,7 @@ class activeChoiceButtonClass(QWidget,edmWidget):
     def mouseReleaseEvent(self, event):
         mouseReleaseEvent(self, event)
 
-def onConnect(pv, arg, **kw):
-    who = arg[0]
-    who.menu = pv.getEnumStrings()
-    if who.menu != None and len(who.menu) > 0:
-        who.ready = -1
-        redisplay(who)
+    def mouseMoveEvent(self, event):
+        mouseMoveEvent(self, event)
 
-edmDisplay.edmClasses["activeChoiceButtonClass"] = activeChoiceButtonClass
+edmApp.edmClasses["activeChoiceButtonClass"] = activeChoiceButtonClass

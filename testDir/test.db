@@ -1,5 +1,5 @@
 
-record(ai, "textPV")
+record(ai, "$(P)textPV")
 {
 	field(PINI, "1")
 	field(VAL, "5.1")
@@ -8,7 +8,7 @@ record(ai, "textPV")
 	field(HOPR, "100")
 }
 
-record(ai, "testPV")
+record(ai, "$(P)testPV")
 {
 	field(PINI, "1")
 	field(VAL, "11.33")
@@ -16,70 +16,90 @@ record(ai, "testPV")
 	field(LOPR, "0")
 	field(HOPR, "100")
 }
-record(ao, "controlPV")
+record(ao, "$(P)controlPV")
 {
 	field(PREC, "2")
-	field(OUT, "ControlPV PP")
+	field(OUT, "$(P)ControlPV PP")
 	field(LOPR, "0")
 	field(HOPR, "100")
 	field(LOW, "10")
 	field(LSV, "MINOR")
 }
+# inconsistent capitalization!
+record(ao, "$(P)ControlPV")
+{
+	field(PREC, "2")
+	field(LOPR, "0")
+	field(HOPR, "100")
+}
 
-record(bo, "destinationPV")
+record(bo, "$(P)destinationPV")
 {
 	field(ONAM, "One")
 	field(ZNAM, "Zero")
 }
 
-record(ao, "ControlPV")
+record(ao, "$(P)ControlPV2")
 {
 	field(PREC, "2")
 	field(LOPR, "0")
 	field(HOPR, "100")
 }
-record(ai, "readbackPV")
+record(ai, "$(P)readbackPV")
 {
-	field(INP, "ControlPV CP")
+	field(INP, "$(P)ControlPV CP")
 	field(PREC, "2")
 	field(LOPR, "0")
 	field(HOPR, "100")
 }
-record(ai, "ReadbackPV")
+record(ai, "$(P)ReadbackPV")
 {
-	field(INP, "ControlPV CP")
+	field(INP, "$(P)ControlPV CP")
 	field(PREC, "2")
 	field(LOPR, "0")
 	field(HOPR, "100")
 }
-record(ao, "colorPV")
+record(ai, "$(P)ReadbackPV2")
+{
+}
+record(calc, "$(P)calcPV1")
+{
+	field(SCAN, ".1 second")
+	field(CALC, "RNDM*100")
+}
+record(calc, "$(P)calcPV2")
+{
+	field(SCAN, ".1 second")
+	field(CALC, "RNDM*100")
+}
+record(ao, "$(P)colorPV")
 {
 	field(PREC, "2")
 	field(LOPR, "0")
 	field(HOPR, "100")
 }
-record(ao, "visibilityPV")
+record(ao, "$(P)visibilityPV")
 {
 	field(PREC, "2")
 	field(LOPR, "0")
 	field(HOPR, "100")
 }
-record(ao, "NullPV")
+record(ao, "$(P)NullPV")
 {
 	field(PREC, "2")
 	field(LOPR, "0")
 	field(HOPR, "100")
 }
-record(mbbo, "menuPV")
+record(mbbo, "$(P)menuPV")
 {
 	field(ZRST, "Zero")
 	field(ONST, "One")
 	field(TWST, "Two")
 	field(THST, "Three")
 	field(FRST, "Four")
-	field(OUT, "readmenuPV PP")
+	field(OUT, "$(P)readmenuPV PP")
 }
-record(mbbi, "readmenuPV")
+record(mbbi, "$(P)readmenuPV")
 {
 	field(ZRST, "Zero")
 	field(ONST, "One")
@@ -87,30 +107,58 @@ record(mbbi, "readmenuPV")
 	field(THST, "Three")
 	field(FRST, "Four")
 }
-record(bo, "boPV")
+record(bo, "$(P)boPV")
 {
 	field(ZNAM, "Zero")
 	field(ONAM, "One")
 }
-record(bi, "biPV")
+record(bi, "$(P)biPV")
 {
 	field(INP, "boPV CP")
 	field(ZNAM, "Zero")
 	field(ONAM, "One")
 }
-record(mbbiDirect, "mbbiPV")
+record(mbbiDirect, "$(P)mbbiPV")
 {
 }
-record(mbboDirect, "mbboPV")
+record(mbboDirect, "$(P)mbboPV")
 {
 }
-record(stringout, "StringPV")
+record(stringout, "$(P)StringPV")
 {
 }
-record(mbbo, "PVselectEmbeddedWindow")
+record(mbbo, "$(P)PVselectEmbeddedWindow")
 {
 	field(ZRST, "Zero")
 	field(ONST, "One")
 	field(TWST, "Two")
 	field(THST, "THREE!")
+}
+
+record(stringout, "$(P)MainDisplay:1:edmFile")
+{
+}
+record(stringout, "$(P)MainDisplay:1:1:edmFile")
+{
+}
+record(stringout, "$(P)MainDisplay:1:2:edmFile")
+{
+}
+record(stringout, "$(P)MainDisplay:1:3:edmFile")
+{
+}
+record(stringout, "$(P)MainDisplay:1:4:edmFile")
+{
+}
+record(stringout, "$(P)MainDisplay:2:1:edmFile")
+{
+}
+record(stringout, "$(P)MainDisplay:2:2:edmFile")
+{
+}
+record(stringout, "$(P)MainDisplay:2:3:edmFile")
+{
+}
+record(stringout, "$(P)MainDisplay:2:4:edmFile")
+{
 }

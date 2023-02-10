@@ -1,7 +1,10 @@
 # Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 #
+# NOT IMPLEMENTED!
 # Allow a PV to be an indirect name: a text string that
 # is the name of the real connection.
+
+# MODULE LEVEL: low
 
 import pyedm.edmPVfactory as edmPVfactory
 
@@ -19,13 +22,15 @@ def redirectCallback(starpv, **kw):
         return 0
 
 
-class indirectPV:
-    def __init__(self, name=None):
+class indirectPV(edmPVfactory.edmPVbase):
+    def __init__(self, name=None, **kw):
+        super().init(name, **kw)
         self.callbackList = []
         self.value = None
         self.str_value = None
+        self.prefix = "INDIRECT\\"
 
-    def __del__(self):
+    def edmCleanup(self):
         pass
 
     def setPVname(self, pvName):
@@ -49,8 +54,8 @@ class indirectPV:
     def add_redisplay(self, widget):
         pass
 
-def buildPV(name,parent=None,tag=None,macroTable=None):
-    return indirectPV(name)
+def buildPV(**kw):
+    return indirectPV(**kw)
 
 edmPVfactory.pvClassDict["INDIRECT"] = buildPV
 

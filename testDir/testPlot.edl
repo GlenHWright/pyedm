@@ -1,10 +1,10 @@
-4 0 0
+4 0 1
 beginScreenProperties
 major 4
 minor 0
-release 0
+release 1
 x 1566
-y 23
+y 31
 w 500
 h 600
 font "helvetica-bold-r-14.0"
@@ -25,7 +25,7 @@ endScreenProperties
 object xyGraphClass
 beginObjectProperties
 major 4
-minor 1
+minor 9
 release 0
 # Geometry
 x 79
@@ -41,7 +41,7 @@ gridColor index 14
 font "helvetica-bold-r-14.0"
 # Operating Modes
 plotMode "plotLastNPts"
-nPts 0
+nPts 1000
 triggerPv "LOC\\trigger=i:0"
 resetPv "LOC\\reset=i:0"
 # X axis properties
@@ -88,7 +88,7 @@ endObjectProperties
 object activeMessageButtonClass
 beginObjectProperties
 major 4
-minor 0
+minor 1
 release 0
 x 114
 y 381
@@ -112,7 +112,7 @@ endObjectProperties
 object activeMessageButtonClass
 beginObjectProperties
 major 4
-minor 0
+minor 1
 release 0
 x 263
 y 381
