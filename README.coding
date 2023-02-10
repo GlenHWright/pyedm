@@ -1,0 +1,136 @@
+pyedm consists of 2 major parts.
+
+Top Level: pyedm/*.py
+	this manages the windows and the generic user interface
+	of each display widget type.
+
+	Within this level, modules have a LEVEL that indicates
+	a hierarchical struture. They can make direct references
+	to classes, functions, and variables in lower level
+	source files.
+	TO REFERENCE A MODULE AT AN EQUAL OR HIGHER LEVEL:
+		
+	LEVEL: top
+		can call any lower level module
+		__init__.py, __main__.py
+			(technically, __main__ is higher than __init__)
+
+	LEVEL: high
+		can import references to any lower level module
+
+		pyedm/edmMain.py:
+		pyedm/edmWindowWidget.py:
+		pyedm/edmAbstractShape.py:
+		pyedm/edmAbstractSymbol.py:
+		pyedm/edmWidget.py:
+		pyedm/edmParentSupport.py:
+
+	LEVEL: mid
+		can import references to any lower level module
+
+		pyedm/edmProperty.py:
+		pyedm/edmScreen.py:
+
+	Level: low
+		can import references to any lower level module
+
+		pyedm/edmEditWidget.py:
+		pyedm/edmMacro.py:
+		pyedm/edmObject.py:
+		pyedm/edmPVfactory.py: (note: designed to be import by edmPV*.py)
+		pyedm/edmPVcalc.py:
+		pyedm/edmPVepics.py:
+		pyedm/edmPVindirect.py:
+		pyedm/edmPVlocal.py:
+		pyedm/edmPopupEntry.py:
+		pyedm/edmWidgetSupport.py:
+		pyedm/edmparsecalc.py:
+
+	LEVEL: base
+		do not import any other pyedm modules
+
+		pyedm/edmApp.py:
+		pyedm/edmColors.py:
+		pyedm/edmField.py:
+		pyedm/edmFont.py:
+		pyedm/edmTextFormat.py:
+		pyedm/edmparsetable.py:
+
+Second Level: pyedm/modules/*
+	The modules at this level are the specific implementation of a widget.
+	each module should have 1 class that inherits from edmWidget and from
+	a Qt display widget. The specific code of each widget is to connect the
+	object description to the widget settings.
+
+Application classes:
+	edmAppClass holds the 'global' values for the application. It manages the
+	list of widgets that need to be redisplayed because of PV updates. It also
+	has some static methods that actually belong to higher level modules, and
+	the expectation is that these modules will over-write the methods when
+	their module is initialized. Not very clean, but it beats the alternatives.
+
+Widget methods and fields:
+	edmObject is the description from the .edl or .jedl file
+		objects are a tree structure based on the description in the .edl
+		file. in the simplest case, their is a top level screen object and
+		it has a list of all the other widgets. When there are groups, their
+		is a group object that branches out to all members of the group.
+		the 'tags' dictionary contains all values from the .edl file with
+		the tag name as the index, and the tag value as the edmTag field
+		that describes the field (via edmField) and the value. These are
+		also known as Properties in the widget code, which can lead to some
+		confusion.
+		Not intended for inheritance.
+
+		__init__
+		edmCleanup - generic cleanup
+		addTag(field, value) - adds an edmTag instance to the tag field
+		getProperty() - gets the tag value, and converts it to the proper data
+			type. It returns either a single entry or a list if their
+			is an indicator that this property is an array.
+		...
+
+	edmWidget is the generic base widget.
+		__init__ sets the parent, builds the 'pvItem' list of pv's to be
+			controlled generically, and establishes a destruct callback
+			for cleanup
+		edmCleanup - call edmCleanup for known referenced objects,
+			delete references to other objects
+		delPV() clean up a pv reference
+		buildFieldListClass - builds the references to fields used for
+			determining field attributes and for managing values when
+			editing.
+		buildFieldList - builds the references and fills in an object description
+			with tags for the field names and values
+
+		setObjectGeometry() - manages an objects geometry taking scaling factor
+			into account.
+		buildFromObject() - does the common initialization of widget fields base
+			on tag values. Name refers to taking an edmObject definition and
+			create an edmWidget
+		
+		...
+
+
+PV Management:
+	edmPVfactory.py defines edmPVbase as an inheritable class (not strictly abstract) that
+	defines a generic PV interface. edmPVbase should only be required by inheriting classes,
+	and those classes should not be imported directly. Rather, edmPVfactory.py provides
+	buildPV(), which parses the input string to determine what type of PV to build
+	(EPICS, LOCAL, CALC). pvClassDict{} is indexed by the type (default EPICS) and is the
+	generator for the different instances.
+	pyedm can manage additional PV types by having a file edmPVsomething.py on the search path
+	which defines a new type of PV and puts a build method in the pvClassDict dictionary.
+
+	All PV types provide a connection callback, value change callback, and PV type conversion.
+	PV value (not type) can be 'unknown', 'int', 'float', 'string', or 'enum'.
+
+	All conversion entries can be done 
+
+Editing:
+	The use of 'editModeEnum is to state what is desired for adjusting a screen or widget.
+	On a  menu selection, the editmode is set, and then a check is made as to whether a
+	widget needs to be selected or whether there is a widget related. Once a widget selection
+	is made, the editMode reverts to None. The continued use of a rubberband, or existence fo
+	an edit screen, allows the high level widget to revert to 'usual stuff'. This is treated
+	differently with the different edit modes.
