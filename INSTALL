@@ -1,6 +1,6 @@
 See the COPYRIGHT file in the distribution for copyright.
 
-pyEdm depends on at least version 2.5 python. setup.py doesn't enforce this.
+pyEdm depends on at least version 3.6 python. setup.py doesn't enforce this.
 
 pyEdm, as distributed, uses pyEpics version 3 from cars.uchicago.edu. Only
 the file edmPVepics.py uses this module directly, and it is possible to over-ride
@@ -9,6 +9,15 @@ just this module for different python+EPICS access. Good Luck.
 At this time, pyEdm is pure python code.
 
 To install:
-you must have write permission in $PYTHONHOME/lib/python2.5/site-packages
+it is highly recommended that a python virtual environment is used.
 
-python setup.py install
+
+assuming bash:
+	git clone https://github.lightsource.ca/cid/TOOL_edmPython.git
+	python3 -m venv ${SOMEDIRECTORY}/edmPython
+	source ${SOMEDIRECTORY}/edmPython/bin/activate.sh
+	python3 setup.py install
+
+alternative:
+	python3 -m venv ${SOMEDIRECTORY}/edmPython
+	python3 -m pip install epics-pyedm

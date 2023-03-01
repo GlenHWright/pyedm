@@ -16,7 +16,7 @@ from .edmEditWidget import edmShowEdit, edmRubberband, edmEdit
 from .edmScreen import edmScreen
 from .edmColors import findColorRule
 from .edmField import edmField, edmTag
-from . import edmWindowWidget
+from . import edmMouseHandler
 #
 # A support widget for code common to any widget that is a parent to other edm widgets
 # Any widget that inherits from here will provide mouse support and child edit support
@@ -121,11 +121,11 @@ class windowMenu(QtWidgets.QMenu):
 
     def selectEdit(self):
         self.edmWidget.editMode(value="edit")
-        edmWindowWidget.findActionWidget(self.edmWidget, self.position)
+        edmMouseHandler.findActionWidget(self.edmWidget, self.position)
 
     def moveMode(self):
         self.edmWidget.editMode(value="move")
-        edmWindowWidget.findActionWidget(self.edmWidget, self.position)
+        edmMouseHandler.findActionWidget(self.edmWidget, self.position)
 
     def newWindow(self):
         edmApp.buildNewWindow()
@@ -164,14 +164,14 @@ class windowMenu(QtWidgets.QMenu):
 
     def copy(self):
         self.edmWidget.editMode(value="copy")
-        edmWindowWidget.findActionWidget(self.edmWidget, self.position)
+        edmMouseHandler.findActionWidget(self.edmWidget, self.position)
 
     def paste(self):
         self.edmWidget.editMode(value="paste")
 
     def cut(self):
         self.edmWidget.editMode(value="cut")
-        edmWindowWidget.findActionWidget(self.edmWidget, self.position)
+        edmMouseHandler.findActionWidget(self.edmWidget, self.position)
 
     def edmReset(self):
         self.edmWidget.editMode(value="none")
@@ -218,3 +218,8 @@ class edmEditWidgetMenu(QtWidgets.QMenu):
 
     def displayWidget(self, widget):
         self.selected = widget
+
+#####
+##### Over-write placeholders
+#####
+edmApp.showBackgroundMenu = showBackgroundMenu

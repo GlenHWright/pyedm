@@ -788,3 +788,8 @@ def buildNewWidget(parent, source, widgetClassRef=None, position=None, startEdit
         parent.editMode(value="move")
     widget.show()
     return widget
+
+####
+#### over-write edmApp placeholders
+####
+edmApp.edmWidget = edmWidget

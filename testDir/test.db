@@ -61,6 +61,7 @@ record(ai, "$(P)ReadbackPV")
 }
 record(ai, "$(P)ReadbackPV2")
 {
+	field(INP, "$(P)ControlPV2 CP")
 }
 record(calc, "$(P)calcPV1")
 {
@@ -114,7 +115,7 @@ record(bo, "$(P)boPV")
 }
 record(bi, "$(P)biPV")
 {
-	field(INP, "boPV CP")
+	field(INP, "$(P)boPV CP")
 	field(ZNAM, "Zero")
 	field(ONAM, "One")
 }

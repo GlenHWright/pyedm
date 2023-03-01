@@ -3,6 +3,7 @@
 from .edmApp import edmApp
 from .edmWidget import edmWidget, pvItemClass
 from .edmWindowWidget import mousePressEvent, mouseReleaseEvent, mouseMoveEvent
+from .edmParentSupport import edmParentSupport
 from .edmField import edmField
 from .edmEditWidget import edmEdit
 
@@ -10,7 +11,7 @@ from PyQt5.QtWidgets import QWidget, QVBoxLayout, QButtonGroup, QRadioButton
 from PyQt5 import QtCore
 from PyQt5.QtCore import pyqtSlot
 
-class activeRadioButtonClass(QWidget,edmWidget):
+class activeRadioButtonClass(QWidget,edmWidget,edmParentSupport):
     menuGroup = [ "control", "Radio Button" ]
     edmEntityFields = [
             edmField("controlPv", edmEdit.PV),

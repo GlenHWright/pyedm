@@ -160,6 +160,20 @@ class edmAppClass:
     def buildNewWindow(*args,**kw):
         raise AttributeError("buildNewWindow must be redefined before use!")
 
+    @staticmethod
+    def showBackgroundMenu(*args,**kw):
+        raise AttributeError("showBackgroundMenu must be redefined before use!")
+
+    @staticmethod
+    def edmImport(*args, **kw):
+        raise AttributeError("edmImport must be redefined before use!")
+        
+    class edmWidget:
+        def __init__(self, *args, **kw):
+            raise AttributeError("edmWidget must be redefined before use!")
+
+
+## ugly - creates a global edmApp instance.
 edmApp = edmAppClass()
     
 # add the widget to the redisplay request queue

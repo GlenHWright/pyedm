@@ -10,7 +10,7 @@ from epics import ca, __version__ as epicsVersion
 ca.PREEMPTIVE_CALLBACK = False
 import sys
 
-from PyQt5.QtCore import QTimer
+from PyQt5.QtCore import QTimer, QMutex
 
 from pyedm.edmPVfactory import pvClassDict, edmPVbase, convText
 from pyedm.edmApp import edmApp
@@ -40,16 +40,16 @@ class watchPV(QTimer):
         super().__init__()
         self.pvList = []
         self.pvGone = []
-        self.lockCount = 0
+        self.mutex = QMutex()
         self.timeout.connect(self.run)
         self.start(100)
 
     def run(self):
         ca.pend_event()
         # set up the callbacks, notify of connection
-        self.lock()
+        self.mutex.lock()
         pvList, self.pvList = self.pvList[:], []
-        self.unlock()
+        self.mutex.unlock()
         for who in pvList:
             who.isValid = True
             if epicsVersion >= "3.1":
@@ -63,24 +63,13 @@ class watchPV(QTimer):
                 ePV.connect()
 
         # notify of disconnection
-        self.lock()
+        self.mutex.lock()
         pvGone, self.pvGone = self.pvGone[:], []
-        self.unlock()
+        self.mutex.unlock()
         for who in pvGone:
             who.isValid = False
             for ePV in who.connectorList:
                 ePV.disconnect()
-
-    def lock(self):
-        '''mutex access - only needed if multi-threaded channel access occurs'''
-        if self.lockCount > 0:
-            print("LOCK: possible confict!")
-        self.lockCount = self.lockCount+1
-        pass
-
-    def unlock(self, notify=0):
-        self.lockCount = self.lockCount-1
-        pass
 
 # one element per PV name. an epicsPV connects a widget to a channel
 class channel:
@@ -203,14 +192,14 @@ def handleConnectionState(chid, chidStr, conn):
     if conn == True:
         me = pvDictionary[chidStr]
         me.setPvType(ca.field_type(chid))
-        watcher.lock()
+        watcher.mutex.lock()
         watcher.pvList.append(me)
-        watcher.unlock(1)
+        watcher.mutex.unlock()
     elif conn == False:
         me = pvDictionary[chidStr]
-        watcher.lock()
+        watcher.mutex.lock()
         watcher.pvGone.append(me)
-        watcher.unlock(1)
+        watcher.mutex.unlock()
     else:
         print("Unknown connection state:", conn, chidStr)
     if edmApp.debug(): print('Done createCallback', chidStr)
@@ -266,7 +255,7 @@ class epicsPV(edmPVbase):
         return f"<epicsPV {self.name} valid:{self.isValid}>"
 
     def edmCleanup(self):
-        if edmApp.debug(): print("epicsPV cleanup", self.name)
+        if self.debug(): print("epicsPV cleanup", self.name)
         if hasattr(self, "chan"):
             delChannel(self.chan, self)
         super().edmCleanup()
