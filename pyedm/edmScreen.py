@@ -1,4 +1,4 @@
-# Copyright 2022 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
+# Copyright 2023 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 #
 # Manages saving and loading screen files.
 # it does not create windows or widgets.

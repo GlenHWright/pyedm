@@ -1,4 +1,4 @@
-# Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
+# Copyright 2011-2023 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 #
 # NOT IMPLEMENTED!
 # Allow a PV to be an indirect name: a text string that
@@ -58,5 +58,4 @@ def buildPV(**kw):
     return indirectPV(**kw)
 
 edmPVfactory.pvClassDict["INDIRECT"] = buildPV
-
 

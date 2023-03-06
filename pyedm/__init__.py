@@ -1,7 +1,7 @@
-# Copyright 2022 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
-# If opened as 'main', use our mainline
+# Copyright 2023 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 #
 # MODULE LEVEL: top
+#
 #
 import sys
 import os
@@ -13,6 +13,9 @@ from .edmApp import edmApp
 # default path must be set before calling 'setPath()'
 edmApp.searchPath = [".", __path__[0], os.path.join(__path__[0],"modules") ]
 
+# NOTE: these imports make the named functions available at the top level
+# of the pyedm module, but are not called or referenced in this file's code
+#
 from .edmWindowWidget import generateWindow, generateWidget, edmWindowWidget
 from .edmScreen import edmScreen
 from .edmMacro import macroDictionary

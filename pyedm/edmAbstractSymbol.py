@@ -1,4 +1,4 @@
-# Copyright 2022 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
+# Copyright 2023 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # Abstract symbolClass to use portions of an edl file based
 # on the top level groups within the file
 #
