@@ -26,7 +26,30 @@ class edmCommonStyle(QStyle) :
     def __init__(self):
         super().__init__()
 
-class edmAppClass:
+class debugClass:
+    '''
+        provides a common debug/trace handler for different classes.
+    '''
+
+    def debug(self, level=1, *, mesg=None, setDebug=None):
+        ''' debug(level, mesg, setDebug) - debugging test for general cases. Note that edmWidgets
+            have their own debug method.
+        '''
+        if setDebug != None:
+            self.DebugFlag = setDebug
+
+        try:
+            flag = self.DebugFlag >= level
+        except AttributeError:
+            flag = edmApp.DebugFlag >= level
+            self.DebugFlag = edmApp.DebugFlag
+
+        if flag and (mesg != None):
+            print(mesg)
+        return flag
+
+
+class edmAppClass(debugClass):
     '''
         edmAppClass:
         contains the "global" definitions for an application.
@@ -39,12 +62,13 @@ class edmAppClass:
         this has over just running multiple apps.
     '''
     def __init__(self):
+        self.debug(setDebug=0)
         self.timer = None
-        self.DebugFlag = 0
         self.screenList = []
         self.windowList = []
         self.redisplayList = []
         self.blinkList = []
+        self.cutCopyList = []
         self.allowEdit = True
         self.commonstyle = QStyleFactory.create("Plastique")
         self.edmClasses = {}
@@ -125,17 +149,6 @@ class edmAppClass:
             except:
                 print(f"redisplay failure for {li}")
                 traceback.print_exc()
-
-    def debug(self, level=1, *, mesg=None, setDebug=None):
-        ''' debug(level, mesg, setDebug) - debugging test for general cases. Note that edmWidgets
-            have their own debug method.
-        '''
-        if setDebug != None:
-            self.DebugFlag = setDebug
-        flag = self.DebugFlag >= level
-        if flag and (mesg != None):
-            print(mesg)
-        return flag
 
     # add a widget to a list to redisplay on a timer tick
     def redisplay(self, widget, **kw):

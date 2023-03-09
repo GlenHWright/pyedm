@@ -42,14 +42,16 @@ class ColorWindow(QtWidgets.QWidget):
         for idx,cr in enumerate(edmColor.colorNames.values()):
             row, col = divmod(idx, ncol)
             color = QColorButton(mycolor=cr)
-            color
+            # over-ride the tooltip if the color rule is not simple
+            if cr.isRule():
+                color.setToolTip(cr.displayRule())
             self.group.addButton(color)
             layout.addWidget(color, row, col)
         self.setLayout(layout)
         self.group.buttonClicked.connect(self.notify)
 
     def notify(self, colorButton):
-        print(f"ColorWindow notify {colorButton} color {colorButton.buttonColor}")
+        # print(f"ColorWindow notify {colorButton} color {colorButton.buttonColor}")
         self.callback(colorButton.buttonColor)
 
 
@@ -140,7 +142,7 @@ class edmEditField(QObject):
         return lineedit
 
     def onNewValue(self, widget):
-        if edmApp.debug(0) : print(f"onNewValue({self}, {widget})")
+        if edmApp.debug(1) : print(f"onNewValue({self}, {widget})")
         self.onValueUpdate(widget.text())
 
     def onValueUpdate(self, newValue):
@@ -389,7 +391,7 @@ class edmEditFontInfo(edmEditField):
         font = displayValue
         self.font = font
         self.fontInfo = QFontInfo(font)
-        print(f"buildOneEditWidget {font}, use {self.fontInfo.family()} {self.fontInfo.pointSize()} {self.fontInfo.weight()} {self.fontInfo.bold()}")
+        # print(f"buildOneEditWidget {font}, use {self.fontInfo.family()} {self.fontInfo.pointSize()} {self.fontInfo.weight()} {self.fontInfo.bold()}")
         self.fontDB = QFontDatabase()
         self.family = QtWidgets.QComboBox()
         self.family.addItems(self.fontDB.families())
@@ -458,7 +460,7 @@ class edmEditFontInfo(edmEditField):
             ps = self.fontDB.pointSizes(self.family.currentText(), self.fontDB.styleString(self.fontInfo))
         if len(pointSizeList) > 0 and pointSize not in pointSizeList:
             pointSize = min(pointSizeList, key=lambda val: abs(val - pointSize))
-        print(f"changePointSize {pointSizeList} {pointSize}")
+        # print(f"changePointSize {pointSizeList} {pointSize}")
         self.pointsize.setCurrentText(str(pointSize))
 
     def onNewValue(self, **kw):
@@ -652,7 +654,7 @@ class edmRubberband(QtWidgets.QRubberBand):
             pos = self.mapToGlobal(QPoint(0,0))     # get top-left of rubber band position in global units
             pos = self.winParent.mapFromGlobal(pos) # change global position to parent's units.
 
-            if edmApp.debug(0) :  print(f"   map from RB {self.pos()} to parent {self.winParent} pos {pos}")
+            if edmApp.debug(1) :  print(f"   map from RB {self.pos()} to parent {self.winParent} pos {pos}")
             self.edmWidget.updateTags( {
                 "x" : edmTag("x", int(pos.x()/edmApp.rescale)),
                 "y" : edmTag("y", int(pos.y()/edmApp.rescale)),
@@ -668,7 +670,7 @@ class edmRubberband(QtWidgets.QRubberBand):
             return False
         pos = self.parent().mapFromGlobal(event.globalPos())
         if not self.geometry().contains(pos):
-            if edmApp.debug(1) : print(f"event inactive pos{pos} geom {self.geometry()}")
+            if edmApp.debug() : print(f"event inactive pos{pos} geom {self.geometry()}")
             self.inactive()
             return False
         if edmApp.debug() : print(f"edmRubberband.mousePress {self} event:{event.pos()} pos:{pos} geom:{self.geometry()}")
@@ -695,7 +697,7 @@ class edmRubberband(QtWidgets.QRubberBand):
         return True
 
     def mouseMoveEvent(self, event):
-        if edmApp.debug(2) : print(f"mouseMove({self} {event} {event.button()}")
+        if edmApp.debug() : print(f"mouseMove({self} {event} {event.button()}")
         pos = self.parent().mapFromGlobal(event.globalPos())
         pos = pos - self.location
         if self.movemode:
@@ -717,7 +719,7 @@ class edmRubberband(QtWidgets.QRubberBand):
     def mouseReleaseEvent(self, event):
         if event.button() != Qt.LeftButton:
             return
-        print(f"mouseReleaseEvent.rubberband {self} {event.pos()} {self.edmWidget}")
+        if edmApp.debug(): print(f"mouseReleaseEvent.rubberband {self} {event.pos()} {self.edmWidget}")
         if self.edmWidget != None:
             geom = self.geometry()
             self.edmWidget.setGeometry(geom)

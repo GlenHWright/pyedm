@@ -17,11 +17,15 @@ from PyQt5.QtGui import QPalette, QPainter
 
 class symbolWidget(QWidget,edmWidget, edmParentSupport):
     def __init__(self, parent=None, **kw):
-        super().__init__(parent, **kw)
+        QWidget.__init__(self, parent, **kw)
+        edmWidget.__init__(self, parent, **kw)
+        edmParentSupport.__init__(self, parent, **kw)
 
 class AbstractSymbolClass(QFrame,edmWidget, edmParentSupport):
     def __init__(self, parent=None, **kw):
-        super().__init__(parent, **kw)
+        QFrame.__init__(self, parent, **kw)
+        edmWidget.__init__(self, parent, **kw)
+        edmParentSupport.__init__(self, parent, **kw)
         #self.setLineWidth(2)
         #self.setFrameShape(QFrame.Panel|QFrame.Sunken)
         self.parentx = 0

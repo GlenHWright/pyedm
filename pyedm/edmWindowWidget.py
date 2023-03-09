@@ -31,7 +31,8 @@ class edmWindowWidget(QtWidgets.QWidget, edmWidgetSupport, edmParentSupport):
     '''edmWindowWidget - top-level window widget for an edm screen.
         manage mouse clicks on behalf of children'''
     def __init__(self, parent=None, **kwargs):
-        super().__init__(parent, **kwargs)
+        QtWidgets.QWidget.__init__(self, parent, **kwargs)
+        edmParentSupport.__init__(self, parent, **kwargs)
 
     def __repr__(self):
         return f"<edmWindowWidget {self.windowTitle()}>"

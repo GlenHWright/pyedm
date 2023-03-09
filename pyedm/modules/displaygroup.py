@@ -15,7 +15,6 @@ class activeGroupClass(QtWidgets.QWidget, edmParentSupport, edmWidget):
         because the data input is handled by the edmScreen module, there isn't much to
         do at this level, and there is no need of alternate file input handling here'''
     def __init__(self, parent=None, **kw):
-        #super().__init__(parent, **kw)
         QtWidgets.QWidget.__init__(self, parent)
         edmWidget.__init__(self, parent)
         edmParentSupport.__init__(self, parent)

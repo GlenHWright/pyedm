@@ -5,9 +5,9 @@
 # MODULE LEVEL: Low
 #
 import traceback
-from . import edmApp
+from .edmApp import edmApp, debugClass
 
-class edmPVbase:
+class edmPVbase(debugClass):
     typeNames = [ "unknown", "int", "float", "string", "enum" ]
     typeUnknown, typeInt, typeFloat, typeString, typeEnum = list(range(0,5))
     def __init__(self, name=None, connectCallback=None, connectCallbackArg=None, *args, **kw):
@@ -19,7 +19,6 @@ class edmPVbase:
         self.isValid = False
         self.chid = 0
         self.enums = ()
-        self.DebugFlag = edmApp.DebugFlag
         self.connectCallback = connectCallback
         self.connectCallbackArg = connectCallbackArg
         self.pvType = self.typeUnknown
@@ -36,14 +35,6 @@ class edmPVbase:
         self.connectCallback = None
         self.connectCallbackArg = None
         self.callbackList.clear()
-
-    def debug(self, level=1, *, mesg=None, setDebug=None):
-        if setDebug != None:
-            self.DebugFlag = setDebug
-        flag = self.DebugFlag >= level
-        if flag and (mesg != None):
-            print(mesg)
-        return flag
 
     def setPVname(self, name):
         self.name = name

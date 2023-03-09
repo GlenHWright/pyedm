@@ -9,6 +9,12 @@
 # from edmColors import findColorRule, colorRule
 # widget.someColor = findColorRule(my_Name_Or_Index)
 # something_that_needs_a_QColor( widget.someColor.getColor( ColorPV value, default Color))
+#
+# Structure of colors:
+# colorTable - single instance of edmColor
+#   colorTable.colorIndex - list of colorRule Entries by name
+#   colorRule - name, numeric-id for a color
+#       colorRule.rulelist - rule mapping for determining color.
 
 from os import getenv
 import re
@@ -17,14 +23,35 @@ from PyQt5.QtGui import QColor
 
 # define one part of a rule
 class oneRule:
+    ''' oneRule - a single test and color for a rule entry.
+        each colorrule will scan a list of 1 or more rules to find the
+        first match, and then use the oneRule color as the display color.
+        <humor>this has nothing to do with rings</humor>
+    '''
     NO_OP, LT, LE, GT, GE, EQ, NE, AND, OR, DEFAULT = list(range(0, 10))
 
     opTable = { "<" : LT, "<=" : LE, ">" : GT, ">=" : GE, "=" : EQ, "==" : EQ,
     "!=" : NE, "&&" : AND, "||" : OR, "default" : DEFAULT, "DEFAULT" : DEFAULT}
-    def __init__(self, value=0.0, op=NO_OP, color=None, blinkColor=None, left=None, right=None):
-        self.val, self.op, self.color, self.blinkColor = value, op, color, blinkColor
-        self.left, self.right = left, right
-        self.blinking = (self.blinkColor != None)
+    revTable = {}
+    for key in opTable.keys() : revTable[opTable[key]] = key
+
+    def __init__(self, copy=None, *, value=0.0, op=NO_OP, colorName=None, color=None, blinkColor=None, left=None, right=None):
+        if copy == None:
+            self.val, self.op, self.color, self.blinkColor = value, op, color, blinkColor
+            self.left, self.right = left, right
+            self.blinking = (self.blinkColor != None)
+            self.colorName = colorName
+        else:
+            self.val = copy.val
+            self.op = copy.op
+            self.color =copy.color
+            self.blinkColor = copy.blinkColor
+            if copy.op == self.AND or copy.op == self.OR:
+                self.left = copy.left
+                self.right = copy.right
+            else:
+                self.left, self.right = None, None
+            self.colorName = copy.colorName
 
     def truthTest( self, value=0.0):
         if self.op == self.NO_OP:       return 1
@@ -45,8 +72,24 @@ class oneRule:
             self.left.printRule(indent+1)
         if self.right != None:
             self.right.printRule(indent+1)
-        
+
+    def displayRule(self):
+        '''displayRule - return a human-readable description of this rule
+        '''
+        if self.op == self.AND:
+            return f"{self.left.displayRule()} AND {self.right.displayRule()}"
+        elif self.op == self.OR:
+            return f"{self.left.displayRule()} OR {self.right.displayRule()}"
+        elif self.op == self.NO_OP:
+            return f"color {self.color.rgb()}"
+        return f"{self.revTable[self.op]} {self.val}"
+
 class colorRule:
+    '''  colorRule - a list of 1 or more oneRule entries to be tested to
+        determine a color to be used. 
+        This does NOT handle any alarm over-rides of a color; that is done
+        in the widget code (see reColor in edmWidget)
+    '''
     invisible = QColor(0,0,0,0)
     def __init__(self, name="", numeric=-1):
         self.ruleList = []
@@ -56,9 +99,24 @@ class colorRule:
     def __str__(self):
         return f"{self.numeric}: {self.name}"
 
+    def displayRule(self):
+        '''return a markup string for displaying this rule
+        '''
+        value = f"{self.name} {self.numeric}:\n"
+        for onerule in self.ruleList:
+            if onerule.colorName != None:
+                disp = onerule.colorName
+            else:
+                disp = hex(onerule.color.rgb())
+            value = f"{value}{onerule.displayRule()} : {disp}\n"
+        return value
+
     # add a rule for this color name
-    def addRule(self, value=0.0, op=oneRule.NO_OP, color = None, blinkColor=None, left=None, right=None):
-        self.ruleList.append( oneRule(value, op, color, blinkColor, left, right) )
+    def addRule(self, copy=None, *args, **kw):
+        if copy:
+            self.ruleList.append( oneRule(copy) )
+        else:
+            self.ruleList.append( oneRule(*args, **kw))
         return self.ruleList[-1]
 
     def isRule(self):
@@ -96,7 +154,7 @@ class edmColor:
     pat_r = re.compile(pat)
     debug = 0
 
-    # dictionary of names for colors
+    # dictionary of names for colors: values are colorRule instances
     colorNames = {}
     # index of names for index
     colorIndex = {}
@@ -109,7 +167,6 @@ class edmColor:
 
     def __init__(self):
         self.wordlist = []
-        # self.loadColor( colorfile)
 
     def loadColor(self, colorfile=None):
         if colorfile == None:
@@ -124,7 +181,7 @@ class edmColor:
 
     def addBuiltin(self, name, r, g, b, a=255):
         self.builtin[name] = colorRule(name=name)
-        self.builtin[name].addRule( 0.0, oneRule.DEFAULT, QColor( r, g, b, a) )
+        self.builtin[name].addRule( value=0.0, op=oneRule.DEFAULT, color=QColor( r, g, b, a) )
 
     def buildRule(self, buildList, rule, start):
         op, value = oneRule.NO_OP, 0.0
@@ -190,7 +247,7 @@ class edmColor:
                         if len(blockList) > 5:
                             blinkColor = QColor( int(blockList[3])>>8, int(blockList[4])>>8, int(blockList[5])>>8) 
                     words = []
-                    self.myRule.addRule( 0.0, oneRule.DEFAULT, color, blinkColor)
+                    self.myRule.addRule( value=0.0, op=oneRule.DEFAULT, color=color, blinkColor=blinkColor)
                     continue
 
                 # build the alarm colors
@@ -218,16 +275,15 @@ class edmColor:
                             break
                         idx = idx+1
                         staticRule = self.findRule( blockList[idx])
-                        col = Qt.black
-                        blinkColor = None
+                        inProgress.color = Qt.black
+                        inProgress.blinkColor = None
+                        inProgress.colorName = "Black"
                         if staticRule and staticRule.ruleList[0].color != None:
-                            col = staticRule.ruleList[0].color
-                            blinkColor = staticRule.ruleList[0].blinkColor
-                        if blockList[idx] == "*" : col = None
-                        if inProgress.op == oneRule.AND or inProgress.op == oneRule.OR:
-                            self.myRule.addRule( op=inProgress.op, color=col, blinkColor=blinkColor, left=inProgress.left, right=inProgress.right)
-                        else:
-                            self.myRule.addRule( value=inProgress.val, op=inProgress.op, color=col)
+                            inProgress.color = staticRule.ruleList[0].color
+                            inProgress.blinkColor = staticRule.ruleList[0].blinkColor
+                            inProgress.colorName = blockList[idx]
+                        if blockList[idx] == "*" : inProgress.color = None
+                        self.myRule.addRule( inProgress)
                         idx = idx+1
                     if self.debug > 0:
                         for rt in self.myRule.ruleList:

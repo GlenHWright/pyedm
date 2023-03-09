@@ -4,10 +4,11 @@
 # This is a low level module, and must only import base level modules
 
 from enum import Enum
+import copy
 
 from PyQt5.QtGui import QFont
 
-from .edmApp import edmApp
+from .edmApp import edmApp, debugClass
 from .edmProperty import converter, toEnum, decode
 from . import edmColors
 from . import edmFont
@@ -16,10 +17,11 @@ from .edmField import edmTag
 #
 # A class that defines a generic EDM object. (A single widget)
 # tags{} - dictionary indexed by tag name - see edmField.edmTag
-class edmObject:
+class edmObject(debugClass):
     ''' edmObject - manages the properties that define an edmWidget
     '''
     def __init__(self, parent=None):
+        super().__init__()
         self.tags = {}
         self.edmFields = None
         self.debug(setDebug=edmApp.DebugFlag)
@@ -33,17 +35,15 @@ class edmObject:
         self.edmFields = None
         self.edmParent = None
 
-    def debug(self, level=1, *, mesg=None, setDebug=None):
-        if setDebug != None:
-            self.DebugLevel = setDebug
-        try:
-            flag = self.DebugLevel >= level
-        except AttributeError:
-            flag = edmApp.DebugLevel >= level
-        if flag and (mesg != None):
-            print(mesg)
-        return flag
-
+    def edmCopy(self, source):
+        ''' edmCopy - create a duplicate object description from
+            source. return 'self' to allow edmObject().edmCopy(source)
+        '''
+        self.edmFields = source.edmFields
+        self.debug(setDebug=source.debug())
+        self.tags = copy.deepcopy(source.tags)
+        return self
+            
     def addTag(self, field, value):
         if edmApp.debug(1) : print(f"add tag {field} value *{value}*")
         self.tags[field] = edmTag(field, value)

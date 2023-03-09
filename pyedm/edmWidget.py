@@ -169,7 +169,6 @@ class pvItemClass:
 class edmWidget(edmWidgetSupport):
     ''' edmWidget - base class for all edm-style widgets.
             edmparent - containing widget
-            DebugFlag - non-zero to print values to stdout
             visible - edm visibility flag (visPv, visMin, visMax edm fields used in calculation)
             lastVisible - previous state of the visibility flag
             transparent - True if this widget is active without being displayed
@@ -224,7 +223,7 @@ class edmWidget(edmWidgetSupport):
         super().__init__(**kw)
         if parent == None:
             self.edmParent = self.parent()
-        self.DebugFlag = edmApp.DebugFlag
+        self.debug(setDebug=edmApp.DebugFlag)
         self.visible = True
         self.lastVisible = True
         self.transparent = False
@@ -272,6 +271,7 @@ class edmWidget(edmWidgetSupport):
             self.delPV(pvRef=self.pvItem[pvinfo].attributePV, attrName=self.pvItem[pvinfo].attributeName)
 
         self.edmParent = None
+        self.setParent(None)
         try:
             self.objectDesc.edmCleanup()
             self.objectDesc = None
@@ -767,25 +767,24 @@ def buildNewWidget(parent, source, widgetClassRef=None, position=None, startEdit
         raise TypeError(f"buildNewWidget unable to interpret {source} type {type(source)}")
 
     if widgetClassRef == None:
-        otype =  obj.tags["Class"].value
+        otype =  source.tags["Class"].value
         if edmApp.debug() :  print("checking object type", otype)
         try:
             widgetClassRef = edmApp.edmClasses[otype]
         except:
             raise TypeError(f"buildNewWidget: Unknown object type {otype}")
     widget = widgetClassRef(parent)
+    widget.buildFieldList(source)
     if position != None:
         pos = widget.edmParent.mapFromGlobal(position)
-        obj.addTag("x", pos.x())
-        obj.addTag("y", pos.y())
-    widget.buildFieldList(obj)
-    widget.buildFromObject(obj)
+        source.addTag("x", pos.x())
+        source.addTag("y", pos.y())
+    widget.buildFromObject(source)
     if startEdit:
         # start editor, create rubberband
         parent.rubberband = edmRubberband(widget=widget)
         parent.selectedWidget = widget
         parent.edmShowEdit(parent.selectedWidget)
-        parent.editMode(value="move")
     widget.show()
     return widget
 

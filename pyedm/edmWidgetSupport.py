@@ -5,24 +5,11 @@
 # This is a low level module. It must only be called from higher level modules.
 #
 # Provide support for classes that need macro support or support for data path searches
+# attempt to provide this as a mixin
 #
-from .edmApp import edmApp
+from .edmApp import edmApp, debugClass
 
-class edmWidgetSupport:
-    def __init__(self, *args, **kw):
-        super().__init__(*args, **kw)
-
-    '''methods shared by edmWidget and edmWindowWidget'''
-    def debug(self,level=1, *, mesg=None, setDebug=None):
-        if setDebug != None:
-            self.DebugFlag = setDebug
-        try:
-            flag = self.DebugFlag >= level
-        except AttributeError:
-            flag = edmApp.DebugFlag >= level
-        if flag and (mesg != None):
-            print(mesg)
-        return flag
+class edmWidgetSupport(debugClass):
 
     def macroExpand(self, str):
         '''find the appropriate macro table, and return the expanded string'''

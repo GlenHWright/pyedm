@@ -63,7 +63,7 @@ class activeDynSymbolClass(AbstractSymbolClass):
                 }
 
     def __init__(self,parent=None):
-        super().__init__(parent)
+        AbstractSymbolClass.__init__(self, parent)
         self.useGate = False        # this gets referenced in PV callbacks, that can occur before 'buildFromObject()'
         self.pvItem["gateUpPv"] = pvItemClass("gateUpName", "gateUpPV",
                                     dataCallback=self.onGateUp, dataCallbackArg=self,

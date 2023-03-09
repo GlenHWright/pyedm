@@ -62,7 +62,7 @@ class channel:
         pvType = [val for val in decode[1:-1] if val != None ][0][1]
         if pvType not in channel.types:
             pvType = "U"
-        edmApp.debug(0,mesg=f"LOC\pvDecode type={pvType} {decode}")
+        edmApp.debug(mesg=f"LOC\pvDecode type={pvType} {decode}")
         if decode[4] == '':
             return [decode[0], pvType, None]
         return [decode[0], pvType, decode[4]]
@@ -101,7 +101,7 @@ class channel:
         self.connectList.remove(pv)
 
     def setValue(self, value):
-        if edmApp.debug(0): print('setValue(', self, value, ')')
+        if edmApp.debug(): print('setValue(', self, value, ')')
         try:
             self.value, self.char_value = self.converter[self.pvType](value, self.enums)
         except:

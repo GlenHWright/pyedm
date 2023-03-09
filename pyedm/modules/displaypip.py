@@ -159,7 +159,8 @@ class activePipClass(QScrollArea,edmWidget):
             "filePv", "file" ]
             }
     def __init__(self, parent=None):
-        super().__init__(parent)
+        QScrollArea.__init__(self,parent)
+        edmWidget.__init__(self,parent)
         self.pvItem["filePv"] = pvItemClass( "PVname", "filePV")
         self.pvItem["labelPv"] = pvItemClass( "PVlabel", "labelPV")
         self.setLineWidth(2)

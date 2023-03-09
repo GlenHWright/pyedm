@@ -125,12 +125,13 @@ PV Management:
 	All PV types provide a connection callback, value change callback, and PV type conversion.
 	PV value (not type) can be 'unknown', 'int', 'float', 'string', or 'enum'.
 
-	All conversion entries can be done 
+	All conversions can be performed similarly to that provided by EPICS.
 
 Editing:
-	The use of 'editModeEnum is to state what is desired for adjusting a screen or widget.
+	'editModeEnum' gives a desired screen modification operation. When a menu selection is made
+	to modify the screen, but the desired target is ambiguous, editmode gets used.
 	On a  menu selection, the editmode is set, and then a check is made as to whether a
 	widget needs to be selected or whether there is a widget related. Once a widget selection
-	is made, the editMode reverts to None. The continued use of a rubberband, or existence fo
+	is made, the editMode reverts to None. The continued use of a rubberband, or existence of
 	an edit screen, allows the high level widget to revert to 'usual stuff'. This is treated
 	differently with the different edit modes.

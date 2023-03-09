@@ -9,24 +9,27 @@ from enum import Enum
 from PyQt5 import QtGui, QtCore, QtWidgets
 from PyQt5.QtCore import Qt
 from PyQt5.Qt import QApplication, QClipboard
+from PyQt5.QtGui import QKeySequence
 
 from .edmApp import edmApp
 from .edmWidget import edmWidget, buildNewWidget
 from .edmEditWidget import edmShowEdit, edmRubberband, edmEdit
 from .edmScreen import edmScreen
+from .edmObject import edmObject
 from .edmColors import findColorRule
 from .edmField import edmField, edmTag
 from . import edmMouseHandler
 #
-# A support widget for code common to any widget that is a parent to other edm widgets
+# A support class for code common to any widget that is a parent to other edm widgets
 # Any widget that inherits from here will provide mouse support and child edit support
 #
+# This is unfortunately a mixin with an __init__().
 
 editModeEnum = Enum("editmode", "none edit move copy cut paste")
 class edmParentSupport:
     '''edmParentSupport - common interface for container widgets
         manage mouse clicks on behalf of children'''
-    def __init__(self, parent=None, **kwargs):
+    def __init__(self,  parent=None, **kwargs):
         self.edmParent = parent
         self.editModeValue = editModeEnum.none      # edit mode might be able to work 'better' in pyEdm, but need to support saving embedded windows!
         self.selectedWidget = None      # set to the edmWidget entry that's been selected in edit mode; must be a descendant of this widget.
@@ -34,7 +37,6 @@ class edmParentSupport:
         self.focusedWidget = None       # if hovering over a widget, check that we're still over the same widget.
         self.buttonInterest = []
         self.edmEditList = []
-
 
     def edmCleanup(self):
         # To Do: add check for unsaved changes
@@ -89,6 +91,31 @@ class edmParentSupport:
             edmEditWindow.showEditWindow = None
             self.edmEditList.remove(edmEditWindow)
 
+    def edmCutChild(self, child):
+        ''' edmCutChild - remove the widget from any references, and call edmCleanup on the widget.
+        '''
+        # 1. check if editing this widget in order to delete the edit window.
+        # 2. check if the rubberband is referencing this widget in order to close the rubberband.
+        # 3. copy the edmObject values and add to the edmApp list.
+        # 4. call edmCleanup
+        # 5. delete the widget instance.
+        if child in self.edmEditList:
+            self.edmEditList.remove(child)
+            child.showEditWindow.onCancel()
+        try:
+            if self.rubberband.edmWidget == child:
+                self.rubberband.inactive()
+        except AttributeError:
+            pass    # if rubberband not set
+
+        pass
+        edmApp.cutCopyList = [ edmObject().edmCopy(child.objectDesc) ]
+
+        if self.selectedWidget == child:
+            self.selectedWidget = None
+        child.edmCleanup()
+        del child
+
 class windowMenu(QtWidgets.QMenu):
     '''
         windowMenu.
@@ -96,6 +123,8 @@ class windowMenu(QtWidgets.QMenu):
         Displays on the WindowMenu background or on widgets
         that have set the .WA_TransparentForMouseEvents
         attribute.
+        self.position: mouse position when menu requested
+        self.edmWidget: parent widget when menu requested
     '''
     def __init__(self, *args, edmWidget=None, position=None, **kw):
         super().__init__(*args, **kw)
@@ -104,9 +133,9 @@ class windowMenu(QtWidgets.QMenu):
         self.addSection(str(edmWidget))
         self.setMenuAction("Edit", self.selectEdit)
         self.setMenuAction("Move/Resize", self.moveMode)
-        self.setMenuAction("Widget Copy", self.copy)
-        self.setMenuAction("Widget Paste", self.paste)
-        self.setMenuAction("Widget Cut", self.cut)
+        self.setMenuAction("Widget Copy", self.copy, 'Ctrl+c')
+        self.setMenuAction("Widget Paste", self.paste, 'Ctrl+v')
+        self.setMenuAction("Widget Cut", self.cut, 'Ctrl+x')
         self.buildNewWidgetMenu(self.addMenu("New Widget"))
         self.setMenuAction("Edit Screen", self.editScreen)
         self.setMenuAction("Save", self.saveWindow)
@@ -115,7 +144,14 @@ class windowMenu(QtWidgets.QMenu):
         self.setMenuAction("New Window", self.newWindow)
         self.setMenuAction("Reset", self.edmReset)
 
-    def setMenuAction(self, name, perform):
+    def setMenuAction(self, name, perform, shortcut=None):
+        ''' setMenuAction - defines the action for a menu.
+            note that it may be possible to replace this method with
+            and overloaded addAction() call.
+            Right now, the shortcuts don't mean anything or do anything.
+            Design consideration has to be given to the context sensitivity
+            of an operation.
+        '''
         action = self.addAction(name)
         action.triggered.connect(perform)
 
@@ -167,7 +203,17 @@ class windowMenu(QtWidgets.QMenu):
         edmMouseHandler.findActionWidget(self.edmWidget, self.position)
 
     def paste(self):
-        self.edmWidget.editMode(value="paste")
+        ''' paste a new widget into the current parent window
+        '''
+        widgets = edmApp.cutCopyList
+        for widg in widgets:
+            # create a copy of the object list, and then build a new
+            # widget in the current parent.
+            newObj = edmObject(self.edmWidget.edmScreenRef).edmCopy(widg)
+            # TODO: the first object goes to position(x,y), subsequent
+            # objects get difference of original(x,y) - position(x,y)
+            buildNewWidget(self.edmWidget, newObj, position=self.edmWidget.mapToGlobal(self.position))
+
 
     def cut(self):
         self.edmWidget.editMode(value="cut")
