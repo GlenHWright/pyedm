@@ -7,6 +7,10 @@
 # Any class inheriting 'AbstractSymbolClass' must have a field of 'statelist'
 # of the length of the number of supported states.
 #
+# AbstractSymbolClass is a container for widget groups, and the selection
+# criteria determines which group to make available.
+# 
+#
 from .edmApp import edmApp, redisplay
 from .edmWidget import edmWidget
 from .edmParentSupport import edmParentSupport
@@ -16,6 +20,8 @@ from PyQt5.QtWidgets import QWidget, QFrame, QScrollArea
 from PyQt5.QtGui import QPalette, QPainter
 
 class symbolWidget(QWidget,edmWidget, edmParentSupport):
+    ''' symbolWidget - container widget for the different state displays
+    '''
     def __init__(self, parent=None, **kw):
         QWidget.__init__(self, parent, **kw)
         edmWidget.__init__(self, parent, **kw)
@@ -26,8 +32,6 @@ class AbstractSymbolClass(QFrame,edmWidget, edmParentSupport):
         QFrame.__init__(self, parent, **kw)
         edmWidget.__init__(self, parent, **kw)
         edmParentSupport.__init__(self, parent, **kw)
-        #self.setLineWidth(2)
-        #self.setFrameShape(QFrame.Panel|QFrame.Sunken)
         self.parentx = 0
         self.parenty = 0
         self.scr = None
@@ -65,6 +69,17 @@ class AbstractSymbolClass(QFrame,edmWidget, edmParentSupport):
             s_item.widgets.hide()
         self.lastState = None
         self.curState = self.statelist[0]
+
+    def eraseStateObjects(self):
+        ''' eraseStateObjects() = delete all symbolWidget entries and stateObjects entries
+            for this parent widget
+        '''
+        pass
+        for s_item in self.statelist:
+            s_item.widgets.edmCleanup()
+            s_item.widgets = None
+        self.statelist = None
+        
 
     def moveItem(self, item, offx, offy):
         myx = int(item.tags["x"].value)

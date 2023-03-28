@@ -136,6 +136,20 @@ record(mbbo, "$(P)PVselectEmbeddedWindow")
 	field(THST, "THREE!")
 }
 
+record(calcout, "$(P)tenHz")
+{
+	field(SCAN, ".1 second")
+	field(INPA, "$(P)tenHz.VAL")
+	field(CALC, "A+1")
+}
+
+record(calcout, "$(P)fiveHz")
+{
+	field(SCAN, ".2 second")
+	field(INPA, "$(P)fiveHz.VAL")
+	field(CALC, "A+1")
+}
+
 record(stringout, "$(P)MainDisplay:1:edmFile")
 {
 }

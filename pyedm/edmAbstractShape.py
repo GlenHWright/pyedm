@@ -18,6 +18,7 @@ class abstractShape(QFrame, edmWidget):
     lineStyleEnum = Enum("linestyle", "solid dash", start=0)
     edmShapeFields = [
             edmField("lineColor", edmEdit.Color, defaultValue=0),
+            edmField("colorPv", edmEdit.PV, defaultValue=None),
             edmField("lineAlarm", edmEdit.Bool, defaultValue=False),
             edmField("fill",        edmEdit.Bool, defaultValue=False),
             edmField("fillColor", edmEdit.Color, defaultValue=0),
@@ -25,7 +26,7 @@ class abstractShape(QFrame, edmWidget):
             edmField("lineWidth", edmEdit.Int, defaultValue=1),
             edmField("lineStyle", edmEdit.Enum, enumList=lineStyleEnum, defaultValue=0),
             edmField("invisible", edmEdit.Bool, defaultValue=False),
-            edmField("alarmPv", edmEdit.String, defaultValue=None)
+            edmField("alarmPv", edmEdit.PV, defaultValue=None)
             ]
     def __init__(self, parent=None, **kwargs):
         super().__init__(parent, **kwargs)

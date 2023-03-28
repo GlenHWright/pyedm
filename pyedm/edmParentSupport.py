@@ -206,6 +206,7 @@ class windowMenu(QtWidgets.QMenu):
         ''' paste a new widget into the current parent window
         '''
         widgets = edmApp.cutCopyList
+        print(f"paste {widgets}")
         for widg in widgets:
             # create a copy of the object list, and then build a new
             # widget in the current parent.
@@ -227,10 +228,11 @@ class windowMenu(QtWidgets.QMenu):
         namemap["display"] = parentMenu.addMenu("display")
         namemap["monitor"] = parentMenu.addMenu("monitor")
         namemap["control"] = parentMenu.addMenu("control")
+        globalPos = self.edmWidget.mapToGlobal(self.position)
         for clsName,cls in edmApp.edmClasses.items():
             action = namemap[cls.menuGroup[0]].addAction(cls.menuGroup[1])
             action.triggered.connect(
-                    lambda action,clsName=clsName,cls=cls, position=self.position:
+                    lambda action,clsName=clsName,cls=cls, position=globalPos:
                         buildNewWidget(parent=self.edmWidget,source=clsName,widgetClassRef=cls,position=position)
                     )
 

@@ -135,3 +135,14 @@ Editing:
 	is made, the editMode reverts to None. The continued use of a rubberband, or existence of
 	an edit screen, allows the high level widget to revert to 'usual stuff'. This is treated
 	differently with the different edit modes.
+
+How to manage keyboard shortcuts?
+	the original EDM supported and 'edit' state and a 'running' state. pyedm trys to avoid
+	the distinction, but that doesn't appear entirely possible. Selecting widget actions
+	from the background menu creates a partial edit state. Need to make this less ambiguous,
+	but still allow the screen to continue running when editing.
+
+How to edit groups?
+	This needs multiple selection enabled, with a 'group' option added. It also needs to
+	have an 'add to group' or 'remove from group' option, but only if part of a group.
+	Note the BMIT vacuum screen with the large number of layered groups.

@@ -12,7 +12,7 @@ always help:
 build: 
 	$(PYTHON) -m build
 test:
-	twine upload --repository testpypi dist/*
+	python3 -m twine upload --repository testpypi dist/*
 
 deploy:
-	twine upload dist/*
+	python3 -m twine upload dist/*

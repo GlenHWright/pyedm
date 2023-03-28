@@ -8,7 +8,7 @@ long_description="epics-pyedm - Interpreter for EPICS Extensible Display Manager
         - allows saving .edl and .jedl (json-based) files\n\
         - can be loaded as a module for embedded operation\n\
 "
-setup(name="epics-pyedm", version="2.1.0",
+setup(name="epics-pyedm", version="2.3.0",
         description="EPICS EDM PyQt5 display tool",
         long_description=long_description,
         long_description_content_type="text/r-rst",

@@ -33,6 +33,7 @@ from .edmField import edmField
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtWidgets import QWidget, QFrame, QScrollArea
 from PyQt5.QtGui import QPalette, QPainter
+from PyQt5.QtCore import pyqtSignal,pyqtSlot
 
 # Placeholder for widget list.
 class symbolState:
@@ -40,6 +41,10 @@ class symbolState:
         self.stateNo = stateno
 
 class activeDynSymbolClass(AbstractSymbolClass):
+
+    onStartOperation = pyqtSignal()
+    onStopOperation = pyqtSignal()
+
     menuGroup = ["display", "Dynamic Symbol"]
 
     edmEntityFields = [
@@ -74,6 +79,12 @@ class activeDynSymbolClass(AbstractSymbolClass):
 
     def buildFromObject(self, objectDesc, **kw):
         super().buildFromObject(objectDesc, **kw)
+        rebuild = kw.get( "rebuild", False)
+        if rebuild:
+            if hasattr(self, "curState") and self.curState != None:
+                self.curState.widgets.hide()
+            self.eraseStateObjects()
+        
         self.file = objectDesc.getProperty("file", None)
         self.useGate = objectDesc.getProperty("useGate",False)
         self.gateUpValue = objectDesc.getProperty("gateUpValue", 0.0)
@@ -89,9 +100,11 @@ class activeDynSymbolClass(AbstractSymbolClass):
         self.buildStateObjects(self.file)
         self.curState = self.statelist[self.initialIndex]
         self.timerActive = False
+        self.onStartOperation.connect(self.startOperation)
+        self.onStopOperation.connect(self.stopOperation)
         if self.useGate == False:
             self.needGateUp = True
-            self.startOperation()
+            self.onStartOperation.emit()
         else:
             self.needGateUp = False
         redisplay(self)
@@ -102,14 +115,14 @@ class activeDynSymbolClass(AbstractSymbolClass):
             return
         self.needGateUp = (int(value) == self.gateUpValue)
         if self.needGateUp:
-            self.startOperation()
+            self.onStartOperation.emit()
 
     def onGateDown(self, widget, value=None, **kw):
         if self.useGate == False:
             return
         self.needGateDown = (int(value) == self.gateDownValue)
         if self.needGateDown:
-            self.stopOperation()
+            self.onStopOperation.emit()
 
     def startOperation(self):
         if self.timerActive:
@@ -150,7 +163,7 @@ class activeDynSymbolClass(AbstractSymbolClass):
             return
         if self.gateOnMouseOver:
             self.needGateUp = True
-            self.startOperation()
+            self.onStartOperation.emit()
 
     def leaveEvent(self, event):
         if self.useGate == False:

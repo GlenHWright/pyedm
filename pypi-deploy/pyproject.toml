@@ -4,15 +4,15 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "epics-pyedm"
-version = "2.2.2"
+version = "2.2.3"
 authors = [
   { name="Glen Wright", email="Glen.Wright@lightsource.ca" },
 ]
 description = "replacement for EPICS Extensible Display Manager"
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">= 3.7"
 dependencies = [
-	"pyepics",
+	"pyepics > 3",
 	"PyQt5",
 	"numpy",
 	"pyqtgraph"
@@ -26,7 +26,7 @@ classifiers = [
 where = ["src"]
 
 [tool.setuptools.package-data]
-pyedm = ["colors.list"]
+epics_pyedm = ["colors.list"]
 
 [project.urls]
 "Homepage" = "https://github.lightsource.ca/cid/TOOL_edmPython"

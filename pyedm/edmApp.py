@@ -17,7 +17,7 @@
 #
 import os
 import traceback
-from PyQt5.QtWidgets import QStyle, QStyleFactory
+from PyQt5.QtWidgets import QStyle, QStyleFactory   # type: ignore
 import PyQt5.sip as sip
 
 cur_dir = os.path.dirname(os.path.abspath(__file__))
@@ -61,6 +61,7 @@ class edmAppClass(debugClass):
         their own color schemes and macro tables. I'm unsure of the benefit
         this has over just running multiple apps.
     '''
+    global edmApp
     def __init__(self):
         self.debug(setDebug=0)
         self.timer = None
@@ -108,7 +109,7 @@ class edmAppClass(debugClass):
 
     def startTimer(self):
         if self.timer == None:
-            from PyQt5.QtCore import QTimer
+            from PyQt5.QtCore import QTimer # type: ignore
             self.timer = QTimer()
             self.timer.timeout.connect(self.onTimer)
             self.timer.start(100)

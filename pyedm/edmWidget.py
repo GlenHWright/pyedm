@@ -231,6 +231,7 @@ class edmWidget(edmWidgetSupport):
         self.defaultAlignTag = "textAlign"
         self.showEditWindow = None
         # The 4 most common PV's. These can be over-ridden, and are not mandatory
+        # the dictionary key is the name as used in edm screens.
         self.pvItem = {
                 "controlPv" : pvItemClass("controlName", "controlPV", redisplay=True) ,
                 "visPv" : pvItemClass( "visName", "visPV", dataCallback=self.onCheckVisible),
@@ -341,8 +342,8 @@ class edmWidget(edmWidgetSupport):
 
     # C++ EDM often draws borders and such outside the specified widget geometries.
     # items often need some adjustment. Although there was an attempt here to have a
-    # generic resize that worked for all widgets, it works equally bad for all
-    # widgets. It has been removed.
+    # generic border resize that worked for all widgets, it works equally bad for all
+    # widgets. It has been removed, and border calculations are the responsibility of the widget.
     def setObjectGeometry(self):
         '''setObjectGeometry: adapt object geometry to Qt geometry'''
         x = int(self.objectDesc.getProperty("x")*edmApp.rescale)-self.edmParent.parentx
