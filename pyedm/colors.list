@@ -314,19 +314,23 @@ rule 106 activeLed {
  default     : "invisible"
 }
 
-rule107 alarmGlow {
-< 0 : "Disconn/Invalid"
- >=0 && <1   : "Monitor: MAJOR"
- >=1 && <2   : "red-21"
- >=2 && <3   : "Mon: MAJOR/unack"
- >=3 && <4   : "red-23"
- >=4 && <5   : "red-24" 
- >=5 && <6   : "red-23"
- >=6 && <7   : "Mon: MAJOR/unack"
- >=7 && <8   : "red-21"
+rule 107 alarmGlow {
+ < 0 : "Disconn/Invalid"
+ >=0  && <1   : "Monitor: MAJOR"
+ >=1  && <2   : "red-21"
+ >=2  && <3   : "Mon: MAJOR/unack"
+ >=3  && <4   : "red-23"
+ >=4  && <5   : "red-23"
+ >=5  && <6   : "red-23"
+ >=6  && <7   : "red-23"
+ >=7  && <8   : "red-23"
+ >=8  && <9   : "red-24" 
+ >=9  && <10  : "red-23"
+ >=10 && <11  : "Mon: MAJOR/unack"
+ >=11 && <12  : "red-21"
 }
 
-rule108 warnGlow {
+rule 108 warnGlow {
 < 0 : "Disconn/Invalid"
  >=0 && <1   : "Monitor: MINOR"
  >=1 && <2   : "yellow-36"
