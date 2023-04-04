@@ -697,6 +697,8 @@ class edmRubberband(QtWidgets.QRubberBand):
         return True
 
     def mouseMoveEvent(self, event):
+        if event.button() != Qt.LeftButton:
+            return
         if edmApp.debug() : print(f"mouseMove({self} {event} {event.button()}")
         pos = self.parent().mapFromGlobal(event.globalPos())
         pos = pos - self.location

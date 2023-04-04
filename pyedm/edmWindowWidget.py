@@ -40,6 +40,10 @@ class edmWindowWidget(QtWidgets.QWidget, edmWidgetSupport, edmParentSupport):
     def getProperty(self, *args, **kw):
         return self.edmScreenRef.getProperty(*args, **kw)
 
+    def setProperty(self, tag, value):
+        if hasattr(self, "edmScreenRef"):
+            self.edmScreenRef.addTag(tag, value)
+
     def checkProperty(self, *args, **kw):
         return self.edmScreenRef.checkProperty(*args, **kw)
 
@@ -62,8 +66,7 @@ class edmWindowWidget(QtWidgets.QWidget, edmWidgetSupport, edmParentSupport):
             self.macroTable = getattr(myparent, "macroTable", None)
         else:
             self.macroTable = macroTable
-        # To Do: get "x y w h " here
-        #
+
         self.setDisplayProperties()
         self.parentx = 0
         self.parenty = 0
@@ -88,6 +91,12 @@ class edmWindowWidget(QtWidgets.QWidget, edmWidgetSupport, edmParentSupport):
         else:
             self.setWindowTitle("PyEdm - " + self.getProperty("Filename"))
         self.setPalette(pal)
+        x = self.getProperty("x")
+        y = self.getProperty("y")
+        self.move(x,y)
+        w = self.getProperty("w")
+        h = self.getProperty("h")
+        self.resize(w,h)
 
     def getParentScreen(self):
         try:
@@ -108,6 +117,15 @@ class edmWindowWidget(QtWidgets.QWidget, edmWidgetSupport, edmParentSupport):
 
     def mouseMoveEvent(self, event):
         mouseMoveEvent(self, event)
+
+    def resizeEvent(self, event):
+        self.setProperty("w", self.width())
+        self.setProperty("h", self.height())
+
+    def moveEvent(self, event):
+        pos = event.pos()
+        self.setProperty("x", pos.x())
+        self.setProperty("y", pos.y())
 
     def closeEvent(self, event):
         ''' before closing a window, give all
@@ -181,7 +199,7 @@ def generateWidget(screen, parent):
     
 def generateWindow(screen, **kw):
     '''
-    generateWindow(screen, myparent, macroTable, dataPaths)
+    creates an edmWindowWidget, and calls widget.generateWindow(screen, **kw)
     create an 'edmWindowWidget' as a parent window and populate it with widgets from
     the screen description.
     '''
