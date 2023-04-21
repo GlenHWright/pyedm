@@ -187,6 +187,7 @@ def generateWidget(screen, parent):
     '''
     if edmApp.debug(1) : print("generateWidget", screen, parent, getattr(parent,"macroTable", None))
     for obj in screen.objectList:
+        if edmApp.debug() :  print(f"checking object {obj} {obj.tags}")
         otype =  obj.tags["Class"].value
         if edmApp.debug() :  print("checking object type", otype)
         if otype in edmApp.edmClasses:

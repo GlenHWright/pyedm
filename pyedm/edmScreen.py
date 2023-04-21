@@ -162,8 +162,10 @@ class edmScreen(edmObject):
                     target.addTag("parentx", "0")
                     target.addTag("parenty", "0")
                     for desc in value:
-                        obj = edmObject(parent=target)
-                        edmScreen.buildJSONobject(desc, obj)
+                        # When a widget is cut, it may leave a Null entry that gets saved.
+                        if desc != None:
+                            obj = edmObject(parent=target)
+                            edmScreen.buildJSONobject(desc, obj)
                 else:
                     target.addTag(key, value) # adds an explicit array.
             else:

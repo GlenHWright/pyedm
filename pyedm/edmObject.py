@@ -31,6 +31,7 @@ class edmObject(debugClass):
 
     def edmCleanup(self):
         if self.debug(1) : print(f"edmObject Cleanup {self}")
+        self.edmParent.objectList.remove(self)
         self.tags = None
         self.edmFields = None
         self.edmParent = None

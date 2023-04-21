@@ -114,6 +114,8 @@ class edmParentSupport:
         if self.selectedWidget == child:
             self.selectedWidget = None
         child.edmCleanup()
+        child.hide()
+        child.setParent(None)
         del child
 
 class windowMenu(QtWidgets.QMenu):
