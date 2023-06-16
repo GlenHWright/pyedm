@@ -14,7 +14,15 @@ mapPointSize = [ 0,  1,  2,  3,  4,  5,  6,  6,  7,  8,
                  8,  9,  9, 11, 11, 12, 13, 14, 15, 15,
                 16, 17, 18, 19, 19, 20, 21, 22, 23, 24,
                 25, 26, 27, 28, 29, 30, 30, 31, 32, 33 ]
-def GenericGetFont(fontName, rescale=1.0):
+
+# experimental - should be configurable by instance or site
+# to improve font displays
+mapFontName = {
+        "helvetica" : "utopia",
+        "courier"   : "courier-new",
+        }
+
+def GenericGetFont(fontName, rescale=1.0, squeeze=90.0):
     if type(fontName) == str:
         if fontName in edmFontTable:
             return edmFontTable[fontName]
@@ -22,8 +30,8 @@ def GenericGetFont(fontName, rescale=1.0):
         if len(parts) < 4:
             raise ValueError(f"GenericGetFont bad font name {fontName}")
         fn = parts[0]
-        if fn == "courier":
-            fn = "courier-new"
+        if fn in mapFontName:
+            fn = mapFontName[fn]
         weight = QFont.Normal if parts[1] == "medium" else QFont.Bold
         italic = (parts[2] != "r")
         pointsize = float(parts[3])
@@ -47,7 +55,7 @@ def GenericGetFont(fontName, rescale=1.0):
     font.setStyleStrategy(QFont.PreferDevice+QFont.PreferMatch)
     # font.setWordSpacing(-1)
     if pointsize > 11:
-        font.setLetterSpacing(QFont.PercentageSpacing, 90.0)
+        font.setLetterSpacing(QFont.PercentageSpacing, squeeze)
 
     fi = QFontInfo(font)
     print(f"request {fontName}, use {fi.family()} {fi.weight()} {fi.italic()} {fi.pointSize()}")

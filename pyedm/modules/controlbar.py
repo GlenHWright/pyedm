@@ -226,10 +226,13 @@ class activeSliderClass(QFrame, edmWidget):
             lower = lower*exp
             higher = higher*exp
         self.slider.setRange(int(lower), int(higher))
-        if self.controlPV.isValid:
-            value = self.controlPV.value
-            if int(value/self.stepMul) != self.slider.sliderPosition():
-                self.slider.setSliderPosition(int(value/self.stepMul))
+        try:
+            if self.controlPV.isValid:
+                value = self.controlPV.value
+                if int(value/self.stepMul) != self.slider.sliderPosition():
+                    self.slider.setSliderPosition(int(value/self.stepMul))
+        except AttributeError:
+            pass    # self.controlPV may not be set.
 
     def setDisplayLimits(self, *kw, **args):
         ''' data callback for a on-time setting of display limits.

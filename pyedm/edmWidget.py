@@ -220,6 +220,7 @@ class edmWidget(edmWidgetSupport):
         if edmApp.debug() :
             print("edmWidget __init__", self, parent, self.parent(), kw)
             traceback.print_stack()
+            print("... end edmWidget traceback")
         super().__init__(**kw)
         if parent == None:
             self.edmParent = self.parent()
@@ -731,17 +732,17 @@ class edmWidget(edmWidgetSupport):
                     return True
         return False
 
-def buildNewWidget(parent, source, widgetClassRef=None, position=None, startEdit=True):
+def buildNewWidget(parent, source, *, widgetClassRef=None, position, startEdit=True):
     '''
         addWidget(source) add a new widget onto the parent screen.
-        if 'source' is an edmObject, creates a widget
         if 'source' is a str, generate a list of tags and default values
             for an 'edmWidget', and then create the specified class.
         if 'source' looks like a list of edmTag, then create an
             edmObject, assign the tags, then create the widget.
         if 'source' looks like a json input, convert it to tag objects,
             and then create a widget
-        if 'position' (in global units) is defined, modify the x,y to match.
+        if 'source' is an edmObject, creates a widget
+        'position' (in global units) must be defined to set the x,y location.
         if 'startEdit' is true, start an edit window and a rubberband widget for this widget.
     '''
     objParent = getattr(parent, "edmScreenRef", None)
@@ -776,14 +777,13 @@ def buildNewWidget(parent, source, widgetClassRef=None, position=None, startEdit
             raise TypeError(f"buildNewWidget: Unknown object type {otype}")
     widget = widgetClassRef(parent)
     widget.buildFieldList(source)
-    if position != None:
-        pos = widget.edmParent.mapFromGlobal(position)
-        source.addTag("x", pos.x())
-        source.addTag("y", pos.y())
+    pos = widget.edmParent.mapFromGlobal(position)
+    source.addTag("x", pos.x())
+    source.addTag("y", pos.y())
     widget.buildFromObject(source)
     if startEdit:
         # start editor, create rubberband
-        parent.rubberband = edmRubberband(widget=widget)
+        parent.rubberband = edmRubberband(widget=widget,location=pos)
         parent.selectedWidget = widget
         parent.edmShowEdit(parent.selectedWidget)
     widget.show()

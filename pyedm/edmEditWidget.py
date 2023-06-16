@@ -617,11 +617,16 @@ class edmRubberband(QtWidgets.QRubberBand):
     '''
         edmRubberband = manage a widget overlay that allows moving and resizing.
     '''
-    def __init__(self, *args, widget, **kw):
+    def __init__(self, *args, widget, location=None, **kw):
+        '''
+            widget is the Qt widget to be overlaid.
+            location is the current mouse location in the widget's parent
+        '''
         super().__init__(QtWidgets.QRubberBand.Rectangle, widget.edmParent, *args, **kw)
         if widget is None:
             raise ValueError("edmRubberband needs non-None widget")
         self.active(widget)
+        self.location = location
 
     def edmCleanup(self):
         self.edmWidget = None

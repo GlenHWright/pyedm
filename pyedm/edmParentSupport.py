@@ -25,7 +25,7 @@ from . import edmMouseHandler
 #
 # This is unfortunately a mixin with an __init__().
 
-editModeEnum = Enum("editmode", "none edit move copy cut paste")
+editModeEnum = Enum("editmode", "none edit move copy cut paste raise lower")
 class edmParentSupport:
     '''edmParentSupport - common interface for container widgets
         manage mouse clicks on behalf of children'''
@@ -138,6 +138,8 @@ class windowMenu(QtWidgets.QMenu):
         self.setMenuAction("Widget Copy", self.copy, 'Ctrl+c')
         self.setMenuAction("Widget Paste", self.paste, 'Ctrl+v')
         self.setMenuAction("Widget Cut", self.cut, 'Ctrl+x')
+        self.setMenuAction("Widget Raise", self.cmdRaise)
+        self.setMenuAction("Widget Lower", self.cmdLower)
         self.buildNewWidgetMenu(self.addMenu("New Widget"))
         self.setMenuAction("Edit Screen", self.editScreen)
         self.setMenuAction("Save", self.saveWindow)
@@ -220,6 +222,14 @@ class windowMenu(QtWidgets.QMenu):
 
     def cut(self):
         self.edmWidget.editMode(value="cut")
+        edmMouseHandler.findActionWidget(self.edmWidget, self.position)
+
+    def cmdRaise(self):
+        self.edmWidget.editMode(value="raise")
+        edmMouseHandler.findActionWidget(self.edmWidget, self.position)
+
+    def cmdLower(self):
+        self.edmWidget.editMode(value="lower")
         edmMouseHandler.findActionWidget(self.edmWidget, self.position)
 
     def edmReset(self):

@@ -87,9 +87,9 @@ class menuMuxClass(QComboBox,edmWidget):
 
     def buildFromObject(self, objectDesc, **kw):
         super().buildFromObject(objectDesc, **kw)
-        self.initialState = self.objectDesc.getProperty("initialState", 0)
-        self.numItems = self.objectDesc.getProperty("numItems", 0)
-        self.symbolTag = self.objectDesc.getProperty("symbolTag")
+        self.initialState = self.objectDesc.getProperty("initialState")
+        self.numItems = self.objectDesc.getProperty("numItems")
+        self.symbolTag = self.objectDesc.getProperty("symbolTag",arrayCount=1)
         self.valueList = [None]*self.numItems
         self.symbolList = [None]*self.numItems
         for i in range(0, self.numItems):

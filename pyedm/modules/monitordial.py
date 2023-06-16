@@ -13,8 +13,8 @@ from .edmEditWidget import edmEdit
 
 from PyQt5.QtWidgets import QAbstractSlider
 from PyQt5.QtGui import QPainter, QFontMetrics, QPolygon
-from PyQt5 import QtCore, Qt
-from PyQt5.QtCore import QPoint
+from PyQt5 import QtCore
+from PyQt5.QtCore import QPoint, Qt
 
 class activeMeterClass(QAbstractSlider,edmWidget):
     menuGroup = [ "monitor", "Meter" ]
@@ -41,8 +41,8 @@ class activeMeterClass(QAbstractSlider,edmWidget):
             edmField("complexNeedle", edmEdit.Bool, defaultValue=False),
             edmField("needleColor", edmEdit.Color),
             edmField("caseColor", edmEdit.Color),
-            edmField("scaleFontTag", edmEdit.FontInfo),
-            edmField("labelFontTag", edmEdit.FontInfo)
+            edmField("scaleFontTag", edmEdit.FontInfo, defaultValue="helvetica-medium-r-18"),
+            edmField("labelFontTag", edmEdit.FontInfo, defaultValue="helvetica-medium-r-18")
 
             ]
     V3propTable = {
@@ -67,21 +67,23 @@ class activeMeterClass(QAbstractSlider,edmWidget):
         if self.useDbLimits:
             try:
                 mymin, mymax = self.pv.getLimits()
-                return mymin, mymax
-            except: pass
-
-        mymin = self.objectDesc.getProperty("scaleMin", 0.0)
-        mymax = self.objectDesc.getProperty("scaleMax", 0.0)
+            except ValueError:
+                mymin = self.objectDesc.getProperty("scaleMin", 0.0)
+                mymax = self.objectDesc.getProperty("scaleMax", 1.0)
+        else:
+            mymin = self.objectDesc.getProperty("scaleMin", 0.0)
+            mymax = self.objectDesc.getProperty("scaleMax", 1.0)
         if mymin == mymax:
-            return ( 0.0, 1.0)
+            return ( mymin, mymin+1.0)
         return (mymin, mymax)
 
     def getPoints(self, center, angle, *radius):
         c = math.cos(angle)
         s = math.sin(angle)
         rval = []
-        for r in radius:
-            rval.append( QPoint(r*c+center.x(), -r*s+center.y()) )
+        #for r in radius:
+            #rval.append( QPoint(r*c+center.x(), -r*s+center.y()) )
+        rval = [ QPoint(r*c+center.x(), -r*s+center.y()) for r in radius]
         return rval
 
     def checkWidth(self, fm, str, lastWidth):
@@ -90,28 +92,36 @@ class activeMeterClass(QAbstractSlider,edmWidget):
     # Attempt to merge EDM dial code and QT dial code
     def paintEvent(self, event=None):
         painter = QPainter(self)
-        painter.setBackground(self.getProperty("bgColor").getColor())
-        painter.setBackgroundMode( QtCore.Qt.BGMode.OpaqueMode)
+        bgColor = self.getProperty("bgColor").getColor()
         if event == None:
             painter.eraseRect(0, 0, self.width(), self.height())
+        painter.setBackground(bgColor)
+        painter.setBackgroundMode( QtCore.Qt.BGMode.OpaqueMode)
         painter.setPen(self.getProperty("caseColor").getColor())
         painter.drawRect( 0, 0, self.width()-1, self.height()-1)
+        if self.objectDesc.getProperty("useDisplayBg") == False:
+            painter.fillRect( 1, 1, self.width()-2, self.height()-2, bgColor)
         #
         mta = math.radians(self.objectDesc.getProperty("meterAngle") )
-        fm = painter.fontMetrics()
         caseWidth = 5   # number of pixels width of rectangular border around dial
+        # face (X,Y,W,H) - size of display for the graph.
         faceX = caseWidth
         faceY = caseWidth
         faceW = self.width() - 2*caseWidth
         faceH = self.height() - 2*caseWidth
-        if self.objectDesc.checkProperty("label"):
-            faceH = faceH + caseWidth - 4 - fm.ascent()
+        labelType = self.objectDesc.getProperty("labelType")
+        if labelType == self.labelTypeEnum.literal:
             label = self.objectDesc.getProperty("label")
-            painter.setPen( self.objectDesc.getProperty("labelColor").getColor())
-            painter.setFont( self.objectDesc.getProperty("labelFontTag"))
-            painter.drawText( faceX+2, faceY + faceH + fm.ascent()-2, label)
+        else:
+            label = self.pv.name
+        painter.setFont( self.objectDesc.getProperty("labelFontTag"))
+        fm = painter.fontMetrics()
+        faceH = faceH - fm.height() # reduce the height by the font height
+        painter.setPen( self.objectDesc.getProperty("labelColor").getColor())
+        painter.drawText( faceX+2, faceY + faceH + fm.ascent(), label)
 
         painter.setFont(self.scaleFont)
+        fm = painter.fontMetrics()
         scalePrecision = self.objectDesc.getProperty("scalePrecision")
         if scalePrecision > 10 or scalePrecision < 0 :
             scalePrecision = 1
@@ -127,6 +137,8 @@ class activeMeterClass(QAbstractSlider,edmWidget):
         minval, maxval = self.getMinMax()
 
         # moved from an obfuscated QString call to an obfuscated Python string function
+        # set the min and max display values. This is a nested use of precision, there
+        # must be a better way of doing this!
         scaleMinStr = ("%%.%d%s"% (scalePrecision, fmt))%minval
         scaleMaxStr = ("%%.%d%s"% (scalePrecision, fmt))%maxval
 
@@ -138,6 +150,7 @@ class activeMeterClass(QAbstractSlider,edmWidget):
         scaleWidth = self.checkWidth(fm, ("%%.%dg"%scalePrecision)%(minval+incr), scaleWidth)
         scaleWidth = self.checkWidth(fm, ("%%.%dg"%scalePrecision)%(maxval+incr), scaleWidth)
 
+        faceH = faceH - fm.height()
         descent = ( math.pi - mta)/2
         horizNeedlePlusScale = 0.5 * faceW -4 - scaleWidth;
         if descent > 0:
@@ -156,27 +169,32 @@ class activeMeterClass(QAbstractSlider,edmWidget):
             if 1.1*ve < faceH:
                 faceH = int(ve)
         center = QPoint(faceX+faceW//2, faceY+int(needlePlusScale + 4 +
-            fm.ascent() ) )
+            fm.height() ) )
         beginAngle = descent
         endAngle = beginAngle + mta
 
         # draw a needle
-        painter.setPen(self.getProperty("needleColor").getColor())
+        color = self.getProperty("needleColor").getColor()
+        painter.setPen(color)
+        painter.setBrush(Qt.SolidPattern)
+        painter.setBrush(color)
         labelTickSize = min(15.0, fm.ascent()*0.8)
         insideArc = needlePlusScale - labelTickSize
-        line = self.getPoints(center, min( max(beginAngle + mta *(1.0
-            -((self.readV-minval)/(maxval-minval))), beginAngle), endAngle),
-            0.98*insideArc, 0.0)
+        needleAngle = min(
+                        max(beginAngle + mta *(1.0 -(((float(self.readV)-minval))/(maxval-minval))),
+                         beginAngle),
+                        endAngle)
+        line = self.getPoints(center, needleAngle, 0.98*insideArc, 0.0)
         if self.objectDesc.getProperty("complexNeedle", 0) == 0:
             painter.drawLine(line[0], line[1] )
         else:
+            delta1 = self.getPoints(center, needleAngle-.05, 0.6*insideArc)
+            delta2 = self.getPoints(center, needleAngle+.05, 0.6*insideArc)
             poly = QPolygon()
-            poly.append(line[1] + QPoint(-1, 0))
+            poly.append(line[1])
+            poly.append(delta1[0])
             poly.append(line[0])
-            poly.append(line[1] + QPoint( 1, 0))
-            poly.append(line[1] + QPoint( 0, -1))
-            poly.append(line[0])
-            poly.append(line[1] + QPoint( 0, 1))
+            poly.append(delta2[0])
             painter.drawPolygon(poly)
 
         # if showScale not set, don't draw any more
@@ -197,8 +215,6 @@ class activeMeterClass(QAbstractSlider,edmWidget):
                 line = self.getPoints( center, la, insideArc, insideArc+labelTickSize)
                 painter.drawLine( line[0], line[1])
                 # label
-                #labelStr = QString("%1").arg( labelVal, 0, fmt, scalePrecision)
-                #labelStr = qstring_wrapper(labelVal, 0, fmt, scalePrecision)
                 labelStr = ("%%.%d%s"% (scalePrecision, fmt))%labelVal
 
                 labelVal -= incr
