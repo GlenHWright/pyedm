@@ -162,8 +162,8 @@ rule 88 statusLed {
 # 90 is a static color
 
 rule 91  good-bad {
- =0        : "Monitor: MAJOR"
- =1        : "Monitor: NORMAL"
+ <0.5        : "Monitor: MAJOR"
+ >= 0.5      : "Monitor: NORMAL"
 }
 
 rule 92  grey-tab {

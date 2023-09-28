@@ -55,8 +55,8 @@ class activeArcClass(abstractShape):
         w = self.width() - offset
         h = self.height() - offset
         offset = int(offset/2)
-        startAngle = self.objectDesc.getProperty("startAngle")*16
-        totalAngle = self.objectDesc.getProperty("totalAngle")*16 
+        startAngle = int(self.objectDesc.getProperty("startAngle")*16 )
+        totalAngle = int(self.objectDesc.getProperty("totalAngle")*16 )
         if self.fillMode == self.fillModeEnum.none:
             painter.drawArc( offset, offset, w, h, startAngle, totalAngle)
         elif self.fillMode == self.fillModeEnum.chord:

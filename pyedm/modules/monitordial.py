@@ -1,5 +1,4 @@
-from __future__ import division
-# Copyright 2011 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
+# Copyright 2011-2023 Canadian Light Source, Inc. See The file COPYRIGHT in this distribution for further information.
 # This module displays a meter of the value of a PV.
 # Tries to build a display that matches the EDM meter.
 
@@ -14,7 +13,7 @@ from .edmEditWidget import edmEdit
 from PyQt5.QtWidgets import QAbstractSlider
 from PyQt5.QtGui import QPainter, QFontMetrics, QPolygon
 from PyQt5 import QtCore
-from PyQt5.QtCore import QPoint, Qt
+from PyQt5.QtCore import QPoint, QPointF, Qt
 
 class activeMeterClass(QAbstractSlider,edmWidget):
     menuGroup = [ "monitor", "Meter" ]
@@ -81,9 +80,7 @@ class activeMeterClass(QAbstractSlider,edmWidget):
         c = math.cos(angle)
         s = math.sin(angle)
         rval = []
-        #for r in radius:
-            #rval.append( QPoint(r*c+center.x(), -r*s+center.y()) )
-        rval = [ QPoint(r*c+center.x(), -r*s+center.y()) for r in radius]
+        rval = [ QPointF(r*c+center.x(), -r*s+center.y()).toPoint() for r in radius]
         return rval
 
     def checkWidth(self, fm, str, lastWidth):

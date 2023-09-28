@@ -30,8 +30,10 @@ def GenericGetFont(fontName, rescale=1.0, squeeze=90.0):
         if len(parts) < 4:
             raise ValueError(f"GenericGetFont bad font name {fontName}")
         fn = parts[0]
+        '''
         if fn in mapFontName:
             fn = mapFontName[fn]
+            '''
         weight = QFont.Normal if parts[1] == "medium" else QFont.Bold
         italic = (parts[2] != "r")
         pointsize = float(parts[3])
