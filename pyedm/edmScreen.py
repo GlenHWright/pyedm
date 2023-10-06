@@ -116,7 +116,7 @@ class edmScreen(edmObject):
             try:
                 with readInput(fileName, paths) as edlFp:
                     while True:
-                        self.version = edlFp.getNextLine().split(" ")
+                        self.version = edlFp.getNextLine().split()
                         if edlFp.eof:
                             raise EOFError(f"no version line found in {fileName}")
                         if len(self.version) == 3 and self.version[0] in ["3", "4"]:
@@ -335,7 +335,7 @@ class edmScreen(edmObject):
                         return 1
                     obj = edmObject(parent=container)
                     tagname = edlFp.nextline.split(" ", 1)
-                    obj.addTag("Class", tagname[1])
+                    obj.addTag("Class", tagname[1].strip())
                     continue
                 if edlFp.nextline == "beginObjectProperties":
                     inObject = 1
@@ -355,12 +355,14 @@ class edmScreen(edmObject):
                 tagname = tag.split(" ", 1)
                 if len(tagname) == 1:
                     obj.addTag(tagname[0], 1)
-                elif tagname[1][0] == '{':
+                    continue
+                tag1 = tagname[1].strip()
+                if tag1[0] == '{':
                     obj.addTag(tagname[0], edlFp.readBlock())
-                elif tagname[1][0] == '"':
-                    obj.addTag(tagname[0], re.sub(r"\\(.)", r"\1", tagname[1].strip('"') ))
+                elif tag1[0] == '"':
+                    obj.addTag(tagname[0], re.sub(r"\\(.)", r"\1", tag1.strip('"') ))
                 else:
-                    obj.addTag(tagname[0], tagname[1])
+                    obj.addTag(tagname[0], tag1)
         except NextError as ne:
             pass
 
@@ -449,9 +451,12 @@ class readInput:
                 raise NextError("EOF")
             if EOB != None and self.nextline == EOB:
                 raise NextError("End Of Block")
-            if self.nextline[0] != '#':
-                self.nextline = self.nextline.strip("\n")
-                break
+            if self.nextline[0] == '#':
+                continue
+            self.nextline = self.nextline.strip(" \t\n")
+            if self.nextline == "":
+                continue
+            break
 
         if edmApp.debug(2):
             print('got *',self.nextline,'*')

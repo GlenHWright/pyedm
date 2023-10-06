@@ -439,7 +439,7 @@ class xyGraphClass(pgraph.PlotWidget, edmWidget):
 
         # Y2-axis
         if self.showY2Axis:
-            if rebuild:
+            if rebuild and hasattr(self, "y2"):
                 y2 = self.y2
             else:
                 y2 = pgraph.ViewBox()

@@ -38,6 +38,8 @@ class activeMessageButtonClass (activeButtonClass):
         super().buildFromObject(objectDesc, **kw)
         self.pushValue = objectDesc.getProperty("pressValue")
         self.releaseValue = objectDesc.getProperty("releaseValue")
+        if self.releaseValue == "":
+            self.releaseValue = None
 
     # toggle type is determined by "toggle" property
     def getToggleType(self):

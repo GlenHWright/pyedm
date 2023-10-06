@@ -71,8 +71,8 @@ class activeBarClass(abstractShape,edmWidget):
         self.scaleFormat = self.objectDesc.getProperty("scaleFormat", "FFloat")
         self.precision = self.objectDesc.getProperty("precision", 0)
         self.labelTicks = self.objectDesc.getProperty("labelTicks", 10)
-        self.majorTicks = self.objectDesc.getProperty("majorTicks", 2)
-        self.minorTicks = self.objectDesc.getProperty("minorTicks", 2)
+        self.majorTicks = max(self.objectDesc.getProperty("majorTicks", 2), 1)
+        self.minorTicks = max(self.objectDesc.getProperty("minorTicks", 2), 1)
         self.border = self.objectDesc.getProperty("border")
         if self.border:
             self.setFrameShape(QFrame.Box)
@@ -227,7 +227,8 @@ class activeBarClass(abstractShape,edmWidget):
                     labelTicks = ticks
 
                 ma_incr = la_incr / majorTicks
-                mi_incr = ma_incr / minorTicks
+                if minorTicks > 0:
+                    mi_incr = ma_incr / minorTicks
                 sc_incr = (self.rmax-self.rmin)/labelTicks
                     
                 mi_pix = int(tickpix/2)

@@ -667,7 +667,7 @@ class edmRubberband(QtWidgets.QRubberBand):
                 "h" : edmTag("h", int(geom.height()/edmApp.rescale)),
                 } )
             self.edmWidget = None
-            self.edmParent = None
+            self.winParent = None
         self.hide()
     
     def mousePressEvent(self, event):
@@ -702,7 +702,7 @@ class edmRubberband(QtWidgets.QRubberBand):
         return True
 
     def mouseMoveEvent(self, event):
-        if edmApp.debug() : print(f"mouseMove({self} {event} {event.button()}")
+        if edmApp.debug() : print(f"edmRubberband.mouseMove({self} {event} {event.button()}")
         pos = self.parent().mapFromGlobal(event.globalPos())
         pos = pos - self.location
         if self.movemode:

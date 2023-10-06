@@ -1,5 +1,5 @@
 #!/bin/bash
-source ~/.bashrc
+. ~/.bashrc
 epics7
 echo $PATH
 /home/epics/bin/linux-x86_64/procServ 10200 $EPICS_BASE/bin/linux-x86_64/softIoc -m P=gw -d test.db
