@@ -82,7 +82,7 @@ class byteClass(QWidget,edmWidget):
             painter.setBrush( self.chooseColor(idx) )
             w = int(xoffset+width) - int(xoffset)
             h = int(yoffset+height) - int(yoffset)
-            painter.drawRect( xoffset, yoffset, w-1, h-1)
+            painter.drawRect( int(xoffset), int(yoffset), w-1, h-1)
             xoffset += xincr
             yoffset += yincr
 

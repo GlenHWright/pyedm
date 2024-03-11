@@ -46,15 +46,15 @@ class relatedDisplayClass(QPushButton,edmWidget):
             self.transparent = 1
             self.setFlat(1)
                                             
-        numDsps = self.objectDesc.getProperty("numDsps", "0")
+        self.numDsps = self.objectDesc.getProperty("numDsps", "0")
         
-        if numDsps == 0:
+        if self.numDsps == 0:
             print("relatedDisplayClass: no files to display")
             return
-        self.filelist = self.objectDesc.getProperty("displayFileName",arrayCount=numDsps)
-        self.poslist = self.objectDesc.getProperty("setPosition",arrayCount=numDsps)
-        self.menulist = self.objectDesc.getProperty("menuLabel",arrayCount=numDsps)
-        self.symbollist = self.objectDesc.getProperty("symbols",arrayCount=numDsps)
+        self.filelist = self.objectDesc.getProperty("displayFileName",arrayCount=self.numDsps)
+        self.poslist = self.objectDesc.getProperty("setPosition",arrayCount=self.numDsps)
+        self.menulist = self.objectDesc.getProperty("menuLabel",arrayCount=self.numDsps)
+        self.symbollist = self.objectDesc.getProperty("symbols",arrayCount=self.numDsps)
 
         self.filename = [ self.macroExpand(filename) for filename in self.filelist]
         self.generated = [ None for idx in range(0, len(self.filename))]
@@ -76,7 +76,8 @@ class relatedDisplayClass(QPushButton,edmWidget):
         self.generated = None
         self.widgets = None
         self.actions = None
-        self.pressed.disconnect()
+        if self.numDsps > 0:
+            self.pressed.disconnect()
         super().edmCleanup()
 
     @classmethod

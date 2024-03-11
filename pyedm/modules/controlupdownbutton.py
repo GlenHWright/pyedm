@@ -82,7 +82,7 @@ class updownButtonClass(QWidget, edmWidget):
     def timerEvent(self, event):
         if self.waitRepeat == 1:
             self.killTimer(self.timerID)
-            self.timerID = self.startTimer(1000.0*self.rate)
+            self.timerID = self.startTimer(int(1000*self.rate))
         self.setVal = self.setVal + self.incr
         self.controlPV.put(self.setVal)
 
@@ -111,7 +111,7 @@ class updownButtonClass(QWidget, edmWidget):
         self.controlPV.put(self.setVal)
         if self.timerActive == False:
             self.timerActive = True
-            self.timerID = self.startTimer(1000.0)
+            self.timerID = self.startTimer(1000)
 
     def mouseReleaseEvent(self, event):
         if self.timerID == None:

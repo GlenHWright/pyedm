@@ -130,7 +130,7 @@ class activeDynSymbolClass(AbstractSymbolClass):
         self.timerActive = True
         if self.rate <= 0.0:
             self.rate = 1.0
-        self.timerID = self.startTimer(self.rate*1000)
+        self.timerID = self.startTimer(int(self.rate*1000))
     
     def stopOperation(self):
         if not self.timerActive:

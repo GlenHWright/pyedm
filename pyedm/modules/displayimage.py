@@ -14,6 +14,7 @@ from .edmEditWidget import edmEdit
 
 from PyQt5.QtWidgets import QFrame
 from PyQt5.QtGui import QPainter, QImage
+from PyQt5.QtCore import Qt
 
 class activeImageClass(abstractShape):
     menuGroup = ["display", "Image"]
@@ -50,8 +51,13 @@ class activeImageClass(abstractShape):
             if self.image != None:
                 break
 
+        self.baseimage = self.image
         if self.image == None:
             print("file not found", self.filename, "in", edmApp.dataPaths, "last tried:", fn)
+            return
+
+        if edmApp.rescale != 1.0:
+            self.image = self.baseimage.scaled(int(self.baseimage.width()*edmApp.rescale), int(self.baseimage.height()*edmApp.rescale), aspectRatioMode=Qt.KeepAspectRatioByExpanding)
 
     def findFgColor(self):
         return None

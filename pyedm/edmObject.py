@@ -7,6 +7,7 @@ from enum import Enum
 import copy
 
 from PyQt5.QtGui import QFont
+from PyQt5.QtCore import QAbstractItemModel, QModelIndex, Qt
 
 from .edmApp import edmApp, debugClass
 from .edmProperty import converter, toEnum, decode
@@ -17,7 +18,7 @@ from .edmField import edmTag
 #
 # A class that defines a generic EDM object. (A single widget)
 # tags{} - dictionary indexed by tag name - see edmField.edmTag
-class edmObject(debugClass):
+class edmObject(QAbstractItemModel, debugClass):
     ''' edmObject - manages the properties that define an edmWidget
     '''
     def __init__(self, parent=None):
@@ -28,6 +29,15 @@ class edmObject(debugClass):
         self.edmParent = parent
         if parent != None:
             parent.objectList.append(self)
+
+    ### QAbstractItemModel abstract classes
+
+    ### END QAbstractItemModel
+    def index(self): pass
+    def parent(self): pass
+    def rowCount(self): return 0
+    def columnCount(self): return 0
+    def data(self): return None
 
     def edmCleanup(self):
         if self.debug(1) : print(f"edmObject Cleanup {self}")

@@ -96,7 +96,7 @@ class edmWindowWidget(QtWidgets.QWidget, edmWidgetSupport, edmParentSupport):
         self.move(x,y)
         w = self.getProperty("w")
         h = self.getProperty("h")
-        self.resize(w,h)
+        self.resize(int(w*edmApp.rescale),int(h*edmApp.rescale))
 
     def getParentScreen(self):
         try:

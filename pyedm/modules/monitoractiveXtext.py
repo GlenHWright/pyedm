@@ -61,6 +61,7 @@ class activeXTextDspClass_noedit(QLineEdit,edmWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.pvItem["nullPv"] = pvItemClass("nullPVname", "nullPV")
+        self.nullCondition = None
 
     def buildFromObject(self, objectDesc, **kw):
         super().buildFromObject(objectDesc, **kw)

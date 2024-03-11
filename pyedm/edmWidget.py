@@ -203,7 +203,8 @@ class edmWidget(edmWidgetSupport):
         edmField("bgColor", edmEdit.Color, defaultValue=0),
         edmField("bgAlarm", edmEdit.Bool, defaultValue=False),
         edmField("colorPv", edmEdit.PV),
-        edmField("useDisplayBg", edmEdit.Bool, defaultValue=False)
+        edmField("useDisplayBg", edmEdit.Bool, defaultValue=False),
+        edmField("boxAlarm", edmEdit.Bool, defaultValue=False)
         ]
     edmFontFields = [
             edmField("font", edmEdit.FontInfo, defaultValue="helvetica-medium-r-18.0"),
@@ -396,7 +397,11 @@ class edmWidget(edmWidgetSupport):
         #
         # Manage object foreground and background colors
         # This expects that pv connections have already been made
+        # Set the boxAlarm here, which may eventually get used
+        # to disable fgAlarm and bgAlarm coloring
         #
+        if objectDesc.checkProperty("boxAlarm"):
+            self.boxAlarm = objectDesc.getProperty("boxAlarm")
         self.findFgColor()
         self.findBgColor()
  

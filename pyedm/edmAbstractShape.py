@@ -26,6 +26,7 @@ class abstractShape(QFrame, edmWidget):
             edmField("lineWidth", edmEdit.Int, defaultValue=1),
             edmField("lineStyle", edmEdit.Enum, enumList=lineStyleEnum, defaultValue=0),
             edmField("invisible", edmEdit.Bool, defaultValue=False),
+            edmField("boxAlarm", edmEdit.Bool, defaultValue=False),
             edmField("alarmPv", edmEdit.PV, defaultValue=None)
             ]
     def __init__(self, parent=None, **kwargs):
