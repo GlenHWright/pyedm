@@ -409,7 +409,7 @@ class readInput:
         self.filename = fn
         if fn[0] == "/":
             try:
-                self.fp = open(fn, "r")
+                self.fp = open(fn, "r", errors="replace")
                 return
             except FileNotFoundError:
                 pass
@@ -423,7 +423,7 @@ class readInput:
                     if filetotry.startswith(p[0]):
                         filetotry = filetotry.replace(p[0], p[1], 1)
                         break
-                self.fp = open(filetotry, "r")
+                self.fp = open(filetotry, "r", errors='replace')
                 return
             except FileNotFoundError:
                 pass

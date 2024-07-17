@@ -47,6 +47,22 @@ class activeGroupClass(QtWidgets.QWidget, edmParentSupport, edmWidget):
         # this widget could contain something that would like
         # a mouse message
         self.edmParent.buttonInterest.append(self)
+        if edmApp.autosize:
+            self.checkForResize()
+
+    def checkForResize(self):
+        ''' called when a child widget resizes and autosize is true.
+            scans the child widgets, gets their size, and determines
+            the necessary size to display all children widgets.
+        '''
+        mysize = self.geometry()
+        for child in self.children():
+            geom = child.geometry()
+            if geom.x() + geom.width() > mysize.width():
+                mysize.setWidth(geom.x() + geom.width())
+            if geom.y() + geom.height() > mysize.height():
+                mysize.setHeight(geom.y() + geom.height())
+        self.setGeometry(mysize)
 
     def mousePressEvent(self, *args, **kw):
         mousePressEvent(self, *args, **kw)

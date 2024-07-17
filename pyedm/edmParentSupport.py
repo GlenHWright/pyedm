@@ -259,26 +259,6 @@ def showBackgroundMenu(widget, event):
     menu.exec_(event.globalPos())
     menu.edmWidget = None
 
-class edmEditWidgetMenu(QtWidgets.QMenu):
-    '''
-        edmEditWidgetMenu
-        Takes a list of widgets, and displays a list
-        allowing selection of a single entry.
-    '''
-    def __init__(self, *args, edmWidgets=[], **kw):
-        super().__init__(*args, **kw)
-        self.selected = None
-        for widget in edmWidgets:
-            self.setMenuAction(widget.__str__(), lambda flag,w=widget:self.displayWidget(w), widget)
-
-    def setMenuAction(self, name, perform, widget):
-        action = self.addAction(name)
-        action.widget = widget
-        action.triggered.connect(perform)
-
-    def displayWidget(self, widget):
-        self.selected = widget
-
 #####
 ##### Over-write placeholders
 #####

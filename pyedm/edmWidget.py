@@ -21,7 +21,7 @@ from . import edmFont
 from . import edmColors
 from .edmField import edmField, edmTag
 from .edmWidgetSupport import edmWidgetSupport
-from .edmEditWidget import edmEdit, fontAlignEnum, edmRubberband
+from .edmEditWidget import edmEdit, fontAlignEnum, groupMenuEnum, edmRubberband
 from .edmScreen import edmScreen
 
 # assign a color to a palette set
@@ -195,7 +195,8 @@ class edmWidget(edmWidgetSupport):
         edmField("", edmEdit.HList, group= [
             edmField("w", edmEdit.Int, defaultValue=110),
             edmField("h", edmEdit.Int, defaultValue=85)
-            ] )
+            ] ),
+        edmField("Group", edmEdit.Enum, defaultValue=None, enumList=groupMenuEnum)
         ]
     edmColorFields = [
         edmField("fgColor", edmEdit.Color, defaultValue=14),

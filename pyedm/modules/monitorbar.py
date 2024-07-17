@@ -94,6 +94,9 @@ class activeBarClass(abstractShape,edmWidget):
             else:
                 self.fmt = f"%.{self.precision}f"
 
+        if not self.objectDesc.checkProperty("origin"):
+            self.origin = min(self.rmin, self.rmax)
+
     def findFgColor(self):
         edmWidget.findFgColor( self)
         self.indicatorColorInfo = self.findColor( "indicatorColor", (), alarmPV="indicatorPV", alarmName="indicatorAlarm")
@@ -262,8 +265,6 @@ class activeBarClass(abstractShape,edmWidget):
         if value == None:
                 return
 
-        if self.origin == None:
-            self.origin = self.rmin
         value = min(self.rmax, max(self.rmin, value))
 
         if self.orientation == self.orientationEnum.vertical:

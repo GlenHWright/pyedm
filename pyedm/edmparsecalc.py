@@ -35,8 +35,9 @@ class Postfix:
             if symbol in operators:
                 return operators[symbol]
             return None
-        if symbol in operands:
-                return operands[symbol]
+        upperSymbol = symbol.upper()
+        if upperSymbol in operands:
+                return operands[upperSymbol]
         try:
             val = float(symbol)
             return operands["0"]

@@ -146,7 +146,7 @@ class channel:
                 return []
 
         if edmApp.debug():
-            print("convert enums?", self.enums, self.enum_strs)
+            print("convert enums?", self.enums, getattr(self, "enum_strs", []))
         if len(self.enums) > 0 and type(self.enums[0]) == bytes:
             self.enums = [ str(en, "utf-8") for en in self.enums ]
         return self.enums

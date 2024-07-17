@@ -68,7 +68,7 @@ class activeXTextClass(QLabel,edmWidget):
         autoSize = self.objectDesc.getProperty("autoSize") 
         lineWidth = self.objectDesc.getProperty("lineWidth") 
         # Find new box size.
-        if autoSize:
+        if autoSize or edmApp.autosize:
             maxwidth = -1
             for word in value:
                 maxwidth = max(maxwidth, fm.width(word))

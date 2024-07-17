@@ -24,6 +24,7 @@ from .edmColors import edmColor
 
 
 fontAlignEnum = Enum("align", "left center right", start=0)
+groupMenuEnum = Enum("group", [ "none" ], start=0)
 
 class ColorWindow(QtWidgets.QWidget):
     '''
