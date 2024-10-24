@@ -35,8 +35,8 @@ class shellCmdClass(QPushButton,edmWidget):
     menuGroup = [ "control", "Shell Command" ]
     edmEntityFields = [
             edmField("numCmds", edmEdit.Int, hidden=True),
-            edmField("command", edmEdit.String, array=True),
-            edmField("commandLabel", edmEdit.String, array=True),
+            edmField("command", edmEdit.TextBox, array=True),
+            edmField("commandLabel", edmEdit.TextBox, array=True),
             edmField("buttonLabel", edmEdit.String),
             edmField("invisible", edmEdit.Bool, defaultValue=False)
             ] + edmWidget.edmFontFields

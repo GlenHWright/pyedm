@@ -206,7 +206,7 @@ class activePipClass(QScrollArea,edmWidget):
             return
         self.scrollable.macroTable = mt
         generateWidget(self.scr, self.scrollable)
-        self.scrollable.edmScreen = self.scr
+        self.scrollable.edmScreenRef = self.scr
         w,h = int(self.scr.tags["w"].value), int(self.scr.tags["h"].value)
         self.scrollable.setGeometry(0,0, int(w*edmApp.rescale), int(h*edmApp.rescale) )
         self.setWidget(self.scrollable)

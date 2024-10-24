@@ -190,7 +190,7 @@ class edmWidget(edmWidgetSupport):
         edmField("", edmEdit.HList, group= [
             edmField("x", edmEdit.Int, defaultValue=20),
             edmField("y", edmEdit.Int, defaultValue=60),
-            edmField("z", edmEdit.Int, defaultValue=0, hidden=True)
+            edmField("z", edmEdit.Int, defaultValue=0)
             ] ),
         edmField("", edmEdit.HList, group= [
             edmField("w", edmEdit.Int, defaultValue=110),
@@ -213,8 +213,8 @@ class edmWidget(edmWidgetSupport):
         ]
     edmVisFields = [
             edmField("visPv", edmEdit.PV, defaultValue=None),
-            edmField("visMin", edmEdit.Int, defaultValue=0),
-            edmField("visMax", edmEdit.Int, defaultValue=1),
+            edmField("visMin", edmEdit.Real, defaultValue=0),
+            edmField("visMax", edmEdit.Real, defaultValue=1),
             edmField("visInvert", edmEdit.Bool, defaultValue=False)
         ]
 
@@ -620,7 +620,10 @@ class edmWidget(edmWidgetSupport):
     def onCheckVisible(self,  widget, value=None, **kw):
         self.lastVisible = self.visible
         try:
-            value = float(value)
+            if value == '':     # this happens if visPV is disconnected.
+                value = 0.0
+            else:
+                value = float(value)
             self.visible = (value >= self.visMin and value < self.visMax)
             if self.visInvert : self.visible = not self.visible
         except:
